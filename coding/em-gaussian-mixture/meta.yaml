@@ -1,0 +1,18 @@
+title: "EM for a Gaussian Mixture: Derive and Implement"
+title_zh: "高斯混合模型的 EM 算法：推导与实现"
+summary: >-
+  Derive the E-step and M-step of EM for a Gaussian mixture from Jensen's inequality, implement a
+  numerically stable fit_gmm in NumPy, and connect it to k-means in the small-variance limit and to
+  BIC-based model selection.
+summary_zh: "从 Jensen 不等式推导高斯混合模型 EM 算法的 E 步和 M 步，用 NumPy 实现数值稳定的 fit_gmm，并说明它在方差趋于零时退化为 k-means、可以用 BIC 选择 K。"
+category: coding
+kind: "Coding · derivation and ML implementation (NumPy)"
+kind_zh: "编程 · 推导与机器学习实现（NumPy）"
+roles: [RS, RE, MLE]
+topics: [expectation-maximisation, gaussian-mixture, log-sum-exp, jensen-inequality, k-means, bic]
+difficulty: hard
+frequency: low
+format: "3 parts / 45–60 min"
+format_zh: "3 个部分 / 45–60 分钟"
+stage: [skills, final]
+order: 1

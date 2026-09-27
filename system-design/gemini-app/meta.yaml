@@ -1,0 +1,18 @@
+title: "Design the Gemini App"
+title_zh: "设计 Gemini App"
+summary: >-
+  Design the backend of a multi-turn, multimodal chat assistant that streams token by token at scale,
+  covering context assembly and prefix caching, resumable streaming, safety filtering of a response in
+  flight, model routing under overload, and per-user quotas.
+summary_zh: "设计一个支持多轮、多模态对话并按规模逐 token 流式输出的聊天助手后端，涵盖上下文组装与前缀缓存、可续传的流式传输、对流式回复做安全过滤、过载下的模型路由，以及按用户配额控制。"
+category: system-design
+kind: System design
+kind_zh: 系统设计
+roles: [SWE, MLE, Applied AI]
+topics: [streaming, conversation-storage, context-management, model-routing, safety-filtering, multimodal-uploads, capacity-planning]
+difficulty: hard
+frequency: high
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills, final]
+order: 1

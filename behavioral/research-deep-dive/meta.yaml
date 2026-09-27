@@ -1,0 +1,18 @@
+title: "Research Deep Dive: Paper Discussion and Research Talk"
+title_zh: "研究深挖：论文讨论与研究报告"
+summary: >-
+  A 45-minute paper or project deep dive that goes as deep as the interviewer can take it, or a 45-minute
+  research talk with questions, in which researchers from the team probe the motivation, method, experiments,
+  limitations and your individual contribution behind a piece of your own research, then press on a claimed
+  confound or ask you to critique a published paper, and ask what you would work on next.
+summary_zh: "一场约 45 分钟、面试官会尽力追问到底的论文或项目深挖，或是一场约 45 分钟、附带提问环节的研究报告：来自目标团队的研究者会就你研究工作背后的动机、方法、实验、局限与你的个人贡献逐一深挖，随后就一个疑似混淆因素向你施压，或要求你评判一篇已发表的论文，并问你接下来打算研究什么。"
+category: behavioral
+kind: "Behavioral · research discussion"
+kind_zh: "行为面 · 研究讨论"
+roles: [RS, RE, Intern]
+topics: [paper-deep-dive, research-talk, experimental-design, ablations, limitations, research-taste]
+frequency: very-high
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills, final]
+order: 2

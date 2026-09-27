@@ -1,0 +1,18 @@
+title: "Bit-Packing Encoders and Decoders"
+title_zh: "位打包编码器与解码器"
+summary: >-
+  Pack integers into fixed-width bit fields with a derived byte-length formula, encode signed
+  integers as zigzag-mapped LEB128 varints, and build a frame-of-reference block codec that is
+  chosen over plain varints exactly when it encodes a given block smaller.
+summary_zh: "把整数打包进定宽比特字段并推导其精确的字节数公式，用 zigzag 映射的 LEB128 变长整数编码有符号整数，再构建一种逐块的 frame-of-reference 编码，只有当它比逐值变长整数编码更省字节时才选用它。"
+category: coding
+kind: "Coding · bit manipulation and size formulas"
+kind_zh: "编程 · 位运算与编码长度公式"
+roles: [SWE, RE, Intern]
+topics: [bit-manipulation, varint, zigzag-encoding, frame-of-reference, serialisation]
+difficulty: medium
+frequency: medium
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills, final]
+order: 5

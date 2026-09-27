@@ -1,0 +1,15 @@
+title: "Code Comprehension: What Does This Code Compute?"
+title_zh: "代码理解：这段代码在计算什么？"
+summary: "Eight short, un-run Python snippets from ML code — a hand-written 1-D convolution and its padded and dilated variants, log-sum-exp, Welford's streaming variance, causal attention masking, reservoir sampling and a pairwise distance matrix — each read aloud, explained precisely, and then checked against a formula, a library implementation or an independent brute force."
+summary_zh: "八段不运行、直接口头解读的机器学习代码片段——手写的一维卷积及其带填充、带膨胀的变体、log-sum-exp、Welford 流式方差、因果注意力掩码、水塘抽样与成对距离矩阵——逐一给出精确解释，并用公式、库实现或独立的暴力法验证。"
+category: quiz
+kind: "Quiz · reading code aloud"
+kind_zh: "知识问答 · 口述读代码"
+roles: [RS, RE, Intern, SWE]
+topics: [code-reading, convolution, padding, numerical-stability, streaming-statistics, attention-masks, reservoir-sampling]
+difficulty: medium
+frequency: low
+format: "8 snippets / 30–45 min"
+format_zh: "8 段代码 / 30–45 分钟"
+stage: [skills]
+order: 2

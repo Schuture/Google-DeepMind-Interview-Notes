@@ -1,0 +1,19 @@
+title: "Design a Retrieval-Augmented Agent over Company Documents"
+title_zh: "设计基于企业文档的检索增强智能体"
+summary: >-
+  Designs a multi-tenant retrieval-augmented agent over company documents: a chunked, product-quantised
+  vector index sized for 2.2 billion chunks, ACL pre-filtering that a post-filtered top-k cannot substitute
+  for, hybrid BM25-and-dense retrieval fused by reciprocal rank fusion and re-ranked by a cross-encoder, a
+  budgeted multi-step tool loop, and layered defences against prompt injection and data exfiltration.
+summary_zh: "为面向企业文档的多租户检索增强智能体做设计：为 22 亿个分块规模的乘积量化向量索引估算容量，说明按权限预过滤为何是后过滤 top-k 无法替代的方案，用倒数排名融合合并 BM25 与稠密检索结果并交给交叉编码器重排，为多步骤工具调用设定预算，并针对提示注入与数据外泄部署分层防御。"
+category: system-design
+kind: "ML system design"
+kind_zh: "机器学习系统设计"
+roles: [Applied AI, MLE, SWE]
+topics: [rag, vector-index, hybrid-search, access-control, agents, prompt-injection, evaluation]
+difficulty: hard
+frequency: medium
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills, final]
+order: 2

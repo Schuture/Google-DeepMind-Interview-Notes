@@ -1,0 +1,19 @@
+title: "Painting a Fence with the Fewest Strokes"
+title_zh: "用最少的笔画刷完栅栏"
+summary: >-
+  Paint every cell of a row of unit-width planks with as few strokes as possible: horizontal strokes
+  alone reduce to a closed-form sum that a single plank's height change updates in O(1), and allowing
+  vertical strokes too turns the problem into a divide-and-conquer recursion on the range minimum,
+  proved optimal by an exchange argument.
+summary_zh: "用最少的笔画刷完一排等宽木板的每一个格子：先只用水平笔画，化简成一个封闭形式的求和公式，并支持对单块木板高度变化的 O(1) 更新；再同时允许水平和竖直笔画，把问题变成一个基于区间最小值的分治递归，并用交换论证证明其最优性。"
+category: coding
+kind: "Coding · greedy and divide and conquer"
+kind_zh: "编程 · 贪心与分治"
+roles: [SWE, MLE, Intern]
+topics: [greedy, divide-and-conquer, arrays, range-minimum, proof-of-optimality]
+difficulty: medium
+frequency: medium
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills, final]
+order: 4

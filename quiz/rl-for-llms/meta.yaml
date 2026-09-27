@@ -1,0 +1,15 @@
+title: "RL for Language Models: Policy Gradients, PPO, GRPO and DPO"
+title_zh: "大模型强化学习：策略梯度、PPO、GRPO 与 DPO"
+summary: "Explain and derive the objectives behind post-training a language model with reinforcement learning: the policy-gradient identity and variance-reducing baselines, PPO's clipped surrogate and generalised advantage estimation, GRPO's group-relative advantage and its two normalisation biases, low-variance KL estimators, the closed-form derivation behind DPO, how reward hacking shows up and is mitigated, and the on-policy/off-policy distinction together with the exponential variance cost of importance-sampling corrections across a response."
+summary_zh: "解释并推导大模型强化学习后训练所用的各类目标函数：策略梯度恒等式与降方差的基线、PPO 的裁剪代理目标与广义优势估计、GRPO 的组内相对优势及其两个归一化偏差、低方差的 KL 估计量、DPO 背后的闭式推导、reward hacking 的表现与缓解办法，以及同策略与异策略之分，连同重要性采样校正在整条响应上的指数级方差代价。"
+category: quiz
+kind: "Quiz · oral, with derivations"
+kind_zh: "知识问答 · 口述，含推导"
+roles: [RS, RE, MLE]
+topics: [policy-gradient, ppo, grpo, dpo, kl-regularisation, rlhf, reward-hacking, off-policy, importance-sampling]
+difficulty: hard
+frequency: medium
+format: "9 questions / 45–60 min"
+format_zh: "9 个问题 / 45–60 分钟"
+stage: [skills]
+order: 1

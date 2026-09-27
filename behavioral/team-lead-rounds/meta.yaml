@@ -1,0 +1,20 @@
+title: "Team-Lead and Hiring-Manager Interviews: Experience, Research Taste and Fit"
+title_zh: "团队负责人与用人经理面试：经历、研究品味与匹配度"
+summary: >-
+  One or two 45-minute conversations, each with a team lead or with the hiring manager of the specific team,
+  plus future teammates, that go deep on your own experience and how you run an ML experiment, probe your
+  research taste and what you would work on here, check your working style on a research team, can include
+  open-ended questions specific to the team's domain — from the state of today's systems to a product's
+  business case — and close on fit, ramp-up and your own questions — after which the team holds its own
+  debrief on whether it wants you and at what scope.
+summary_zh: "与一位团队负责人或者该团队的用人经理（有时是两位）及未来同事进行的一到两场 45 分钟对话，深入你自己的经历、你设计与解读机器学习实验的方式，考察你的研究品味与你想在这里研究什么，检验你在研究团队里的工作方式，可能包含针对这个团队具体领域的开放式问题——从对现有系统的看法到一个产品的商业案例——最后聊匹配度、上手节奏与你自己的问题——结束后，团队会自己开会决定是否要你、以及以多大的范围要你。"
+category: behavioral
+kind: Behavioral
+kind_zh: 行为面
+roles: [RS, RE, SWE, MLE]
+topics: [research-taste, ml-experimentation, ramp-up, team-fit, open-ended-problems]
+frequency: high
+format: "45 min"
+format_zh: "45 分钟"
+stage: [hm-screen, final, team-match]
+order: 1

@@ -1,0 +1,18 @@
+title: "Unit Conversions as a Weighted Graph"
+title_zh: "把单位换算建成带权图"
+summary: >-
+  Model unit-conversion facts as a weighted graph to answer conversion queries, detect the first fact
+  that contradicts the ones before it, and then support an online, interleaved stream of facts and
+  queries with a weighted union-find in near-constant amortised time.
+summary_zh: "把单位换算的事实建模成一张带权图，据此回答换算查询、找出第一条与之前事实相矛盾的事实，再用带权并查集以近乎常数的均摊时间，支持在线交替进行的事实与查询序列。"
+category: coding
+kind: "Coding · graph construction and traversal"
+kind_zh: "编程 · 建图与图遍历"
+roles: [SWE, MLE, RE, Intern]
+topics: [graph, dfs, bfs, weighted-union-find, consistency-check, floating-point]
+difficulty: medium
+frequency: medium
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills, final]
+order: 3

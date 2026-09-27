@@ -1,0 +1,15 @@
+title: "Maths Quiz: Probability, Statistics and Linear Algebra"
+title_zh: "数学问答：概率、统计与线性代数"
+summary: "Twelve rapid derivations spanning probability, statistics and linear algebra: Bayes' theorem on urns and a diagnostic test, waiting times for coin patterns, order statistics of uniform draws, the bias of the Gaussian MLE variance, ridge and lasso as MAP estimates, KL divergence with mode-covering versus mode-seeking fits, the sample size for a confidence interval, SVD versus eigendecomposition and PCA, positive semidefiniteness and convexity, matrix-calculus gradients, and how conditioning governs gradient-descent convergence, each checked numerically."
+summary_zh: "十二道快问快答，贯穿概率、统计与线性代数：罐子与诊断测试中的贝叶斯定理、硬币图案的等待时间、均匀分布的顺序统计量、高斯极大似然方差估计的偏差、作为 MAP 估计的岭回归与套索回归、KL 散度及其“覆盖众数”与“寻找众数”的拟合、置信区间所需的样本量、奇异值分解与特征分解及主成分分析、半正定性与凸性、矩阵微积分梯度，以及条件数如何决定梯度下降的收敛速度，每一处都配有数值验证。"
+category: quiz
+kind: "Quiz · oral, with derivations"
+kind_zh: "知识问答 · 口述，含推导"
+roles: [RS, RE, MLE, Intern]
+topics: [bayes-theorem, expectation, markov-chains, maximum-likelihood, map-estimation, kl-divergence, svd, matrix-calculus, conditioning]
+difficulty: medium
+frequency: medium
+format: "12 questions / 45–60 min"
+format_zh: "12 个问题 / 45–60 分钟"
+stage: [skills]
+order: 2

@@ -1,0 +1,18 @@
+title: "Python Generators, Unit Tests and Weighted Sampling"
+title_zh: "Python 生成器、单元测试与加权采样"
+summary: >-
+  Write a lazy generator over a list with several corner cases and a full unittest suite for it, then a
+  weighted sampler built from prefix sums and binary search, and finally Vose's alias method for
+  O(1)-per-draw sampling, testing randomness with a stub RNG and a chi-square goodness-of-fit check.
+summary_zh: "先写一个覆盖多种边界情况的惰性生成器并配上完整的 unittest 测试，再用前缀和加二分查找实现加权采样器，最后用 Vose 的 alias method 做到每次抽样 O(1)，并借助桩（stub）随机数生成器和卡方拟合优度检验来测试随机性。"
+category: coding
+kind: "Coding · Python generators, testing and sampling"
+kind_zh: "编程 · Python 生成器、测试与随机采样"
+roles: [MLE, SWE, RE, Intern]
+topics: [generators, unit-testing, weighted-sampling, prefix-sums, binary-search, alias-method, chi-square-test]
+difficulty: medium
+frequency: medium
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills]
+order: 1

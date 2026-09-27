@@ -1,0 +1,19 @@
+title: "Binary Search on Bitonic Arrays and Monotone Functions"
+title_zh: "双调数组与单调函数上的二分查找"
+summary: >-
+  Binary-search the peak of a bitonic array in O(log n) and invert a strictly increasing integer function
+  by exponential (galloping) search with no assumed bound on the answer; then handle plateaus with an
+  adversary lower bound and derive the evaluation count and exact floating-point termination for bisecting
+  a continuous monotone function.
+summary_zh: "对双调数组的峰值做 O(log n) 二分查找，用倍增（指数）搜索对单调整数函数求逆，且不假设答案范围有界；再用对抗论证处理带平台的双调数组下界，并为连续单调函数的二分求根推导求值次数上界与精确的浮点终止条件。"
+category: coding
+kind: "Coding · binary search"
+kind_zh: "编程 · 二分查找"
+roles: [RE, RS, SWE, MLE]
+topics: [binary-search, bitonic-array, exponential-search, monotone-functions, lower-bounds, bisection]
+difficulty: medium
+frequency: low
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills]
+order: 3

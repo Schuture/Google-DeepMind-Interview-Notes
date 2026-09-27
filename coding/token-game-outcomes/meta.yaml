@@ -1,0 +1,15 @@
+title: "Winning Positions in a Token-Moving Game"
+title_zh: "移动棋子游戏中的必胜态"
+summary: "Reverse-topological minimax finds win/loss outcomes on a DAG, retrograde BFS extends it to graphs with cycles and draws, and Sprague-Grundy numbers decide a game played with several tokens at once."
+summary_zh: "在 DAG 上用逆拓扑序的极小极大计算胜负态，用逆向 BFS（retrograde analysis）把它推广到含环、可能出现平局的图，再用 Sprague-Grundy 数判定多枚棋子同时博弈的胜负。"
+category: coding
+kind: "Coding · game search on a graph, BFS/DFS"
+kind_zh: "编程 · 图上的博弈搜索，BFS/DFS"
+roles: [SWE, RE, MLE, Intern]
+topics: [game-theory, dfs, retrograde-bfs, topological-order, sprague-grundy, graphs]
+difficulty: hard
+frequency: high
+format: "3 parts / 45–60 min"
+format_zh: "3 个部分 / 45–60 分钟"
+stage: [skills, final]
+order: 2

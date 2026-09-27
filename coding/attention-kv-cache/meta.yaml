@@ -1,0 +1,18 @@
+title: "Attention with a KV Cache and an Online Softmax"
+title_zh: "带 KV cache 与在线 softmax 的注意力"
+summary: >-
+  Implement causal multi-head attention in NumPy, an incremental KV-cache decoder that
+  reproduces it exactly row by row, and a blockwise attention routine with an online softmax
+  that never materialises the full score matrix, in the style of FlashAttention.
+summary_zh: "用 NumPy 实现带因果掩码的多头注意力、一个能逐行精确复现其结果的增量式 KV cache 解码器，以及一个像 FlashAttention 那样用在线 softmax 分块计算、从不构造完整得分矩阵的分块注意力。"
+category: coding
+kind: "Coding · ML implementation (NumPy)"
+kind_zh: "编程 · 机器学习实现（NumPy）"
+roles: [RS, RE, MLE]
+topics: [attention, kv-cache, online-softmax, flash-attention, grouped-query-attention, numerical-stability]
+difficulty: hard
+frequency: high
+format: "3 parts / 45–60 min"
+format_zh: "3 个部分 / 45–60 分钟"
+stage: [skills, final]
+order: 3

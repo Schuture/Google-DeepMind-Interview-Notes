@@ -1,0 +1,19 @@
+title: "Most Frequent Events in a Stream"
+title_zh: "事件流中出现最频繁的事件"
+summary: >-
+  Find the most frequent message and its timestamps in a batch of events, then keep answering the
+  same question after every arrival into a bounded sliding window without ever rescanning it, then
+  track approximate heavy hitters over an unbounded stream with the Space-Saving algorithm and a
+  fixed number of counters.
+summary_zh: "在一批带时间戳的事件中找出出现最频繁的消息及其时间戳；让同一个问题在事件不断进入一个大小固定的滑动窗口时，每次到达后都无需重新扫描整个窗口就能给出答案；最后在无界的事件流上，只用固定数量的计数器，通过 Space-Saving 算法追踪近似的高频事件（heavy hitters）。"
+category: coding
+kind: "Coding · hash maps, sliding windows, streaming"
+kind_zh: "编程 · 哈希表、滑动窗口、流式算法"
+roles: [SWE, MLE, Applied AI, Intern]
+topics: [hash-map, sliding-window, frequency-counting, streaming, space-saving, heavy-hitters]
+difficulty: medium
+frequency: high
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills, final]
+order: 1

@@ -1,0 +1,19 @@
+title: "Design an Evaluation System for an LLM Assistant"
+title_zh: "为大模型助手设计评测系统"
+summary: >-
+  A weekly release gate for a candidate model across 12 task domains: golden-set side-by-side evaluation
+  with a human-calibrated autorater and position-bias cancellation, Bradley–Terry ranking with bootstrap
+  confidence intervals, a Holm-adjusted non-inferiority gate across domains, and synthetic prompts, rubric
+  grading and contamination screening for domains with no labelled data.
+summary_zh: "面向候选模型的每周发布关卡，覆盖 12 个任务领域：基于黄金集的并排评测，搭配经人工校准并消除位置偏差的自动评分器；用 Bradley–Terry 排名与自助法置信区间聚合多模型比较；跨领域采用 Holm 校正的非劣效性关卡；并为没有标注数据的领域提供合成提示、评分细则打分与污染检测。"
+category: system-design
+kind: "ML system design"
+kind_zh: "机器学习系统设计"
+roles: [RE, RS, MLE, Applied AI]
+topics: [evaluation, autoraters, side-by-side, bradley-terry, statistical-power, contamination, release-gating]
+difficulty: hard
+frequency: high
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills, final]
+order: 2

@@ -1,0 +1,19 @@
+title: "k-d Tree: Nearest Neighbours and Range Queries"
+title_zh: "k-d 树：最近邻与范围查询"
+summary: >-
+  Build a balanced k-d tree over points in R^d with an explicit median-split rule and a derived
+  height bound, search it for the nearest neighbour and the k nearest neighbours with
+  branch-and-bound pruning whose interaction with tied distances is derived precisely, and count
+  points inside an axis-aligned box in sublinear time using per-node subtree sizes.
+summary_zh: "用显式的中位数切分规则构建平衡 k-d 树，并推导其高度上界；用分支限界搜索求最近邻与 k 近邻，并精确推导剪枝条件与距离相同时的平局规则如何相互作用；再借助每个节点保存的子树大小，以亚线性时间统计落在一个轴对齐矩形内的点数。"
+category: coding
+kind: "Coding · trees and spatial search"
+kind_zh: "编程 · 树与空间搜索"
+roles: [RS, RE, SWE, MLE]
+topics: [kd-tree, nearest-neighbour, pruning, heap, range-search, curse-of-dimensionality]
+difficulty: hard
+frequency: medium
+format: "3 parts / 45–60 min"
+format_zh: "3 个部分 / 45–60 分钟"
+stage: [skills, final]
+order: 7

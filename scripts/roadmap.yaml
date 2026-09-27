@@ -1,0 +1,222 @@
+# Study tracks. scripts/build_index.py turns this file into ROADMAP.md and ROADMAP.zh.md.
+# A track has either curated `stages` (ordered lists of problem folders) or `auto_roles`
+# (every problem tagged with one of those roles, highest priority first).
+
+title: Study roadmap
+title_zh: 学习路线
+intro: >-
+  Five study orders over the same pages, one per track described in the [hiring process guide](PROCESS.md).
+  Pick the track that matches the role you are interviewing for and work down it. ★ shows how often a question
+  comes up, from ★★★★★ (again and again) to ★☆☆☆☆ (rarely).
+intro_zh: >-
+  同一批页面的五种学习顺序，分别对应[招聘与面试流程](PROCESS.zh.md)里描述的几条路线。选和你投递岗位对应的路线，从上往下做。
+  ★ 表示题目出现的频率，从 ★★★★★（反复出现）到 ★☆☆☆☆（少见）。
+
+tracks:
+  - id: research
+    title: Research (RS / RE)
+    title_zh: 研究方向（RS / RE）
+    intro: >-
+      Research scientists and research engineers: a recruiter or team-lead call, skills interviews that mix coding,
+      an oral ML-knowledge round and ML coding or design, then final interviews with team leads, a research talk or
+      paper discussion and behavioural rounds.
+    intro_zh: 研究科学家和研究工程师：先是 recruiter 或团队负责人的电话，然后是技能面（编程、口述的机器学习知识问答、机器学习编程或设计），最后是与团队负责人的终面、研究报告或论文讨论，以及行为面。
+    stages:
+      - name: 1 · Before the first call
+        name_zh: 1 · 第一通电话之前
+        note: Motivation comes up in almost every round, and the research conversation decides whether a team wants you. Both take longer to prepare than code, so start them first.
+        note_zh: 动机几乎每一轮都会被问到，而研究深挖决定团队要不要你。这两件事比代码更花时间准备，所以最先开始。
+        items:
+          - behavioral/recruiter-screen
+          - behavioral/research-deep-dive
+      - name: 2 · The ML-knowledge round
+        name_zh: 2 · 机器学习知识问答
+        note: Oral questions answered in a few minutes each, some with a short derivation. Practise saying the answers aloud.
+        note_zh: 每题几分钟的口头问答，有些要当场做简短推导。练习把答案大声说出来。
+        items:
+          - quiz/ml-fundamentals
+          - quiz/llm-fundamentals
+          - quiz/rl-for-llms
+          - quiz/maths-probability-linear-algebra
+          - quiz/maths-stats-information-theory
+      - name: 3 · Core coding
+        name_zh: 3 · 核心编程题
+        note: Graph search in its many forms is the most frequent coding topic; the code has to run.
+        note_zh: 各种形式的图搜索是出现最多的编程考点；代码要能跑通。
+        items:
+          - coding/graph-dfs-warmup
+          - coding/state-space-bfs
+          - coding/event-frequency-stream
+          - coding/token-game-outcomes
+          - coding/weighted-sampling-generator
+          - coding/unit-conversion-graph
+      - name: 4 · ML coding and debugging
+        name_zh: 4 · 机器学习编程与调试
+        items:
+          - coding/attention-kv-cache
+          - coding/training-loop-debug
+          - coding/mlp-backprop-from-scratch
+          - coding/em-gaussian-mixture
+          - coding/focal-loss
+      - name: 5 · ML system design
+        name_zh: 5 · 机器学习系统设计
+        note: The design round is specific to the team, so also prepare a design in your target team's own area.
+        note_zh: 设计轮按团队出题，所以也要针对目标团队自己的方向准备一道设计题。
+        items:
+          - system-design/llm-evaluation-system
+          - system-design/molecule-reaction-ml-design
+          - system-design/distributed-training
+          - system-design/robot-learning-data-flywheel
+          - system-design/datacentre-failure-ml-design
+      - name: 6 · Final interviews
+        name_zh: 6 · 终面
+        items:
+          - behavioral/team-lead-rounds
+          - behavioral/googleyness-and-culture
+          - coding/code-review-round
+      - name: 7 · More coding and code reading
+        name_zh: 7 · 更多编程与读代码
+        items:
+          - coding/fence-painting-strokes
+          - coding/bit-packing-codec
+          - coding/snapshot-array
+          - coding/kd-tree-nearest-neighbour
+          - coding/binary-search-monotone
+          - quiz/code-comprehension
+
+  - id: swe
+    title: Software engineering (SWE)
+    title_zh: 软件工程（SWE）
+    intro: >-
+      Software engineers on Google DeepMind's own postings, and roles on Gemini-app or infrastructure teams reached
+      through Google's general loop and team match: coding rounds, system design, a knowledge check for some roles,
+      and behavioural rounds.
+    intro_zh: 走 Google DeepMind 自己岗位流程的软件工程师，以及通过 Google 通用流程加 team match 进入 Gemini app 或基础设施团队的岗位：编程轮、系统设计、部分岗位的知识问答，以及行为面。
+    stages:
+      - name: 1 · Before the first call
+        name_zh: 1 · 第一通电话之前
+        items:
+          - behavioral/recruiter-screen
+      - name: 2 · Core coding
+        name_zh: 2 · 核心编程题
+        items:
+          - coding/graph-dfs-warmup
+          - coding/state-space-bfs
+          - coding/event-frequency-stream
+          - coding/token-game-outcomes
+          - coding/weighted-sampling-generator
+          - coding/unit-conversion-graph
+      - name: 3 · More coding
+        name_zh: 3 · 更多编程题
+        items:
+          - coding/fence-painting-strokes
+          - coding/bit-packing-codec
+          - coding/snapshot-array
+          - coding/kd-tree-nearest-neighbour
+          - coding/binary-search-monotone
+          - coding/code-review-round
+      - name: 4 · System design
+        name_zh: 4 · 系统设计
+        items:
+          - system-design/gemini-app
+          - system-design/rag-agent-platform
+          - system-design/recommendation-system
+      - name: 5 · Knowledge questions
+        name_zh: 5 · 知识问答
+        items:
+          - quiz/cs-fundamentals
+          - quiz/ml-fundamentals
+          - quiz/code-comprehension
+      - name: 6 · Final interviews
+        name_zh: 6 · 终面
+        items:
+          - behavioral/googleyness-and-culture
+          - behavioral/team-lead-rounds
+
+  - id: applied
+    title: Applied AI and ML engineering (Applied AI / MLE)
+    title_zh: 应用 AI 与机器学习工程（Applied AI / MLE）
+    intro: >-
+      Applied AI engineers and machine-learning engineers: coding, ML fundamentals, ML debugging and a system design
+      centred on generative-AI products.
+    intro_zh: 应用 AI 工程师和机器学习工程师：编程、机器学习基础、机器学习调试，以及围绕生成式 AI 产品的系统设计。
+    stages:
+      - name: 1 · Before the first call
+        name_zh: 1 · 第一通电话之前
+        items:
+          - behavioral/recruiter-screen
+      - name: 2 · Knowledge
+        name_zh: 2 · 知识问答
+        items:
+          - quiz/ml-fundamentals
+          - quiz/llm-fundamentals
+      - name: 3 · Coding
+        name_zh: 3 · 编程
+        items:
+          - coding/graph-dfs-warmup
+          - coding/event-frequency-stream
+          - coding/weighted-sampling-generator
+          - coding/state-space-bfs
+          - coding/unit-conversion-graph
+      - name: 4 · ML coding and debugging
+        name_zh: 4 · 机器学习编程与调试
+        items:
+          - coding/training-loop-debug
+          - coding/attention-kv-cache
+          - coding/focal-loss
+      - name: 5 · System design
+        name_zh: 5 · 系统设计
+        items:
+          - system-design/rag-agent-platform
+          - system-design/llm-evaluation-system
+          - system-design/gemini-app
+          - system-design/recommendation-system
+          - system-design/molecule-reaction-ml-design
+          - system-design/datacentre-failure-ml-design
+      - name: 6 · Final interviews
+        name_zh: 6 · 终面
+        items:
+          - behavioral/googleyness-and-culture
+          - behavioral/team-lead-rounds
+
+  - id: students
+    title: Student Researcher and internships
+    title_zh: Student Researcher 与实习
+    intro: >-
+      Student researcher positions are decided mainly by a research conversation and a conversation with the host;
+      some loops add a fundamentals round, and software-engineering internships add coding.
+    intro_zh: Student Researcher 岗位主要由一场研究深挖和一场与 host 的对话决定；有的流程会加一轮基础知识问答，软件工程实习则会加编程。
+    stages:
+      - name: 1 · The research conversation
+        name_zh: 1 · 研究深挖
+        items:
+          - behavioral/research-deep-dive
+          - behavioral/recruiter-screen
+      - name: 2 · Fundamentals
+        name_zh: 2 · 基础知识
+        items:
+          - quiz/ml-fundamentals
+          - quiz/llm-fundamentals
+          - quiz/maths-probability-linear-algebra
+          - quiz/maths-stats-information-theory
+          - quiz/cs-fundamentals
+          - quiz/code-comprehension
+      - name: 3 · Coding, for internships that include it
+        name_zh: 3 · 编程（适用于包含编程轮的实习）
+        items:
+          - coding/graph-dfs-warmup
+          - coding/weighted-sampling-generator
+          - coding/state-space-bfs
+          - coding/unit-conversion-graph
+          - coding/bit-packing-codec
+          - coding/mlp-backprop-from-scratch
+
+  - id: pm
+    title: Product management (PM)
+    title_zh: 产品经理（PM）
+    intro: >-
+      Product managers: a recruiter screen, hiring-manager conversations and a final loop of product, design,
+      execution and AI deep-dive interviews. Every page tagged for product managers or for all roles, highest
+      priority first.
+    intro_zh: 产品经理：HR 初筛、用人经理对话，以及由产品、设计、执行和 AI 技术深挖组成的终面。下面是所有标注为产品经理或全部岗位的页面，按优先级排序。
+    auto_roles: [PM, All]

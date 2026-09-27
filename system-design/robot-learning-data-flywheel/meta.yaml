@@ -1,0 +1,20 @@
+title: "ML Design: A Data Flywheel for a Robot Manipulation Policy"
+title_zh: "机器学习系统设计：机器人操作策略的数据飞轮"
+summary: >-
+  Designing the data flywheel behind a fleet-scale vision-language-action policy: data volume and storage for
+  teleoperated demonstrations and autonomous rollouts, an episode data model indexed for curation, a
+  labelling-curation-training-evaluation-canary pipeline that turns interventions into DAgger-style training
+  data, Wilson-interval and two-proportion-test statistics for deciding whether a candidate policy actually
+  improved, and the safety limits and action-chunking latency budget that let it serve the fleet.
+summary_zh: "围绕一个机队规模的视觉-语言-动作（VLA）策略设计数据飞轮：遥操作演示与自主推演的数据量与存储、为整理查询建立索引的回合（episode）数据模型、把人工接管转化为 DAgger 式训练数据的标注—整理—训练—评估—金丝雀发布流水线、用于判断候选策略是否真正变好的 Wilson 区间与双比例检验统计方法，以及支撑策略服务于机队的安全限制与动作分块延迟预算。"
+category: system-design
+kind: "ML system design"
+kind_zh: "机器学习系统设计"
+roles: [RE, RS, MLE]
+topics: [robot-learning, data-collection, dataset-curation, vision-language-action, evaluation-statistics, deployment-safety]
+difficulty: hard
+frequency: low
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [final]
+order: 1

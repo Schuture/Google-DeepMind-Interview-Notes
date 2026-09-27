@@ -1,0 +1,15 @@
+title: "Shortest Paths Through Locked Doors"
+title_zh: "穿过上锁的门：最短路径与最短路计数"
+summary: "BFS over a (row, column, keys-held) state space to find, and count, shortest paths through a grid of keys and doors, then extend it to weighted terrain with Dijkstra."
+summary_zh: "在（行, 列, 已持有钥匙）状态空间上做 BFS，求解并计数在带钥匙与门的网格中的最短路径，再用 Dijkstra 把它推广到带权重的地形。"
+category: coding
+kind: "Coding · BFS over a state space"
+kind_zh: "编程 · 状态空间上的 BFS"
+roles: [SWE, RE, MLE, Intern]
+topics: [bfs, state-space-search, bitmask, path-counting, dijkstra, grid]
+difficulty: hard
+frequency: very-high
+format: "3 parts / 45–60 min"
+format_zh: "3 个部分 / 45–60 分钟"
+stage: [skills, final]
+order: 1

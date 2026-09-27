@@ -1,0 +1,20 @@
+title: "Design a Recommendation System for a Content Feed"
+title_zh: "为内容信息流设计推荐系统"
+summary: >-
+  A personalised short-video feed: two-tower candidate retrieval over a sharded ANN index, a
+  multi-task ranking model that turns several predicted engagement signals into one score,
+  diversity- and freshness-aware re-ranking, and the negative sampling, delayed-feedback labelling,
+  cold-start handling and exposure-bias corrections that keep the whole loop optimising for
+  long-term satisfaction rather than raw engagement.
+summary_zh: "一个个性化短视频信息流：基于双塔模型与分片 ANN 索引的候选召回、把多个预测信号合并成一个分数的多任务排序模型、兼顾多样性与新鲜度的重排，以及让整套系统持续优化长期满意度而非原始互动量的负采样、延迟反馈标注、冷启动处理与曝光偏差纠正机制。"
+category: system-design
+kind: "ML system design"
+kind_zh: "机器学习系统设计"
+roles: [MLE, SWE, Applied AI]
+topics: [candidate-generation, two-tower, ranking, multi-task-learning, feedback-loops, cold-start, ndcg]
+difficulty: medium
+frequency: medium
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills, final]
+order: 3

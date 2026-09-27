@@ -1,0 +1,19 @@
+title: "Snapshot Array: History, Compaction and Diffs"
+title_zh: "快照数组：历史、压缩与差异"
+summary: >-
+  Build a versioned array that answers a point-in-time read in O(log s) time after an O(1) snapshot,
+  using a per-index change history and binary search; then let old snapshots be released so memory
+  shrinks, comparing an eager sweep against a lazy one with an amortised background pass; then answer a
+  diff between two snapshots in time proportional only to what changed, using a per-interval journal.
+summary_zh: "实现一个支持版本管理的数组：用按下标记录的历史加二分查找，做到快照 O(1)、按快照取值 O(log s)；然后支持释放旧快照以便内存随之收缩，比较*立即*（eager）压缩与配合摊还后台扫描的*惰性*（lazy）压缩；最后借助按快照区间记录的日志，用只与改动次数成正比、与数组长度无关的时间，计算两个快照之间的差异。"
+category: coding
+kind: "Coding · hash maps, binary search, space-time trade-offs"
+kind_zh: "编程 · 哈希表、二分查找、时空权衡"
+roles: [SWE, RE, MLE, Intern]
+topics: [hash-map, binary-search, versioning, memory-trade-offs, journaling]
+difficulty: medium
+frequency: medium
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills, final]
+order: 6

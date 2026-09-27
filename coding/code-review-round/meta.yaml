@@ -1,0 +1,17 @@
+title: "Code Review: Ranking the Defects in a Checkpointing Change"
+title_zh: "代码评审：给一次 checkpoint 改动中的缺陷排序"
+summary: >-
+  Review a pull request that adds checkpointing and sharded sampling to a training loop, rank its
+  defects by blast radius, then fix and test the ones that can silently lose or corrupt a run.
+summary_zh: "评审一个为训练循环添加 checkpoint 保存与分片采样的 PR，按影响面给缺陷排序，然后修复并测试那些会悄悄丢失或搞坏一次训练的缺陷。"
+category: coding
+kind: "Coding · code review, then fix and test"
+kind_zh: "编程 · 代码评审，再修复与测试"
+roles: [RE, SWE, MLE]
+topics: [code-review, checkpointing, atomic-writes, reproducibility, data-sharding, testing]
+difficulty: medium
+frequency: medium
+format: "3 parts / 45–60 min"
+format_zh: "3 个部分 / 45–60 分钟"
+stage: [final]
+order: 2

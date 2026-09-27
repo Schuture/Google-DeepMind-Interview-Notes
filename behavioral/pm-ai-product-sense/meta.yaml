@@ -1,0 +1,20 @@
+title: "Product Manager Loop: AI Product Sense and the AI Deep Dive"
+title_zh: "产品经理面：AI 产品感与 AI 技术深挖"
+summary: >-
+  A product-manager loop of hiring-manager screens and the final loop's four to six 45-minute rounds, each
+  led by a different specialist — a product director, a UX lead, an engineer, sometimes a further director
+  conversation — in which a case about a hypothetical AI product tests your strategy and prioritisation,
+  your grasp of agent metrics and the risk of shipping high-stakes actions, your read of ambiguous user
+  feedback, your design judgement under model latency and multimodality, and, in a closing conversation,
+  your motivation for the specific team.
+summary_zh: "产品经理（PM）路径中的用人经理初筛，以及终面阶段四到六场、每场 45 分钟、分别由不同角色主持的对话——产品总监、UX 负责人、工程师，有时还会再加一场与总监的对话——每一场都从一个假设性 AI 产品的案例出发，考察你的策略与取舍能力、你对智能体指标与高风险操作发布风险的技术理解、你对含糊用户反馈的判断，以及你在模型延迟与多模态限制下的设计判断，最后一场对话则考察你为什么想加入这个具体团队。"
+category: behavioral
+kind: "Behavioral · product case"
+kind_zh: "行为面 · 产品案例"
+roles: [PM]
+topics: [product-sense, ai-product-strategy, agent-metrics, launch-risk, user-insights, ux-for-ai]
+frequency: medium
+format: "45 min"
+format_zh: "45 分钟"
+stage: [hm-screen, final]
+order: 1

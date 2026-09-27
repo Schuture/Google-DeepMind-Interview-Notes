@@ -1,0 +1,20 @@
+title: "ML Design: Predicting Which Data-Centre Machines Need Replacing"
+title_zh: "机器学习设计：预测数据中心哪些机器需要更换"
+summary: >-
+  A weekly ranked list of data-centre machines likely to need hardware replacement: leakage-free label
+  and split construction under censoring, feature transforms and machine-type embeddings across three
+  model families, a discrete-time hazard model with a down-sampling correction derived from the odds,
+  and the capacity-bound precision/recall evaluation and feedback loop that keep the ranking trustworthy
+  in production.
+summary_zh: "为数据中心机队每周产出一份更换风险排序：在删失情形下无信息泄漏的标签与数据切分构造、跨三类模型的特征变换与机器型号嵌入、一个离散时间风险（hazard）模型、从优势比推导出的降采样校正，以及让这份排序在生产中真正可信的容量受限精确率/召回率评估与反馈闭环。"
+category: system-design
+kind: "ML system design"
+kind_zh: "机器学习系统设计"
+roles: [MLE, RE, SWE]
+topics: [predictive-maintenance, label-construction, censoring, class-imbalance, categorical-embeddings, survival-analysis, precision-at-k, feedback-loops]
+difficulty: medium
+frequency: low
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills]
+order: 2

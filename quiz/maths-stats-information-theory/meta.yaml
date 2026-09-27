@@ -1,0 +1,15 @@
+title: "Maths Quiz: Matrix Computation, Statistical Tests and Information Theory"
+title_zh: "数学问答：矩阵计算、统计检验与信息论"
+summary: "Twelve rapid-fire questions spanning matrix computation, statistics and information theory: the cost and conditioning of matrix multiplication and inversion, the pseudo-inverse, moments and the reach and limits of the law of large numbers and the central limit theorem, hypothesis testing and multiple comparisons, a chi-square goodness-of-fit test, a two-sample Bayes classifier, entropy, cross-entropy and perplexity, mutual information, and a set of integrals by hand, each traced to where it shows up in machine learning and checked numerically."
+summary_zh: "十二道快问快答，贯穿矩阵计算、统计检验与信息论：矩阵乘法与求逆的代价与数值条件、伪逆、矩量以及大数定律与中心极限定理的适用范围与失效场景、假设检验与多重比较、卡方拟合优度检验、双样本贝叶斯分类器、熵、交叉熵与困惑度、互信息，以及一组手算积分，每一处都追溯到它在机器学习中的应用，并配有数值验证。"
+category: quiz
+kind: "Quiz · oral, with derivations"
+kind_zh: "知识问答 · 口述，含推导"
+roles: [RS, RE, MLE, Intern]
+topics: [matrix-multiplication, rank, matrix-inverse, pseudo-inverse, moments, central-limit-theorem, hypothesis-testing, chi-square-test, entropy, mutual-information, integration]
+difficulty: medium
+frequency: medium
+format: "12 questions / 45–60 min"
+format_zh: "12 个问题 / 45–60 分钟"
+stage: [skills]
+order: 3

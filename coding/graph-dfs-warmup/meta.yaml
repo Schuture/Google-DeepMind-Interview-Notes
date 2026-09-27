@@ -1,0 +1,15 @@
+title: "Warm-Up: Scanning an Array and Traversing a Graph Depth-First"
+title_zh: "热身题：数组扫描与图的深度优先遍历"
+summary: "Two short warm-ups -- counting array elements above a threshold, then building an undirected graph from an edge list to traverse it depth-first, split it into components and detect a cycle -- that reward speed, precision and stated tie-breaking rules over cleverness."
+summary_zh: "两道简短的热身题——数出数组中高于阈值的元素，以及从边列表构建无向图，对其做深度优先遍历、划分连通分量并判断是否有环——考验的是速度、准确性和把规则讲清楚，而不是难度。"
+category: coding
+kind: "Coding · arrays and graph traversal"
+kind_zh: "编程 · 数组与图遍历"
+roles: [SWE, MLE, Intern]
+topics: [arrays, binary-search, graph-construction, dfs, iterative-dfs, connected-components, cycle-detection]
+difficulty: easy
+frequency: high
+format: "3 parts / 30–45 min"
+format_zh: "3 个部分 / 30–45 分钟"
+stage: [hm-screen, skills]
+order: 5

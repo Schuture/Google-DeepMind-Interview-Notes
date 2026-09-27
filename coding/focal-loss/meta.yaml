@@ -1,0 +1,18 @@
+title: "Focal Loss versus Cross-Entropy"
+title_zh: "Focal loss 与交叉熵"
+summary: >-
+  Derive the focal-loss gradient in closed form, implement it as a numerically stable NumPy
+  function, and measure how much less of the training gradient it hands to easy, already-confident
+  examples than cross-entropy does, on an imbalanced synthetic classification problem.
+summary_zh: "以闭式形式推导 focal loss 的梯度，把它实现成数值稳定的 NumPy 函数，并在一个类别不平衡的合成分类问题上，度量它相对交叉熵给已经很自信的简单样本分配了多少更少的训练梯度。"
+category: coding
+kind: "Coding · derivation and ML implementation (NumPy)"
+kind_zh: "编程 · 推导与机器学习实现（NumPy）"
+roles: [MLE, RS, RE, Applied AI]
+topics: [focal-loss, cross-entropy, class-imbalance, numerical-stability, initialisation, gradients]
+difficulty: medium
+frequency: low
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills]
+order: 2

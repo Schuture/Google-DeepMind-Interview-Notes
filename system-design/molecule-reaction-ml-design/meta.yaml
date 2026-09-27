@@ -1,0 +1,20 @@
+title: "ML Design: Predicting a Reaction Factor for Pairs of Molecules"
+title_zh: "机器学习设计：预测分子对的反应因子"
+summary: >-
+  A symmetric, order-invariant regression target spanning four orders of magnitude: EDA for replicate
+  noise and pair-order conflicts, order-invariant pair representations built from molecular fingerprints,
+  molecule-disjoint splitting to keep leakage out of the harder evaluation, a model sequence from a
+  per-molecule baseline to a structure-based GNN or transformer pair encoder, and an active-learning loop
+  for choosing which pairs the lab should measure next.
+summary_zh: "一道对称、与顺序无关、跨越约四个数量级的回归设计题：从重复测量噪声与顺序冲突入手的探索性数据分析、基于分子指纹构造的顺序不变配对表示、按分子而非按行切分以避免评估被泄漏污染、从逐分子基线到基于结构的图神经网络或 Transformer 配对编码器的模型序列，以及用于选择下一批测量分子对的主动学习闭环。"
+category: system-design
+kind: "ML system design"
+kind_zh: "机器学习系统设计"
+roles: [MLE, RE, RS]
+topics: [eda, molecular-fingerprints, pairwise-models, symmetry, data-splitting, leakage, graph-neural-networks, active-learning]
+difficulty: medium
+frequency: medium
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills]
+order: 1

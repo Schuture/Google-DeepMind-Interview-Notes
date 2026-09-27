@@ -1,0 +1,18 @@
+title: "Training a Model That Does Not Fit on One Accelerator"
+title_zh: "为单卡放不下的模型设计训练方案"
+summary: >-
+  Design the training run for a 70-billion-parameter transformer across 2,048 accelerators: derive
+  the compute and memory budget, lay out tensor, pipeline and data parallelism with a sharded
+  optimiser, and size checkpointing against stragglers, hardware failures and a mid-run loss spike.
+summary_zh: "为一个跨 2,048 台加速器训练的 700 亿参数 Transformer 设计训练方案：推导计算量与显存预算，用张量并行、流水线并行、数据并行搭配分片优化器状态确定并行布局，并针对掉队者、硬件故障和训练中途的损失骤增设计相应的检查点方案。"
+category: system-design
+kind: "ML system design"
+kind_zh: "机器学习系统设计"
+roles: [RE, MLE, RS]
+topics: [data-parallelism, tensor-parallelism, pipeline-parallelism, sharded-optimiser, checkpointing, fault-tolerance, loss-spikes]
+difficulty: hard
+frequency: medium
+format: "45–60 min"
+format_zh: "45–60 分钟"
+stage: [skills, final]
+order: 4

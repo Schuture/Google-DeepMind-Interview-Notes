@@ -1,0 +1,15 @@
+title: "ML Fundamentals: Metrics, Losses, Optimisers and Regularisation"
+title_zh: "机器学习基础：评估指标、损失函数、优化器与正则化"
+summary: Fifteen oral questions on classification metrics, loss gradients and regression losses, generative models, optimiser mechanics, generalisation, and offline-to-online evaluation, each answered with a derivation and checked numerically against a brute force, a simulation, or an independent library.
+summary_zh: 十五道关于分类指标、损失函数梯度与回归损失、生成模型、优化器机制、泛化能力，以及离线评估与线上表现差距的口头问答题，每题给出推导，并用暴力法、模拟或独立的库实现在代码中验证。
+category: quiz
+kind: "Quiz · oral, with derivations"
+kind_zh: "知识问答 · 口述，含推导"
+roles: [RS, RE, MLE, Applied AI, Intern]
+topics: [precision-recall, roc-auc, cross-entropy, logistic-regression, adam, weight-decay, bias-variance, normalisation, huber-loss, gan, distribution-shift]
+difficulty: medium
+frequency: very-high
+format: "15 questions / 60 min"
+format_zh: "15 个问题 / 60 分钟"
+stage: [skills]
+order: 1

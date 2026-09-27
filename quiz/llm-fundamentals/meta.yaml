@@ -1,0 +1,15 @@
+title: "LLM Fundamentals: Attention, Transformers and the Training Pipeline"
+title_zh: "大模型基础：注意力、Transformer 与训练流程"
+summary: "Twelve rapid derivations spanning attention and the LLM training pipeline: the 1/sqrt(d) scaling and attention's compute and memory cost, the KV cache and RoPE, parameter and FLOP counts, pre- versus post-norm, cross-entropy and perplexity, byte-pair encoding, compute-optimal scaling, post-training objectives, sampling, and mixture-of-experts routing, each traced through a worked number."
+summary_zh: "十二道快问快答，贯穿注意力机制与大模型训练全流程：1/√d 缩放与注意力的开销、KV 缓存与 RoPE、参数量与 FLOPs 计算、前置与后置归一化、交叉熵与困惑度、字节对编码、计算最优缩放、后训练目标、采样方法，以及混合专家路由，每一处都配有具体数字加以验证。"
+category: quiz
+kind: "Quiz · oral, with derivations"
+kind_zh: "知识问答 · 口述，含推导"
+roles: [RS, RE, MLE, Applied AI, Intern]
+topics: [attention, transformer, rope, kv-cache, scaling-laws, perplexity, tokenisation, post-training, sampling, mixture-of-experts]
+difficulty: hard
+frequency: very-high
+format: "12 questions / 45–60 min"
+format_zh: "12 个问题 / 45–60 分钟"
+stage: [skills]
+order: 2

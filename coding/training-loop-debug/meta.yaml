@@ -1,0 +1,18 @@
+title: "Debugging a Classifier That Does Not Learn"
+title_zh: "调试一个学不会的分类器"
+summary: >-
+  Debug a from-scratch NumPy classifier that runs without crashing yet never learns, tracing six
+  independent bugs in shuffling, softmax, gradient scaling, momentum, dropout and the accuracy metric
+  to their distinct symptoms, then write sanity checks that catch each one before a full training run.
+summary_zh: "调试一个能跑起来却学不会的 NumPy 分类器：把数据打乱、softmax、梯度缩放、动量、dropout 和准确率指标中的六个独立 bug，分别对应到各自的症状，再写出能在完整训练之前就发现每一个的健全性检查。"
+category: coding
+kind: "Coding · ML debugging (NumPy)"
+kind_zh: "编程 · 机器学习调试（NumPy）"
+roles: [RE, RS, MLE, Applied AI]
+topics: [debugging, softmax, data-shuffling, gradient-scaling, momentum, dropout, broadcasting, sanity-checks]
+difficulty: medium
+frequency: high
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills, final]
+order: 4

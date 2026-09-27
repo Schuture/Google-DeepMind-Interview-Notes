@@ -1,0 +1,18 @@
+title: "Backpropagation from Scratch"
+title_zh: "从零实现反向传播"
+summary: >-
+  Derive and implement the forward and backward passes of a two-layer ReLU network with softmax
+  cross-entropy loss, verify every gradient with a central-difference check, and train on a
+  non-linearly-separable dataset to show why He initialisation works and all-zero initialisation cannot.
+summary_zh: "从零推导并实现一个两层 ReLU 网络（配 softmax 交叉熵损失）的前向和反向传播，用中心差分做梯度检查，再在一个非线性可分的数据集上训练，说明为什么 He 初始化有效、而全零初始化完全学不到东西。"
+category: coding
+kind: "Coding · ML implementation (NumPy)"
+kind_zh: "编程 · 机器学习实现（NumPy）"
+roles: [RS, RE, MLE, Intern]
+topics: [backpropagation, softmax-cross-entropy, gradient-check, initialisation, sgd-momentum]
+difficulty: medium
+frequency: medium
+format: "3 parts / 45 min"
+format_zh: "3 个部分 / 45 分钟"
+stage: [skills, final]
+order: 8

@@ -1,0 +1,15 @@
+title: "CS Fundamentals Quiz: Memory, Concurrency and Floating Point"
+title_zh: "计算机基础问答：内存、并发与浮点数"
+summary: Ten oral questions spanning object orientation, stack/heap allocation and reference-cycle garbage collection, race conditions and deadlock, the GIL, cache locality, IEEE 754 floating point and bf16/fp16 training precision, and amortised hash-table resizing, each checked by simulation, exhaustive enumeration or a counting model rather than a stopwatch.
+summary_zh: 十道口头问答题，涵盖面向对象、栈与堆分配及引用环的垃圾回收、竞态条件与死锁、全局解释器锁（GIL）、缓存局部性、IEEE 754 浮点数与 bf16/fp16 训练精度，以及哈希表的摊还扩容，每一处都用模拟、穷举或计数模型而非秒表来验证。
+category: quiz
+kind: "Quiz · oral, with small demonstrations"
+kind_zh: "知识问答 · 口述，含小演示"
+roles: [SWE, Intern, RE]
+topics: [oop, memory-management, garbage-collection, race-conditions, deadlock, gil, cache-locality, floating-point, amortised-analysis]
+difficulty: medium
+frequency: low
+format: "10 questions / 45 min"
+format_zh: "10 个问题 / 45 分钟"
+stage: [skills]
+order: 1

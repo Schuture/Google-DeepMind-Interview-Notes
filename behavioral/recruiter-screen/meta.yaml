@@ -1,0 +1,18 @@
+title: "Recruiter Screen: Motivation, Research Interests and Logistics"
+title_zh: "HR 初筛：动机、研究兴趣与流程事项"
+summary: >-
+  A 30-minute call with a recruiter, not a technical interviewer, that opens on why you want to join
+  Google DeepMind specifically, covers your research interests and which ladder you are applying for,
+  spends about two minutes on your background, and closes on the logistics that let the rest of the
+  process be scheduled: work authorisation, location, timeline, level and compensation.
+summary_zh: "一场与招聘联系人的 30 分钟通话，对方不是技术面试官。开场即问为什么想加入 Google DeepMind，随后聊你的研究兴趣与你申请的具体序列（ladder），用大约两分钟过一遍背景经历，最后是能让后续流程排期的事项：工作许可、地点、时间线、级别与薪资期望。"
+category: behavioral
+kind: Behavioral
+kind_zh: 行为面
+roles: [All]
+topics: [why-gdm, motivation, research-interests, background, visa, logistics, compensation]
+frequency: very-high
+format: "30 min"
+format_zh: "30 分钟"
+stage: [recruiter-screen]
+order: 1
