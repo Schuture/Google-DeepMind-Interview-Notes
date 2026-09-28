@@ -154,9 +154,10 @@ $LU$ 分解 $PA = LU$（$P$ 为置换矩阵，$L, U$ 为三角矩阵）——耗
 右端项上 $A^{-1}b$ 还要花 $O(n^2)$，与多做一次三角形求解同一个量级；所以预先算出 $A^{-1}$ 完全没有
 节省，只有更大的前期开销。除了运算次数，先分解再求解还更精确：它是向后稳定（backward stable）的，其
 残差 $\|A\hat x - b\|$ 无论 $A$ 的条件数如何都停留在机器精度的量级，而显式求出并使用 $A^{-1}$ 之后的
-残差会随 $A$ 的条件数增大；前向误差 $\|\hat x - x\|$ 在两条路线上都随条件数增大，但求逆路线的更大。在条件
-良好的矩阵上两条路线结果接近，但在条件不好的矩阵上（下面用 Hilbert 矩阵检验），显式求逆既多花代价、又多出误差，
-什么都没换来。当 $A$ 是对称
+残差会随 $A$ 的条件数增大。前向误差 $\|\hat x - x\|/\|x\|$ 在两条路线上都由条件数决定——上界大约是
+$n\,\kappa(A)$ 乘以机器精度——所以在这一点上求逆路线并不更好，某一次运行里哪条路线的误差更小，取决于舍入的细节。
+在条件良好的矩阵上两条路线结果接近，但在条件不好的矩阵上（下面用 Hilbert 矩阵检验），显式求逆既多花代价、残差
+又至少大上一千倍，什么都没换来。当 $A$ 是对称
 正定矩阵时，Cholesky 分解计算 $A = LL^\top$（$L$ 为三角矩阵），利用对称性把耗时降到约 $\tfrac13 n^3$
 次浮点运算——比一般的 $LU$ 分解又快了一倍。ML：正规方程 $X^\top Xw = X^\top y$（当 $X$ 列满秩时）的
 系数矩阵是对称正定的，所以用 Cholesky 求解，而不是求逆 $X^\top X$（当 $X$ 病态时，则对 $X$ 本身做 QR 分解，
@@ -471,7 +472,7 @@ assert np.linalg.norm(A_wc @ x_lu_wc - b_wc) < 1e-8               # well conditi
 assert np.linalg.norm(A_wc @ x_inv_wc - b_wc) < 1e-8               # ...and the explicit inverse agree closely
 assert np.allclose(x_lu_wc, x_true_wc, atol=1e-8) and np.allclose(x_cho_wc, x_true_wc, atol=1e-8)
 
-# NOTE: on a badly conditioned matrix the inverse route is both more expensive and less accurate; average
+# NOTE: on a badly conditioned matrix the inverse route costs more and leaves a far larger residual; average
 # over many right-hand sides at each size, since a single one is a noisy comparison
 reps_hilbert = 200
 err_lu_by_n = {}
@@ -481,16 +482,19 @@ for n_h in (6, 8, 10):
     B_h = A_h @ X_true_h
     lu_h, piv_h = lu_factor(A_h)
     X_lu_h = lu_solve((lu_h, piv_h), B_h)
-    X_inv_h = np.linalg.inv(A_h) @ B_h                             # NOTE: the less accurate route -- see below
+    X_inv_h = np.linalg.inv(A_h) @ B_h                             # NOTE: not backward stable -- see below
     res_lu_h = np.linalg.norm(A_h @ X_lu_h - B_h, axis=0).mean()
     res_inv_h = np.linalg.norm(A_h @ X_inv_h - B_h, axis=0).mean()
     err_lu_h = (np.linalg.norm(X_lu_h - X_true_h, axis=0) / np.linalg.norm(X_true_h, axis=0)).mean()
     err_inv_h = (np.linalg.norm(X_inv_h - X_true_h, axis=0) / np.linalg.norm(X_true_h, axis=0)).mean()
     assert res_lu_h < 1e-10                                        # LU stays backward stable regardless of cond
-    assert res_inv_h > 1e4 * res_lu_h                               # the inverse route's residual does not
-    assert err_inv_h > 1.8 * err_lu_h                               # and its forward error is markedly worse
+    assert res_inv_h > 1e3 * res_lu_h                               # the inverse route's residual does not
+    # NOTE: the two forward errors are not compared with each other: both stay below about n * cond(A) * eps,
+    # and which route comes out ahead, and by how much, depends on the BLAS kernels of the machine
+    fwd_bound_h = n_h * np.linalg.cond(A_h) * np.finfo(float).eps
+    assert err_lu_h < fwd_bound_h and err_inv_h < fwd_bound_h
     err_lu_by_n[n_h] = err_lu_h
-assert err_lu_by_n[6] < err_lu_by_n[8] < err_lu_by_n[10]            # though LU's forward error also grows with cond
+assert err_lu_by_n[6] < err_lu_by_n[8] < err_lu_by_n[10]            # LU's forward error grows with cond
 assert math.isclose(np.linalg.cond(X_full.T @ X_full), np.linalg.cond(X_full) ** 2, rel_tol=1e-6)  # X^T X squares it
 
 # ---- Q4: Moore-Penrose pseudo-inverse: SVD formula, Penrose conditions, min-norm, ridge limit, GD

@@ -183,10 +183,12 @@ further $O(n^2)$ per right-hand side, the same order as an extra triangular solv
 having pre-computed $A^{-1}$, only the much larger upfront cost. Beyond flop count, factor-and-solve is also
 more accurate: it is backward stable, so its residual $\|A\hat x - b\|$ stays at the level of machine
 precision regardless of how well conditioned $A$ is, whereas the residual after explicitly forming and
-applying $A^{-1}$ grows with the condition number of $A$; the forward error $\|\hat x - x\|$ grows with the
-condition number on both routes, but is larger on the inverse route. The two routes agree closely on a
-well-conditioned matrix, but on an ill-conditioned one (checked below on Hilbert matrices) explicit inversion
-brings the extra cost and the extra error for nothing in return. When $A$ is
+applying $A^{-1}$ grows with the condition number of $A$. The forward error $\|\hat x - x\|/\|x\|$ is governed
+by the condition number on both routes — below roughly $n\,\kappa(A)$ times machine precision — so there the
+inverse route is no better, and which route comes out ahead in a given run depends on rounding details. The
+two routes agree closely on a well-conditioned matrix, but on an ill-conditioned one (checked below on Hilbert
+matrices) explicit inversion brings the extra cost and a residual at least a thousand times larger for nothing
+in return. When $A$ is
 symmetric positive definite, Cholesky computes $A = LL^\top$ for a triangular $L$, exploiting symmetry to
 finish in about $\tfrac13 n^3$ flops — twice as fast again as a general LU factorisation. ML: the normal
 equations $X^\top X w = X^\top y$ have a symmetric positive definite coefficient matrix (when $X$ has full
@@ -528,7 +530,7 @@ assert np.linalg.norm(A_wc @ x_lu_wc - b_wc) < 1e-8               # well conditi
 assert np.linalg.norm(A_wc @ x_inv_wc - b_wc) < 1e-8               # ...and the explicit inverse agree closely
 assert np.allclose(x_lu_wc, x_true_wc, atol=1e-8) and np.allclose(x_cho_wc, x_true_wc, atol=1e-8)
 
-# NOTE: on a badly conditioned matrix the inverse route is both more expensive and less accurate; average
+# NOTE: on a badly conditioned matrix the inverse route costs more and leaves a far larger residual; average
 # over many right-hand sides at each size, since a single one is a noisy comparison
 reps_hilbert = 200
 err_lu_by_n = {}
@@ -538,16 +540,19 @@ for n_h in (6, 8, 10):
     B_h = A_h @ X_true_h
     lu_h, piv_h = lu_factor(A_h)
     X_lu_h = lu_solve((lu_h, piv_h), B_h)
-    X_inv_h = np.linalg.inv(A_h) @ B_h                             # NOTE: the less accurate route -- see below
+    X_inv_h = np.linalg.inv(A_h) @ B_h                             # NOTE: not backward stable -- see below
     res_lu_h = np.linalg.norm(A_h @ X_lu_h - B_h, axis=0).mean()
     res_inv_h = np.linalg.norm(A_h @ X_inv_h - B_h, axis=0).mean()
     err_lu_h = (np.linalg.norm(X_lu_h - X_true_h, axis=0) / np.linalg.norm(X_true_h, axis=0)).mean()
     err_inv_h = (np.linalg.norm(X_inv_h - X_true_h, axis=0) / np.linalg.norm(X_true_h, axis=0)).mean()
     assert res_lu_h < 1e-10                                        # LU stays backward stable regardless of cond
-    assert res_inv_h > 1e4 * res_lu_h                               # the inverse route's residual does not
-    assert err_inv_h > 1.8 * err_lu_h                               # and its forward error is markedly worse
+    assert res_inv_h > 1e3 * res_lu_h                               # the inverse route's residual does not
+    # NOTE: the two forward errors are not compared with each other: both stay below about n * cond(A) * eps,
+    # and which route comes out ahead, and by how much, depends on the BLAS kernels of the machine
+    fwd_bound_h = n_h * np.linalg.cond(A_h) * np.finfo(float).eps
+    assert err_lu_h < fwd_bound_h and err_inv_h < fwd_bound_h
     err_lu_by_n[n_h] = err_lu_h
-assert err_lu_by_n[6] < err_lu_by_n[8] < err_lu_by_n[10]            # though LU's forward error also grows with cond
+assert err_lu_by_n[6] < err_lu_by_n[8] < err_lu_by_n[10]            # LU's forward error grows with cond
 assert math.isclose(np.linalg.cond(X_full.T @ X_full), np.linalg.cond(X_full) ** 2, rel_tol=1e-6)  # X^T X squares it
 
 # ---- Q4: Moore-Penrose pseudo-inverse: SVD formula, Penrose conditions, min-norm, ridge limit, GD
