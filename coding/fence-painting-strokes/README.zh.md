@@ -108,7 +108,9 @@ min_strokes([2, 1, 3, 3, 1, 2]) == 5
 `i == 0` 的情形就不必单独处理。固定 `i`，满足这个条件的行是 `h[i - 1] <= y < h[i]`，是一个长度为
 `max(0, h[i] - h[i - 1])` 的区间；由于每一段的开头恰好属于唯一的一块木板、唯一的一行，把这个长度
 对每块木板求和，就恰好把每一段数了一次：
-$$\sum_i \max(0,\, h_i - h_{i-1}), \qquad h_{-1} = 0.$$
+```math
+\sum_i \max(0,\, h_i - h_{i-1}), \qquad h_{-1} = 0.
+```
 
 ```python
 def min_horizontal_strokes(h: list[int]) -> int:
@@ -191,7 +193,9 @@ class Fence:
 `S` 的笔画数都至少达到两种构造之一的花费，因而至少达到二者中较小的那个。记 `(l_k, r_k)` 为
 `[l, r]` 中满足 `h_i > m` 的极大子区间：
 
-$$T(l, r, b) = \min\left(r - l + 1,\ \ (m - b) + \sum_k T(l_k, r_k, m)\right).$$
+```math
+T(l, r, b) = \min\left(r - l + 1,\ \ (m - b) + \sum_k T(l_k, r_k, m)\right).
+```
 
 ```python
 def _runs_above(h: list[int], lo: int, hi: int, floor: int) -> list[tuple[int, int]]:

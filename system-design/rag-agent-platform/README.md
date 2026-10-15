@@ -100,22 +100,28 @@ on directly.
 
 **Chunking.** A document of $N=5{,}000$ tokens is split into chunks of $C=500$ tokens with $O=50$ tokens of
 overlap between consecutive chunks, so each chunk after the first starts $S=C-O=450$ tokens after the
-previous one (the *stride*). Chunk $i$ (0-indexed) covers tokens $[iS,\,iS+C)$, so after $m$ chunks the
+previous one (the *stride*). Chunk $i$ (0-indexed) covers tokens $`[iS,\,iS+C)`$, so after $m$ chunks the
 covered range reaches $(m-1)S+C$ tokens; the document is fully covered once $(m-1)S+C \geq N$, i.e. once
 $m \geq (N-C)/S+1=(N-C+S)/S=(N-O)/S$ (substituting $S=C-O$). The smallest such integer is
 
-$$m=\left\lceil\frac{N-O}{S}\right\rceil=\left\lceil\frac{5{,}000-50}{450}\right\rceil=\lceil 11.0\rceil=11\text{ chunks/document.}$$
+```math
+m=\left\lceil\frac{N-O}{S}\right\rceil=\left\lceil\frac{5{,}000-50}{450}\right\rceil=\lceil 11.0\rceil=11\text{ chunks/document.}
+```
 
 Across $200{,}000{,}000$ documents that is $200{,}000{,}000\times11=2.2\times10^9$ chunks.
 
 **Raw and quantised index size.** Each embedding has 768 dimensions stored as float16 (2 bytes/dimension),
 $768\times2=1{,}536$ bytes/vector, so the raw index is
 
-$$2.2\times10^9\times1{,}536\text{ bytes}\approx3.38\text{ TB}\approx3.4\text{ TB}.$$
+```math
+2.2\times10^9\times1{,}536\text{ bytes}\approx3.38\text{ TB}\approx3.4\text{ TB}.
+```
 
 Product quantisation to 64 bytes/vector — a $1{,}536/64=24\times$ compression — brings that down to
 
-$$2.2\times10^9\times64\text{ bytes}=140.8\text{ GB}\approx141\text{ GB},$$
+```math
+2.2\times10^9\times64\text{ bytes}=140.8\text{ GB}\approx141\text{ GB},
+```
 
 small enough to fit in the RAM of a handful of hosts rather than the tens of hosts the raw index would need;
 the index-layout deep dive returns to what quantising costs in recall.
@@ -139,7 +145,9 @@ the given peak of 100/s, roughly a $4.3\times$ peak-to-average ratio. A single h
 calls per question in the worst case, a question that spends every step on another search. At peak load the
 retrieval tier must therefore sustain
 
-$$100\text{ questions/s}\times5\text{ steps}\times2\text{ legs/step}=1{,}000\text{ retrieval sub-queries/s}$$
+```math
+100\text{ questions/s}\times5\text{ steps}\times2\text{ legs/step}=1{,}000\text{ retrieval sub-queries/s}
+```
 
 as an upper bound — most questions finish in fewer steps, so the typical rate is well below this, but the
 provisioned floor has to cover the worst case. Each sub-query is answered by one tenant's own shard(s) (deep
@@ -294,11 +302,11 @@ and to spread query load, without needing a number this design has to pin down),
 writing to a primary and propagating to replicas asynchronously — replica catch-up lag is additional budget
 the 5-minute freshness target has to include, on top of the embedding throughput computed above.
 
-**(b) Permission enforcement.** Post-filtering — run ANN search for the top-$k$ chunks by embedding distance
+**(b) Permission enforcement.** Post-filtering — run ANN search for the top-$`k`$ chunks by embedding distance
 alone, ignoring `acl` entirely, then discard any of the $k$ the caller is not permitted to read — looks
 appealing because it needs nothing beyond a plain ANN index. It fails because the discarding happens after
 the search has already committed to which $k$ chunks it returned: if the caller is permitted to read only a
-small fraction of the corpus the search ran over, the top-$k$ chosen purely by distance can easily contain
+small fraction of the corpus the search ran over, the top-$`k`$ chosen purely by distance can easily contain
 few, or zero, chunks that caller is allowed to see, even when the corpus holds far more than $k$ relevant
 chunks the caller *is* permitted to read — they simply were not among the $k$ nearest by raw distance. The
 runnable check below simulates this: with 500 chunks, a caller permitted to read 5% of them, and $k=10$,
@@ -306,7 +314,7 @@ filtering after search returns under one permitted chunk per query on average, e
 around 25 permitted chunks on average — more than double $k$.
 
 Pre-filtering — restricting the candidate set to permitted chunks before, or while, the search chooses its
-top-$k$ — returns up to $k$ permitted results whenever that many exist, because the search never spends one
+top-$`k`$ — returns up to $k$ permitted results whenever that many exist, because the search never spends one
 of its $k$ slots on a chunk it will only discard afterwards. The cost is that the search itself has to be
 filter-aware: either the ANN traversal skips non-permitted nodes as it walks the graph rather than scoring
 them, or, when the permitted set cannot be pushed into the traversal directly, the search over-fetches a
@@ -338,7 +346,7 @@ this exactly and compares it against the code's output.
 The fused list still has as many candidates as went into it, too many to hand to the language model. A
 *cross-encoder* — a model that scores a query and one candidate chunk together as a single input, rather
 than embedding them separately and comparing vectors afterwards — reranks only the fused shortlist (its top
-few dozen) into the final top-$k$ handed to the LLM; running a cross-encoder over the whole corpus would be
+few dozen) into the final top-$`k`$ handed to the LLM; running a cross-encoder over the whole corpus would be
 far too slow, but running it over a few dozen shortlisted candidates is cheap — the same shortlist-then-rerank
 shape the general definition of re-ranking in the Problem section describes.
 
@@ -400,7 +408,7 @@ so there is nothing outside that set for an injected instruction to reach, howev
 
 **(f) Evaluation.** *Recall@k* is measured against a labelled set of questions, each with a set of chunks
 known to be relevant to it: for one question it is the fraction of that question's relevant chunks that
-appear in the top-$k$ retrieved (after fusion and re-ranking), and the reported metric averages this over
+appear in the top-$`k`$ retrieved (after fusion and re-ranking), and the reported metric averages this over
 the labelled set. It is cheap to compute and diagnostic specifically of retrieval, independent of anything
 the LLM later does with what it was given.
 

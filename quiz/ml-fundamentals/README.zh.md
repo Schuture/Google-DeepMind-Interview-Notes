@@ -10,61 +10,69 @@
 
 ## 题目
 
-全文中，$\log$ 表示自然对数，$\sigma(z) = 1/(1+e^{-z})$ 是 *sigmoid 函数*。
+全文中，$`\log`$ 表示自然对数，$`\sigma(z) = 1/(1+e^{-z})`$ 是 *sigmoid 函数*。
 
 ### 评估
 
-**Q1.** 一个*二元分类器*（binary classifier）在 $1{,}000$ 个带标签样本上评估，得到混淆矩阵（confusion matrix）$\mathrm{TP}=40$、$\mathrm{FP}=10$、$\mathrm{FN}=20$、$\mathrm{TN}=930$（真/假正例、真/假负例的计数）。用这四个计数定义准确率（accuracy）、精确率（precision）、召回率（recall）和 F1 分数，计算这四个指标的值，并说明在这份数据上哪一个指标最容易误导人地概括这个分类器的表现，以及原因。分别给出一个会将判定阈值调向精确率优先的现实场景，和一个会调向召回率优先的现实场景。
+**Q1.** 一个*二元分类器*（binary classifier）在 $1{,}000$ 个带标签样本上评估，得到混淆矩阵（confusion matrix）$`\mathrm{TP}=40`$、$`\mathrm{FP}=10`$、$`\mathrm{FN}=20`$、$`\mathrm{TN}=930`$（真/假正例、真/假负例的计数）。用这四个计数定义准确率（accuracy）、精确率（precision）、召回率（recall）和 F1 分数，计算这四个指标的值，并说明在这份数据上哪一个指标最容易误导人地概括这个分类器的表现，以及原因。分别给出一个会将判定阈值调向精确率优先的现实场景，和一个会调向召回率优先的现实场景。
 
-**Q2.** 一个二元分类器给每个样本打一个实数分数；当分数超过阈值 $t$ 时，预测为正例。记 $\mathrm{TPR}(t)$ 和 $\mathrm{FPR}(t)$ 分别为阈值 $t$ 处的真正例率和假正例率——即实际正例、实际负例中分数高于 $t$ 的比例。*ROC 曲线*（ROC curve）是 $\{(\mathrm{FPR}(t), \mathrm{TPR}(t)) : t \in \mathbb R\}$，*ROC-AUC* 是它下方的面积。设 $S^+$、$S^-$ 分别是独立抽取的一个正例和一个负例的分数。推导
+**Q2.** 一个二元分类器给每个样本打一个实数分数；当分数超过阈值 $t$ 时，预测为正例。记 $\mathrm{TPR}(t)$ 和 $\mathrm{FPR}(t)$ 分别为阈值 $t$ 处的真正例率和假正例率——即实际正例、实际负例中分数高于 $t$ 的比例。*ROC 曲线*（ROC curve）是 $`\{(\mathrm{FPR}(t), \mathrm{TPR}(t)) : t \in \mathbb R\}`$，*ROC-AUC* 是它下方的面积。设 $S^+$、$`S^-`$ 分别是独立抽取的一个正例和一个负例的分数。推导
 
-$$\mathrm{ROC\text{-}AUC} = P(S^+ > S^-) + \tfrac12 P(S^+ = S^-).$$
+```math
+\mathrm{ROC\text{-}AUC} = P(S^+ > S^-) + \tfrac12 P(S^+ = S^-).
+```
 
 再解释为什么在类别严重不平衡时，*精确率-召回率曲线*（precision–recall curve，精确率对召回率作图，同样在这些阈值上扫描）是更有信息量的总结：说明当评估集里每个负例都被复制成十份时，ROC 曲线和精确率-召回率曲线各自会发生什么，以及原因。
 
 ### 损失函数
 
-**Q3.** 单个样本的标签为 $y \in \{0,1\}$，模型给出一个 logit $z \in \mathbb R$，得到预测概率 $p = \sigma(z)$。对两种逐样本损失分别推导 $\partial L/\partial z$：*二元交叉熵*（binary cross-entropy）$L_{\mathrm{bce}} = -[y \log p + (1-y)\log(1-p)]$，以及*平方误差*（squared error）$L_{\mathrm{se}} = (p-y)^2$。用这两个导数解释：当模型自信地犯错时（比如 $y=1$ 而 $z \ll 0$），用平方误差训练为什么学得很慢，而交叉熵不会。
+**Q3.** 单个样本的标签为 $`y \in \{0,1\}`$，模型给出一个 logit $z \in \mathbb R$，得到预测概率 $p = \sigma(z)$。对两种逐样本损失分别推导 $\partial L/\partial z$：*二元交叉熵*（binary cross-entropy）$`L_{\mathrm{bce}} = -[y \log p + (1-y)\log(1-p)]`$，以及*平方误差*（squared error）$`L_{\mathrm{se}} = (p-y)^2`$。用这两个导数解释：当模型自信地犯错时（比如 $y=1$ 而 $z \ll 0$），用平方误差训练为什么学得很慢，而交叉熵不会。
 
-**Q4.** 一个逻辑回归（logistic regression）模型有权重 $w \in \mathbb R^d$；给定设计矩阵（design matrix）$X \in \mathbb R^{n \times d}$（第 $i$ 行是 $x_i^\top$）和标签 $y \in \{0,1\}^n$，它预测 $p_i = \sigma(x_i^\top w)$。写出负对数似然（negative log-likelihood）$L(w) = -\sum_i [y_i \log p_i + (1-y_i)\log(1-p_i)]$，推导它的梯度 $\nabla L(w) = X^\top(\sigma(Xw) - y)$（$\sigma$ 逐元素作用）和 Hessian 矩阵 $\nabla^2 L(w) = X^\top S X$（$S = \mathrm{diag}(p_i(1-p_i))$），并用这个 Hessian 矩阵说明 $L$ 在整个 $\mathbb R^d$ 上是凸的。现在设数据*线性可分*（linearly separable）：存在某个 $w^\star$，对每个 $i$，只要 $y_i=1$ 就有 $x_i^\top w^\star > 0$，只要 $y_i=0$ 就有 $x_i^\top w^\star < 0$。说明在这份数据上，无正则化的梯度下降中 $\inf_w L(w)$ 和 $\lVert w \rVert$ 会怎样变化，以及给 $L$ 加上 $\ell_2$ 惩罚项 $\tfrac\lambda2\lVert w \rVert^2$ 之后答案会如何改变。
+**Q4.** 一个逻辑回归（logistic regression）模型有权重 $w \in \mathbb R^d$；给定设计矩阵（design matrix）$`X \in \mathbb R^{n \times d}`$（第 $i$ 行是 $x_i^\top$）和标签 $`y \in \{0,1\}^n`$，它预测 $p_i = \sigma(x_i^\top w)$。写出负对数似然（negative log-likelihood）$`L(w) = -\sum_i [y_i \log p_i + (1-y_i)\log(1-p_i)]`$，推导它的梯度 $\nabla L(w) = X^\top(\sigma(Xw) - y)$（$`\sigma`$ 逐元素作用）和 Hessian 矩阵 $\nabla^2 L(w) = X^\top S X$（$`S = \mathrm{diag}(p_i(1-p_i))`$），并用这个 Hessian 矩阵说明 $L$ 在整个 $\mathbb R^d$ 上是凸的。现在设数据*线性可分*（linearly separable）：存在某个 $w^\star$，对每个 $i$，只要 $y_i=1$ 就有 $x_i^\top w^\star > 0$，只要 $y_i=0$ 就有 $x_i^\top w^\star < 0$。说明在这份数据上，无正则化的梯度下降中 $\inf_w L(w)$ 和 $\lVert w \rVert$ 会怎样变化，以及给 $L$ 加上 $\ell_2$ 惩罚项 $\tfrac\lambda2\lVert w \rVert^2$ 之后答案会如何改变。
 
-**Q5.** 模型对一个 $K$ 类问题输出 logits $z \in \mathbb R^K$，$\mathrm{softmax}(z)_i = e^{z_i}/\sum_k e^{z_k}$，真实类别为 $y \in \{1,\dots,K\}$ 的样本的损失是 $L(z) = -\log \mathrm{softmax}(z)_y$。推导 $\nabla_z L = \mathrm{softmax}(z) - e_y$，其中 $e_y \in \mathbb R^K$ 是类别 $y$ 对应的标准基向量。引用使其成立的恒等式，解释为什么正确的实现在调用 `exp` 之前，会先给每个 logit 减去 $m = \max_k z_k$——无论是计算 $\mathrm{softmax}(z)$ 本身，还是计算 $\log \sum_k e^{z_k}$。
+**Q5.** 模型对一个 $K$ 类问题输出 logits $z \in \mathbb R^K$，$`\mathrm{softmax}(z)_i = e^{z_i}/\sum_k e^{z_k}`$，真实类别为 $`y \in \{1,\dots,K\}`$ 的样本的损失是 $`L(z) = -\log \mathrm{softmax}(z)_y`$。推导 $\nabla_z L = \mathrm{softmax}(z) - e_y$，其中 $e_y \in \mathbb R^K$ 是类别 $y$ 对应的标准基向量。引用使其成立的恒等式，解释为什么正确的实现在调用 `exp` 之前，会先给每个 logit 减去 $m = \max_k z_k$——无论是计算 $\mathrm{softmax}(z)$ 本身，还是计算 $\log \sum_k e^{z_k}$。
 
 ### 优化器
 
-**Q6.** 对一个标量参数 $\theta$，第 $t$ 步的梯度为 $g_t$，学习率为 $\eta$：普通 SGD 的更新是 $\theta_{t+1} = \theta_t - \eta g_t$；带动量（momentum）$\mu$ 的 SGD 维护速度 $v_t = \mu v_{t-1} + g_t$（$v_0=0$），更新为 $\theta_{t+1} = \theta_t - \eta v_t$；Adam 维护 $m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t$ 和 $v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2$（$m_0 = v_0 = 0$），偏差校正（bias correction）为 $\hat m_t = m_t/(1-\beta_1^t)$、$\hat v_t = v_t/(1-\beta_2^t)$，更新为 $\theta_{t+1} = \theta_t - \eta\, \hat m_t/(\sqrt{\hat v_t}+\epsilon)$。假设每一步都有 $\mathbb E[g_t] = \bar g$，求 $\mathbb E[m_t]$ 的闭式解，并用它解释为什么 $m_t$ 要除以 $1-\beta_1^t$。再证明：无论 $g_1$ 是多少，第一次 Adam 更新都满足 $\hat m_1/(\sqrt{\hat v_1}+\epsilon) \approx \mathrm{sign}(g_1)$——所以第一步会让每个坐标移动大约 $\eta$，无论该坐标的梯度是大是小。
+**Q6.** 对一个标量参数 $\theta$，第 $t$ 步的梯度为 $g_t$，学习率为 $\eta$：普通 SGD 的更新是 $\theta_{t+1} = \theta_t - \eta g_t$；带动量（momentum）$`\mu`$ 的 SGD 维护速度 $v_t = \mu v_{t-1} + g_t$（$`v_0=0`$），更新为 $\theta_{t+1} = \theta_t - \eta v_t$；Adam 维护 $m_t = \beta_1 m_{t-1} + (1-\beta_1) g_t$ 和 $v_t = \beta_2 v_{t-1} + (1-\beta_2) g_t^2$（$`m_0 = v_0 = 0`$），偏差校正（bias correction）为 $\hat m_t = m_t/(1-\beta_1^t)$、$`\hat v_t = v_t/(1-\beta_2^t)`$，更新为 $`\theta_{t+1} = \theta_t - \eta\, \hat m_t/(\sqrt{\hat v_t}+\epsilon)`$。假设每一步都有 $\mathbb E[g_t] = \bar g$，求 $\mathbb E[m_t]$ 的闭式解，并用它解释为什么 $m_t$ 要除以 $1-\beta_1^t$。再证明：无论 $g_1$ 是多少，第一次 Adam 更新都满足 $\hat m_1/(\sqrt{\hat v_1}+\epsilon) \approx \mathrm{sign}(g_1)$——所以第一步会让每个坐标移动大约 $\eta$，无论该坐标的梯度是大是小。
 
-**Q7.** 考虑一次 SGD 族的更新，梯度为 $g$，学习率为 $\eta$，系数为 $\lambda > 0$。*$\ell_2$ 正则化*的 SGD 通过梯度下降最小化 $L(w) + \tfrac\lambda2\lVert w\rVert^2$：$w \leftarrow w - \eta(g + \lambda w)$。*解耦的权重衰减*（decoupled weight decay）则每一步都独立于损失梯度、按比例 $\gamma$ 缩小权重：$w \leftarrow (1-\gamma) w - \eta g$。证明一旦 $\gamma = \eta\lambda$，这两者对任意 $w$、$g$ 都完全一致。现在考虑 Adam。*带 $\ell_2$ 正则化的 Adam* 在形成 $m_t, v_t$ 之前，先把 $\lambda w$ 加进 $g$，再照常走一步 Adam。*AdamW* 只用 $g$ 本身形成 $m_t, v_t$，再直接施加解耦的衰减：$w \leftarrow (1-\gamma) w - \eta\, \hat m_t/(\sqrt{\hat v_t}+\epsilon)$。结合 $\hat v_t$，解释为什么无论 $\gamma = \eta\lambda$ 还是任何其他的系数对应关系，这两者都不再一致。
+**Q7.** 考虑一次 SGD 族的更新，梯度为 $g$，学习率为 $\eta$，系数为 $\lambda > 0$。*$`\ell_2`$ 正则化*的 SGD 通过梯度下降最小化 $L(w) + \tfrac\lambda2\lVert w\rVert^2$：$`w \leftarrow w - \eta(g + \lambda w)`$。*解耦的权重衰减*（decoupled weight decay）则每一步都独立于损失梯度、按比例 $\gamma$ 缩小权重：$`w \leftarrow (1-\gamma) w - \eta g`$。证明一旦 $\gamma = \eta\lambda$，这两者对任意 $w$、$`g`$ 都完全一致。现在考虑 Adam。*带 $`\ell_2`$ 正则化的 Adam* 在形成 $m_t, v_t$ 之前，先把 $\lambda w$ 加进 $g$，再照常走一步 Adam。*AdamW* 只用 $g$ 本身形成 $m_t, v_t$，再直接施加解耦的衰减：$`w \leftarrow (1-\gamma) w - \eta\, \hat m_t/(\sqrt{\hat v_t}+\epsilon)`$。结合 $\hat v_t$，解释为什么无论 $\gamma = \eta\lambda$ 还是任何其他的系数对应关系，这两者都不再一致。
 
 **Q8.** 训练用 Adam 优化器，预热结束后的目标学习率为 $\eta$。*学习率预热*（learning-rate warmup）在最初几千步里，把学习率从 $0$ 线性升到 $\eta$，而不是从第 $1$ 步就用 $\eta$；*学习率衰减*（learning-rate decay，余弦或线性）则在训练的最后阶段把它降回 $0$ 附近。结合只经过几步之后 $\hat v_t$ 有多可靠，解释预热对 Adam、尤其是大 batch 训练有用的机制。另外，对用*恒定*学习率 $\eta$ 最小化随机目标的普通 SGD，说明迭代点最终会怎样，而不是收敛到最小值点；这个围绕最小值点的散布大小如何随 $\eta$ 变化；并用这一点解释为什么训练后期衰减 $\eta$ 有帮助。
 
 ### 泛化与正则化
 
-**Q9.** 固定输入 $x$，设 $y = f(x) + \varepsilon$，其中 $f$ 是未知函数，噪声 $\varepsilon$ 满足 $\mathbb E[\varepsilon] = 0$、$\mathrm{Var}(\varepsilon) = \sigma^2$，且与训练数据独立。给定一个随机训练集 $D$，某个学习算法得到预测器 $\hat f_D$；记 $\bar f(x) = \mathbb E_D[\hat f_D(x)]$。推导偏差-方差分解（bias-variance decomposition）
+**Q9.** 固定输入 $x$，设 $y = f(x) + \varepsilon$，其中 $f$ 是未知函数，噪声 $\varepsilon$ 满足 $\mathbb E[\varepsilon] = 0$、$`\mathrm{Var}(\varepsilon) = \sigma^2`$，且与训练数据独立。给定一个随机训练集 $D$，某个学习算法得到预测器 $\hat f_D$；记 $\bar f(x) = \mathbb E_D[\hat f_D(x)]$。推导偏差-方差分解（bias-variance decomposition）
 
-$$\mathbb E_{D,\varepsilon}\bigl[(y - \hat f_D(x))^2\bigr] = \underbrace{(\bar f(x) - f(x))^2}_{\mathrm{偏差}^2} + \underbrace{\mathbb E_D\bigl[(\hat f_D(x) - \bar f(x))^2\bigr]}_{\mathrm{方差}} + \sigma^2,$$
+```math
+\mathbb E_{D,\varepsilon}\bigl[(y - \hat f_D(x))^2\bigr] = \underbrace{(\bar f(x) - f(x))^2}_{\mathrm{偏差}^2} + \underbrace{\mathbb E_D\bigl[(\hat f_D(x) - \bar f(x))^2\bigr]}_{\mathrm{方差}} + \sigma^2,
+```
 
 并说明哪一步用到了 $\mathbb E[\varepsilon] = 0$，哪一步用到了 $\varepsilon$ 与 $D$ 的独立性。
 
-**Q10.** 对设计矩阵 $X \in \mathbb R^{n \times d}$（$\mathrm{rank}(X) = d$）、目标 $y \in \mathbb R^n$ 和 $\lambda > 0$，*岭回归*（ridge regression）最小化 $\lVert y - Xw \rVert^2 + \lambda \lVert w \rVert^2$。推导闭式解 $\hat w_\lambda = (X^\top X + \lambda I)^{-1} X^\top y$。写出瘦身奇异值分解（singular value decomposition，SVD）$X = U \Sigma V^\top$，其奇异值为 $d_1,\dots,d_d$，用 $U, V, \Sigma, y$ 表示 $\hat w_\lambda$，并证明：在 $V$ 给出的坐标系里，岭回归把沿第 $i$ 个奇异方向的最小二乘系数缩小了 $d_i^2/(d_i^2+\lambda)$ 倍。然后取一个列正交（orthonormal columns）的设计（$X^\top X = I$）：在它上面，$\arg\min_w \lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2$（如上，岭回归）分解为 $d$ 个独立的一维问题，$\arg\min_w \tfrac12\lVert y-Xw\rVert^2+\lambda\lVert w\rVert_1$（*lasso*，$\ell_1$ 惩罚的对应版本，按惯例带上前面的 $\tfrac12$ 使阈值恰好是 $\lambda$）也一样。推导两者各自的一维闭式解，并用它们解释为什么 lasso 经常把系数精确置零，而岭回归不会。
+**Q10.** 对设计矩阵 $X \in \mathbb R^{n \times d}$（$`\mathrm{rank}(X) = d`$）、目标 $y \in \mathbb R^n$ 和 $\lambda > 0$，*岭回归*（ridge regression）最小化 $\lVert y - Xw \rVert^2 + \lambda \lVert w \rVert^2$。推导闭式解 $\hat w_\lambda = (X^\top X + \lambda I)^{-1} X^\top y$。写出瘦身奇异值分解（singular value decomposition，SVD）$`X = U \Sigma V^\top`$，其奇异值为 $d_1,\dots,d_d$，用 $U, V, \Sigma, y$ 表示 $\hat w_\lambda$，并证明：在 $V$ 给出的坐标系里，岭回归把沿第 $i$ 个奇异方向的最小二乘系数缩小了 $d_i^2/(d_i^2+\lambda)$ 倍。然后取一个列正交（orthonormal columns）的设计（$`X^\top X = I`$）：在它上面，$`\arg\min_w \lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2`$（如上，岭回归）分解为 $d$ 个独立的一维问题，$`\arg\min_w \tfrac12\lVert y-Xw\rVert^2+\lambda\lVert w\rVert_1`$（*lasso*，$`\ell_1`$ 惩罚的对应版本，按惯例带上前面的 $\tfrac12$ 使阈值恰好是 $\lambda$）也一样。推导两者各自的一维闭式解，并用它们解释为什么 lasso 经常把系数精确置零，而岭回归不会。
 
-**Q11.** *倒置 dropout*（inverted dropout）以丢弃概率（drop probability）$p \in (0,1)$，独立地把一层里的每个激活值 $h$ 替换为 $\tilde h = \frac{m}{1-p} h$，其中 $m \sim \mathrm{Bernoulli}(1-p)$（即该单元以概率 $1-p$ 被保留，$m=1$）。推导 $\mathbb E[\tilde h]$，并说明如果没有 $1/(1-p)$ 这个因子，它会是多少。说明使用倒置 dropout 的一层在评估（evaluation）时计算的是什么，以及为什么那里不需要再做任何缩放。
+**Q11.** *倒置 dropout*（inverted dropout）以丢弃概率（drop probability）$`p \in (0,1)`$，独立地把一层里的每个激活值 $h$ 替换为 $\tilde h = \frac{m}{1-p} h$，其中 $m \sim \mathrm{Bernoulli}(1-p)$（即该单元以概率 $1-p$ 被保留，$`m=1`$）。推导 $\mathbb E[\tilde h]$，并说明如果没有 $1/(1-p)$ 这个因子，它会是多少。说明使用倒置 dropout 的一层在评估（evaluation）时计算的是什么，以及为什么那里不需要再做任何缩放。
 
 **Q12.** 对一个包含 $N$ 个样本的*批次*（batch），每个样本是一个 $C$ 维特征向量，写成 $h \in \mathbb R^{N \times C}$，元素为 $h_{n,c}$：*批归一化*（batch normalisation）对每个通道 $c$，在 $N$ 个样本上计算均值和方差，并用它们归一化第 $c$ 列；*层归一化*（layer normalisation）对每个样本 $n$，在它自己的 $C$ 个特征上计算均值和方差，并用它们归一化第 $n$ 行。写出这两个公式（在任何可学习的仿射变换之前），并说明各自在哪个轴上归约。描述批归一化在推理（inference）时和训练时有什么不同，以及为什么需要这个不同。解释为什么 Transformer 架构用层归一化（或 RMSNorm）而不是批归一化。
 
 ### 回归损失与生成模型
 
-**Q13.** 一个回归模型对 $n$ 个训练样本 $(x_i, y_i)$ 中的每一个都给出预测 $f(x_i)$，残差（residual）为 $r_i = y_i - f(x_i)$；两种常见的训练目标是 *L2 损失* $\sum_i r_i^2$ 和 *L1 损失* $\sum_i |r_i|$。对于常数预测器这一特殊情形，即对每个 $i$ 都有 $f(x_i) = c$，从导数出发推导使 $\sum_i (y_i-c)^2$ 最小的 $c$ 值，再从每一项的符号以及 $|\cdot|$ 在 $0$ 处的次梯度（subgradient，即与其转折点相一致的斜率区间 $[-1,1]$）出发推导使 $\sum_i |y_i-c|$ 最小的 $c$ 值；说出这两个最小值点各自对应哪个经典统计量，并说明 $\{y_i\}$ 中单个较大的离群值能把它拖多远。把 $\partial r^2/\partial r$ 以及 $|r|$ 的一个次梯度都写成残差 $r$ 的函数，并描述二者在 $r=0$ 处、以及 $|r|\to\infty$ 时的表现。说出在残差服从怎样的噪声模型时，最小化这两种损失各自恰好是最大似然估计（maximum likelihood estimation），并从该噪声模型的对数似然出发，推导其中一个对应关系。定义阈值为 $\delta>0$ 的 *Huber 损失*，
+**Q13.** 一个回归模型对 $n$ 个训练样本 $(x_i, y_i)$ 中的每一个都给出预测 $f(x_i)$，残差（residual）为 $r_i = y_i - f(x_i)$；两种常见的训练目标是 *L2 损失* $\sum_i r_i^2$ 和 *L1 损失* $\sum_i |r_i|$。对于常数预测器这一特殊情形，即对每个 $i$ 都有 $f(x_i) = c$，从导数出发推导使 $\sum_i (y_i-c)^2$ 最小的 $c$ 值，再从每一项的符号以及 $|\cdot|$ 在 $0$ 处的次梯度（subgradient，即与其转折点相一致的斜率区间 $[-1,1]$）出发推导使 $\sum_i |y_i-c|$ 最小的 $c$ 值；说出这两个最小值点各自对应哪个经典统计量，并说明 $`\{y_i\}`$ 中单个较大的离群值能把它拖多远。把 $\partial r^2/\partial r$ 以及 $|r|$ 的一个次梯度都写成残差 $r$ 的函数，并描述二者在 $r=0$ 处、以及 $|r|\to\infty$ 时的表现。说出在残差服从怎样的噪声模型时，最小化这两种损失各自恰好是最大似然估计（maximum likelihood estimation），并从该噪声模型的对数似然出发，推导其中一个对应关系。定义阈值为 $\delta>0$ 的 *Huber 损失*，
 
-$$L_\delta(r) = \begin{cases} \tfrac12 r^2 & |r| \le \delta \\ \delta\left(|r| - \tfrac12\delta\right) & |r| > \delta \end{cases},$$
+```math
+L_\delta(r) = \begin{cases} \tfrac12 r^2 & |r| \le \delta \\ \delta\left(|r| - \tfrac12\delta\right) & |r| > \delta \end{cases},
+```
 
 给出 $\partial L_\delta/\partial r$，并说明什么情况下它比单独使用 L1 或 L2 损失更合适。最后用一句话对比这两种损失*另一个*常见的角色——作为加在损失上的正则化项，而不是残差本身的损失（参见 Q10，不必重复其推导）。
 
-**Q14.** 一个*生成对抗网络*（generative adversarial network，GAN）让生成器（generator）$G$ 与判别器（discriminator）$D$ 相互对抗，共同优化极小极大目标（minimax objective）
+**Q14.** 一个*生成对抗网络*（generative adversarial network，GAN）让生成器（generator）$`G`$ 与判别器（discriminator）$`D`$ 相互对抗，共同优化极小极大目标（minimax objective）
 
-$$V(D,G) = \mathbb E_{x\sim p_{\mathrm{data}}}[\log D(x)] + \mathbb E_{z\sim p_z}[\log(1-D(G(z)))],$$
+```math
+V(D,G) = \mathbb E_{x\sim p_{\mathrm{data}}}[\log D(x)] + \mathbb E_{z\sim p_z}[\log(1-D(G(z)))],
+```
 
-其中 $D$ 在固定 $G$ 时最大化 $V$，$G$ 则针对由此得到的 $D$ 最小化 $V$；记 $p_g$ 为 $z\sim p_z$ 时 $G(z)$ 的分布。固定 $G$（从而固定 $p_g$），逐点（pointwise）在每个 $x$ 上推导 $D^\star = \arg\max_D V(D,G)$——对常数 $a,b>0$，最大化 $a\log y + b\log(1-y)$（$y\in(0,1)$）——并证明它就是 $D^\star(x) = p_{\mathrm{data}}(x)/(p_{\mathrm{data}}(x)+p_g(x))$。记 $m = (p_{\mathrm{data}}+p_g)/2$，并记离散分布 $p,q$ 之间的 KL 散度（Kullback–Leibler divergence）为 $\mathrm{KL}(p\Vert q) = \sum_x p(x)\log(p(x)/q(x))$，则*Jensen–Shannon 散度*为 $\mathrm{JSD}(p\Vert q) = \tfrac12\mathrm{KL}(p\Vert m)+\tfrac12\mathrm{KL}(q\Vert m)$；证明 $V(D^\star,G) = -\log 4 + 2\,\mathrm{JSD}(p_{\mathrm{data}}\Vert p_g)$，并用 $\mathrm{JSD}\ge 0$ 说明对 $G$ 取全局最小值时，$p_g$ 应该是什么。记 $s$ 为判别器在一个生成样本上、送入 sigmoid 之前的 logit，即 $D(G(z)) = \sigma(s)$，比较 $\partial/\partial s\,\log(1-\sigma(s))$——上面目标函数中被最小化的原始生成器损失——与 $\partial/\partial s\,[-\log\sigma(s)]$——实践中实际使用的*非饱和*（non-saturating）生成器损失——在 $s \ll 0$ 时，也就是 $D(G(z))$ 接近 $0$ 时的取值，并解释为什么训练早期实践中最小化的是后者而不是前者。说出除这种梯度消失之外，GAN 训练中两种不同的失败模式，并分别给出一种具体的缓解办法。
+其中 $D$ 在固定 $G$ 时最大化 $V$，$`G`$ 则针对由此得到的 $D$ 最小化 $V$；记 $p_g$ 为 $z\sim p_z$ 时 $G(z)$ 的分布。固定 $G$（从而固定 $p_g$），逐点（pointwise）在每个 $x$ 上推导 $D^\star = \arg\max_D V(D,G)$——对常数 $a,b>0$，最大化 $a\log y + b\log(1-y)$（$`y\in(0,1)`$）——并证明它就是 $D^\star(x) = p_{\mathrm{data}}(x)/(p_{\mathrm{data}}(x)+p_g(x))$。记 $m = (p_{\mathrm{data}}+p_g)/2$，并记离散分布 $p,q$ 之间的 KL 散度（Kullback–Leibler divergence）为 $\mathrm{KL}(p\Vert q) = \sum_x p(x)\log(p(x)/q(x))$，则*Jensen–Shannon 散度*为 $\mathrm{JSD}(p\Vert q) = \tfrac12\mathrm{KL}(p\Vert m)+\tfrac12\mathrm{KL}(q\Vert m)$；证明 $`V(D^\star,G) = -\log 4 + 2\,\mathrm{JSD}(p_{\mathrm{data}}\Vert p_g)`$，并用 $\mathrm{JSD}\ge 0$ 说明对 $G$ 取全局最小值时，$`p_g`$ 应该是什么。记 $s$ 为判别器在一个生成样本上、送入 sigmoid 之前的 logit，即 $D(G(z)) = \sigma(s)$，比较 $`\partial/\partial s\,\log(1-\sigma(s))`$——上面目标函数中被最小化的原始生成器损失——与 $`\partial/\partial s\,[-\log\sigma(s)]`$——实践中实际使用的*非饱和*（non-saturating）生成器损失——在 $s \ll 0$ 时，也就是 $D(G(z))$ 接近 $0$ 时的取值，并解释为什么训练早期实践中最小化的是后者而不是前者。说出除这种梯度消失之外，GAN 训练中两种不同的失败模式，并分别给出一种具体的缓解办法。
 
 ### 从离线到线上
 
@@ -79,82 +87,94 @@ $$V(D,G) = \mathbb E_{x\sim p_{\mathrm{data}}}[\log D(x)] + \mathbb E_{z\sim p_z
 
 ### 评估
 
-**Q1.** 准确率是 $0.97$，精确率是 $0.8$，召回率是 $2/3 \approx 0.667$，F1 约为 $0.727$，其中准确率是最会误导人的那个。由计数直接算：$\mathrm{accuracy} = (\mathrm{TP}+\mathrm{TN})/n = 970/1000$；$\mathrm{precision} = \mathrm{TP}/(\mathrm{TP}+\mathrm{FP}) = 40/50$；$\mathrm{recall} = \mathrm{TP}/(\mathrm{TP}+\mathrm{FN}) = 40/60$；F1 是精确率与召回率的调和平均 $2\,\mathrm{precision}\cdot\mathrm{recall}/(\mathrm{precision}+\mathrm{recall})$，不是算术平均——调和平均对其中一项偏低的惩罚，比取平均严重得多。这份数据是不平衡的（$1{,}000$ 个样本里只有 $60$ 个正例），一个完全不看输入、永远预测“负例”的分类器在它上面已经能拿到 $940/1000 = 0.94$ 的准确率，所以这个分类器的 $0.97$ 比这个平凡基线也就多了一点点信息量，即便它漏掉了三分之一的真实正例（召回率 $0.667$）——这正是准确率会掩盖、而召回率会直接暴露出来的症状。当假正例是代价更高的错误时，应该偏向精确率，比如把一封正常邮件误判为垃圾邮件；当假负例是代价更高的错误时，应该偏向召回率，比如用一个便宜的检测手段筛查某种疾病，漏诊会延误治疗，而误报只是多花一次复查的代价。
+**Q1.** 准确率是 $0.97$，精确率是 $0.8$，召回率是 $2/3 \approx 0.667$，F1 约为 $0.727$，其中准确率是最会误导人的那个。由计数直接算：$`\mathrm{accuracy} = (\mathrm{TP}+\mathrm{TN})/n = 970/1000`$；$`\mathrm{precision} = \mathrm{TP}/(\mathrm{TP}+\mathrm{FP}) = 40/50`$；$`\mathrm{recall} = \mathrm{TP}/(\mathrm{TP}+\mathrm{FN}) = 40/60`$；F1 是精确率与召回率的调和平均 $`2\,\mathrm{precision}\cdot\mathrm{recall}/(\mathrm{precision}+\mathrm{recall})`$，不是算术平均——调和平均对其中一项偏低的惩罚，比取平均严重得多。这份数据是不平衡的（$`1{,}000`$ 个样本里只有 $60$ 个正例），一个完全不看输入、永远预测“负例”的分类器在它上面已经能拿到 $940/1000 = 0.94$ 的准确率，所以这个分类器的 $0.97$ 比这个平凡基线也就多了一点点信息量，即便它漏掉了三分之一的真实正例（召回率 $0.667$）——这正是准确率会掩盖、而召回率会直接暴露出来的症状。当假正例是代价更高的错误时，应该偏向精确率，比如把一封正常邮件误判为垃圾邮件；当假负例是代价更高的错误时，应该偏向召回率，比如用一个便宜的检测手段筛查某种疾病，漏诊会延误治疗，而误报只是多花一次复查的代价。
 
-**Q2.** ROC-AUC 恰好等于随机一个正例的分数高于随机一个负例分数的概率，平局按一半计——把分类阈值沿排序好的分数从高到低扫一遍，就把这个概率变成了一个面积计算。把全部 $n^++n^-$ 个分数从高到低排列，让阈值逐个不同取值地往下移动。每当新纳入一个负例 $j$，曲线就向右移动 $1/n^-$，此时的高度是 $\mathrm{TPR}$ 已经达到的值——也就是已经纳入的正例所占比例，$\#\{i : s_i^+ > s_j^-\}/n^+$；而每当新纳入一个正例，曲线向上移动，$\mathrm{FPR}$ 不变。把每一次向右移动贡献的面积加起来，得到 $\frac{1}{n^+n^-}\sum_{i,j} \mathbb 1(s_i^+ > s_j^-)$，这正是均匀随机一对 $(i,j)$ 下 $P(S^+ > S^-)$ 的值。当若干样本分数相同时，它们必须一起移动，因为没有哪个阈值能把它们分开：$a$ 个并列的正例和 $b$ 个并列的负例一起移动时，曲线沿一段直线的对角线从原处移动到新处，这个梯形的面积是 $\mathrm{TPR}\cdot(b/n^-) + \tfrac12(a/n^+)(b/n^-)$——第一项是给已经严格领先的那些配对的满分，第二项则把半分恰好平均分给新出现的 $ab$ 对并列组合。把整个扫描过程加总，就得到 $P(S^+>S^-) + \tfrac12 P(S^+=S^-)$，如下面的验证代码所示，它与 scikit-learn 的 `roc_auc_score` 在数值精度范围内完全一致。$\mathrm{TPR}(t)$ 和 $\mathrm{FPR}(t)$ 都是各自类别内部的比例，所以把每个负例复制成十份，两者都不会变：ROC 曲线和 ROC-AUC 都精确保持不变。阈值 $t$ 处的精确率是 $\mathrm{TP}(t)/(\mathrm{TP}(t)+\mathrm{FP}(t))$；复制操作把 $\mathrm{FP}(t)$ 乘以十而 $\mathrm{TP}(t)$ 不变，所以只要 $\mathrm{FP}(t)>0$，精确率在每个阈值上都会下降；在下面检查所用的数据上，平均精确率（precision–recall 曲线下的面积）下降超过 $0.1$——这正是“要正确面对多得多的负例”这一实际代价，而 ROC-AUC 因为从不除以类别数量，根本看不到它。
+**Q2.** ROC-AUC 恰好等于随机一个正例的分数高于随机一个负例分数的概率，平局按一半计——把分类阈值沿排序好的分数从高到低扫一遍，就把这个概率变成了一个面积计算。把全部 $n^++n^-$ 个分数从高到低排列，让阈值逐个不同取值地往下移动。每当新纳入一个负例 $j$，曲线就向右移动 $1/n^-$，此时的高度是 $\mathrm{TPR}$ 已经达到的值——也就是已经纳入的正例所占比例，$`\#\{i : s_i^+ > s_j^-\}/n^+`$；而每当新纳入一个正例，曲线向上移动，$`\mathrm{FPR}`$ 不变。把每一次向右移动贡献的面积加起来，得到 $\frac{1}{n^+n^-}\sum_{i,j} \mathbb 1(s_i^+ > s_j^-)$，这正是均匀随机一对 $(i,j)$ 下 $P(S^+ > S^-)$ 的值。当若干样本分数相同时，它们必须一起移动，因为没有哪个阈值能把它们分开：$`a`$ 个并列的正例和 $b$ 个并列的负例一起移动时，曲线沿一段直线的对角线从原处移动到新处，这个梯形的面积是 $\mathrm{TPR}\cdot(b/n^-) + \tfrac12(a/n^+)(b/n^-)$——第一项是给已经严格领先的那些配对的满分，第二项则把半分恰好平均分给新出现的 $ab$ 对并列组合。把整个扫描过程加总，就得到 $P(S^+>S^-) + \tfrac12 P(S^+=S^-)$，如下面的验证代码所示，它与 scikit-learn 的 `roc_auc_score` 在数值精度范围内完全一致。$`\mathrm{TPR}(t)`$ 和 $\mathrm{FPR}(t)$ 都是各自类别内部的比例，所以把每个负例复制成十份，两者都不会变：ROC 曲线和 ROC-AUC 都精确保持不变。阈值 $t$ 处的精确率是 $\mathrm{TP}(t)/(\mathrm{TP}(t)+\mathrm{FP}(t))$；复制操作把 $\mathrm{FP}(t)$ 乘以十而 $\mathrm{TP}(t)$ 不变，所以只要 $\mathrm{FP}(t)>0$，精确率在每个阈值上都会下降；在下面检查所用的数据上，平均精确率（precision–recall 曲线下的面积）下降超过 $0.1$——这正是“要正确面对多得多的负例”这一实际代价，而 ROC-AUC 因为从不除以类别数量，根本看不到它。
 
 ### 损失函数
 
 **Q3.** 两个导数都能化成干净的闭式；交叉熵的导数恰好在平方误差的导数塌缩之处依然很大。由 $\sigma(z) = 1/(1+e^{-z})$ 用商法则立得 $\sigma'(z) = \sigma(z)(1-\sigma(z))$，从而 $\partial p/\partial z = \sigma'(z) = p(1-p)$：
 
-$$\frac{\partial L_{\mathrm{bce}}}{\partial z} = \Bigl(-\frac{y}{p}+\frac{1-y}{1-p}\Bigr)p(1-p) = -y(1-p) + (1-y)p = p - y, \qquad \frac{\partial L_{\mathrm{se}}}{\partial z} = 2(p-y)\cdot p(1-p).$$
+```math
+\frac{\partial L_{\mathrm{bce}}}{\partial z} = \Bigl(-\frac{y}{p}+\frac{1-y}{1-p}\Bigr)p(1-p) = -y(1-p) + (1-y)p = p - y, \qquad \frac{\partial L_{\mathrm{se}}}{\partial z} = 2(p-y)\cdot p(1-p).
+```
 
-在 $y=1$、$z \ll 0$ 时模型是自信地犯错：$p \to 0$。交叉熵的梯度 $p - y \to -1$，是一个满幅的、推动 $z$ 增大的力；平方误差的梯度多了一个因子 $p(1-p) \to 0$：sigmoid 已经饱和，所以即便 $(p-y)$ 已经接近它最差的取值，$\partial p/\partial z$ 却很小，两者几乎相互抵消——在下面的检查中，$z=-20$ 处这两个梯度相差超过七个数量级。平方误差要等到 $p$ 已经离开饱和区之后才会真正开始用力推，所以一个错得离谱又很自信的预测，在平方误差下纠正得非常慢，在交叉熵下则很快。
+在 $y=1$、$`z \ll 0`$ 时模型是自信地犯错：$`p \to 0`$。交叉熵的梯度 $p - y \to -1$，是一个满幅的、推动 $z$ 增大的力；平方误差的梯度多了一个因子 $p(1-p) \to 0$：sigmoid 已经饱和，所以即便 $(p-y)$ 已经接近它最差的取值，$`\partial p/\partial z`$ 却很小，两者几乎相互抵消——在下面的检查中，$`z=-20`$ 处这两个梯度相差超过七个数量级。平方误差要等到 $p$ 已经离开饱和区之后才会真正开始用力推，所以一个错得离谱又很自信的预测，在平方误差下纠正得非常慢，在交叉熵下则很快。
 
-**Q4.** 梯度和 Hessian 矩阵和 Q3 是同一套模式，只是对样本求了和；凸性来自 Hessian 矩阵是一组带非负权重的外积之和；可分性则破坏了有限最小值点的存在性。记 $z_i = x_i^\top w$、$p_i = \sigma(z_i)$，Q3 给出 $\partial L/\partial z_i = p_i - y_i$，由链式法则 $\partial L/\partial w = \sum_i (p_i-y_i)x_i = X^\top(\sigma(Xw)-y)$。再求一次导，$\partial p_i/\partial w = p_i(1-p_i)x_i$，于是 $\nabla^2 L(w) = \sum_i p_i(1-p_i)\,x_ix_i^\top = X^\top S X$。对任意 $v \in \mathbb R^d$，$v^\top X^\top S X v = \sum_i p_i(1-p_i)(x_i^\top v)^2 \ge 0$，因为 $p_i \in (0,1)$ 时 $p_i(1-p_i) \ge 0$，且每一个平方项都非负——这个 Hessian 矩阵处处半正定，所以 $L$ 在 $\mathbb R^d$ 上是凸的。在可分数据上，令 $w = t\,w^\star$ 并让 $t \to \infty$，会把每个带符号的间隔 $x_i^\top w$（$y_i=1$ 时取正、$y_i=0$ 时取负）都推向 $+\infty$，于是每个 $p_i \to y_i$，$L(tw^\star) \to 0$ 且单调递减：$\inf_w L(w) = 0$，但没有任何有限的 $w$ 能取到它，所以只要一直跑下去，无正则化的梯度下降就会让 $\lVert w \rVert$ 无界增长。加上 $\tfrac\lambda2\lVert w\rVert^2$ 之后，当 $\lVert w \rVert \to \infty$ 时目标函数 $L(w) + \tfrac\lambda2\lVert w\rVert^2 \to \infty$（因为 $L \ge 0$），同时它的 Hessian 矩阵 $X^\top S X + \lambda I$ 现在处处*正定*（单是 $\lambda I$ 就已经正定）：正则化后的目标函数严格凸且强制（coercive），无论数据是否可分，它都有唯一的有限最小值点，梯度下降会收敛到那里，而不是发散。
+**Q4.** 梯度和 Hessian 矩阵和 Q3 是同一套模式，只是对样本求了和；凸性来自 Hessian 矩阵是一组带非负权重的外积之和；可分性则破坏了有限最小值点的存在性。记 $z_i = x_i^\top w$、$`p_i = \sigma(z_i)`$，Q3 给出 $\partial L/\partial z_i = p_i - y_i$，由链式法则 $\partial L/\partial w = \sum_i (p_i-y_i)x_i = X^\top(\sigma(Xw)-y)$。再求一次导，$`\partial p_i/\partial w = p_i(1-p_i)x_i`$，于是 $`\nabla^2 L(w) = \sum_i p_i(1-p_i)\,x_ix_i^\top = X^\top S X`$。对任意 $v \in \mathbb R^d$，$`v^\top X^\top S X v = \sum_i p_i(1-p_i)(x_i^\top v)^2 \ge 0`$，因为 $p_i \in (0,1)$ 时 $p_i(1-p_i) \ge 0$，且每一个平方项都非负——这个 Hessian 矩阵处处半正定，所以 $L$ 在 $\mathbb R^d$ 上是凸的。在可分数据上，令 $`w = t\,w^\star`$ 并让 $t \to \infty$，会把每个带符号的间隔 $x_i^\top w$（$`y_i=1`$ 时取正、$`y_i=0`$ 时取负）都推向 $+\infty$，于是每个 $p_i \to y_i$，$`L(tw^\star) \to 0`$ 且单调递减：$`\inf_w L(w) = 0`$，但没有任何有限的 $w$ 能取到它，所以只要一直跑下去，无正则化的梯度下降就会让 $\lVert w \rVert$ 无界增长。加上 $\tfrac\lambda2\lVert w\rVert^2$ 之后，当 $\lVert w \rVert \to \infty$ 时目标函数 $L(w) + \tfrac\lambda2\lVert w\rVert^2 \to \infty$（因为 $L \ge 0$），同时它的 Hessian 矩阵 $X^\top S X + \lambda I$ 现在处处*正定*（单是 $\lambda I$ 就已经正定）：正则化后的目标函数严格凸且强制（coercive），无论数据是否可分，它都有唯一的有限最小值点，梯度下降会收敛到那里，而不是发散。
 
-**Q5.** 梯度是 softmax 减去 one-hot 目标；减去最大值这个操作，在精确算术下完全不改变 softmax 和 log-sum-exp 的值，在浮点运算里则让每个指数都不超过 $0$。写 $L(z) = -z_y + \log\sum_k e^{z_k}$。第一项贡献 $-\partial z_y/\partial z_i = -\delta_{iy}$；第二项，$\partial/\partial z_i \log\sum_k e^{z_k} = e^{z_i}/\sum_k e^{z_k} = \mathrm{softmax}(z)_i$。所以 $\partial L/\partial z_i = \mathrm{softmax}(z)_i - \delta_{iy}$，即 $\nabla_z L = \mathrm{softmax}(z) - e_y$。对任意常数 $m$，$e^{z_k} = e^m \cdot e^{z_k - m}$，所以 $\sum_k e^{z_k} = e^m \sum_k e^{z_k-m}$：在 softmax 的比值里，$e^m$ 这个因子在分子分母中精确抵消；而 $\log \sum_k e^{z_k} = m + \log\sum_k e^{z_k-m}$ 对任意 $m$ 都精确成立——所以减去 $m = \max_k z_k$ 在数学上不改变这两个量。它改变的是浮点计算：平移后的每个指数 $z_k - m$ 都 $\le 0$，所以 `exp` 永远不会上溢；而其中最大的一项恰好是 $e^0=1$，所以这个和也永远不会下溢到 $0$——无论原始 logits 的量级多大、分布多分散都是如此。
+**Q5.** 梯度是 softmax 减去 one-hot 目标；减去最大值这个操作，在精确算术下完全不改变 softmax 和 log-sum-exp 的值，在浮点运算里则让每个指数都不超过 $0$。写 $L(z) = -z_y + \log\sum_k e^{z_k}$。第一项贡献 $-\partial z_y/\partial z_i = -\delta_{iy}$；第二项，$`\partial/\partial z_i \log\sum_k e^{z_k} = e^{z_i}/\sum_k e^{z_k} = \mathrm{softmax}(z)_i`$。所以 $`\partial L/\partial z_i = \mathrm{softmax}(z)_i - \delta_{iy}`$，即 $\nabla_z L = \mathrm{softmax}(z) - e_y$。对任意常数 $m$，$`e^{z_k} = e^m \cdot e^{z_k - m}`$，所以 $\sum_k e^{z_k} = e^m \sum_k e^{z_k-m}$：在 softmax 的比值里，$`e^m`$ 这个因子在分子分母中精确抵消；而 $\log \sum_k e^{z_k} = m + \log\sum_k e^{z_k-m}$ 对任意 $m$ 都精确成立——所以减去 $m = \max_k z_k$ 在数学上不改变这两个量。它改变的是浮点计算：平移后的每个指数 $z_k - m$ 都 $\le 0$，所以 `exp` 永远不会上溢；而其中最大的一项恰好是 $e^0=1$，所以这个和也永远不会下溢到 $0$——无论原始 logits 的量级多大、分布多分散都是如此。
 
 ### 优化器
 
-**Q6.** SGD 的步长就是梯度乘以 $\eta$；动量以衰减率 $\mu$ 累积梯度；Adam 用每个坐标自己最近的梯度量级去归一化那一步，而它的偏差校正之所以存在，是因为矩估计从零开始，早期会被向零拖拽。把 $m_t$ 从 $m_0=0$ 展开：$m_t = (1-\beta_1)\sum_{k=1}^t \beta_1^{t-k}g_k$，于是在每一步都有 $\mathbb E[g_k]=\bar g$ 的假设下，
+**Q6.** SGD 的步长就是梯度乘以 $\eta$；动量以衰减率 $\mu$ 累积梯度；Adam 用每个坐标自己最近的梯度量级去归一化那一步，而它的偏差校正之所以存在，是因为矩估计从零开始，早期会被向零拖拽。把 $m_t$ 从 $m_0=0$ 展开：$`m_t = (1-\beta_1)\sum_{k=1}^t \beta_1^{t-k}g_k`$，于是在每一步都有 $\mathbb E[g_k]=\bar g$ 的假设下，
 
-$$\mathbb E[m_t] = (1-\beta_1)\bar g \sum_{k=1}^t \beta_1^{t-k} = (1-\beta_1)\bar g\,\frac{1-\beta_1^t}{1-\beta_1} = (1-\beta_1^t)\,\bar g,$$
+```math
+\mathbb E[m_t] = (1-\beta_1)\bar g \sum_{k=1}^t \beta_1^{t-k} = (1-\beta_1)\bar g\,\frac{1-\beta_1^t}{1-\beta_1} = (1-\beta_1^t)\,\bar g,
+```
 
-这里用到了有限几何级数 $\sum_{j=0}^{t-1}\beta_1^j = (1-\beta_1^t)/(1-\beta_1)$。所以 $m_t$ 以因子 $1-\beta_1^t$ 低估了 $\bar g$：$t$ 小时这个因子接近 $0$（平均才刚刚开始），$t$ 大时接近 $1$；恰好除以这个因子，$\hat m_t = m_t/(1-\beta_1^t)$，在这个平稳性假设下对每个 $t$ 都给出 $\mathbb E[\hat m_t] = \bar g$，完全消除了偏差——下面的蒙特卡洛（Monte Carlo）模拟在其抽样误差范围内证实了这一点。在 $t=1$ 时，$m_1 = (1-\beta_1)g_1$，所以 $\hat m_1 = g_1$ *精确*成立，无论 $\beta_1$ 取什么值（校正因子 $1-\beta_1^1=1-\beta_1$ 恰好把它精确抵消），同样 $\hat v_1 = g_1^2$ 也精确成立。于是 $\hat m_1/(\sqrt{\hat v_1}+\epsilon) = g_1/(|g_1|+\epsilon)$，这等于 $\mathrm{sign}(g_1)$ 加上一个随 $|g_1|/\epsilon \to \infty$ 而消失的误差：第一次 Adam 更新的步长在每个坐标上都是 $\eta\cdot|g_1|/(|g_1|+\epsilon) \approx \eta$——下面的检查对跨越六个数量级的梯度验证了这一点，误差在 $\eta$ 的 $0.01\%$ 以内——因为无论该坐标的梯度有多大或多小，第 $1$ 步的偏差校正都是精确的。
+这里用到了有限几何级数 $\sum_{j=0}^{t-1}\beta_1^j = (1-\beta_1^t)/(1-\beta_1)$。所以 $m_t$ 以因子 $1-\beta_1^t$ 低估了 $\bar g$：$`t`$ 小时这个因子接近 $0$（平均才刚刚开始），$`t`$ 大时接近 $1$；恰好除以这个因子，$`\hat m_t = m_t/(1-\beta_1^t)`$，在这个平稳性假设下对每个 $t$ 都给出 $\mathbb E[\hat m_t] = \bar g$，完全消除了偏差——下面的蒙特卡洛（Monte Carlo）模拟在其抽样误差范围内证实了这一点。在 $t=1$ 时，$`m_1 = (1-\beta_1)g_1`$，所以 $\hat m_1 = g_1$ *精确*成立，无论 $\beta_1$ 取什么值（校正因子 $1-\beta_1^1=1-\beta_1$ 恰好把它精确抵消），同样 $\hat v_1 = g_1^2$ 也精确成立。于是 $\hat m_1/(\sqrt{\hat v_1}+\epsilon) = g_1/(|g_1|+\epsilon)$，这等于 $\mathrm{sign}(g_1)$ 加上一个随 $|g_1|/\epsilon \to \infty$ 而消失的误差：第一次 Adam 更新的步长在每个坐标上都是 $\eta\cdot|g_1|/(|g_1|+\epsilon) \approx \eta$——下面的检查对跨越六个数量级的梯度验证了这一点，误差在 $\eta$ 的 $`0.01\%`$ 以内——因为无论该坐标的梯度有多大或多小，第 $1$ 步的偏差校正都是精确的。
 
-**Q7.** 对 SGD 来说，这两条更新规则只是同一个公式的不同写法；对 Adam 来说则不是，因为 $\ell_2$ 的衰减项会经过那个自适应的分母，而解耦的衰减不会。把 $\gamma = \eta\lambda$ 代入解耦衰减，$w \leftarrow (1-\eta\lambda)w - \eta g = w - \eta g - \eta\lambda w$，这恰好就是 $\ell_2$ 正则化的更新 $w - \eta(g+\lambda w)$——对任意 $w$、$g$ 两者逐项一致，没有别的附加条件，下面的检查也验证了这一点。对 Adam 来说，$\ell_2$ 正则化是在形成 $m_t, v_t$ *之前*就把 $\lambda w$ 并入 $g$，所以这个衰减项会和梯度的其余部分一起被除以 $\sqrt{\hat v_t}$：一个最近梯度量级较大（$\hat v_t$ 较大）的坐标，其有效衰减会相对于 $\hat v_t$ 较小的坐标被削弱，尽管两个权重本该按同样的比例 $\gamma$ 收缩。AdamW 则完全不让 $\lambda$ 进入 $m_t$、$v_t$，而是对每个坐标同等地施加 $(1-\gamma)$，所以它的衰减强度从不依赖那个坐标的梯度历史。由于 $\hat v_t$ 在不同坐标、不同时间上确实各不相同——这正是 Adam 逐坐标自适应的全部意义所在——没有哪一个 $\gamma$ 能让这两条更新规则在一般情况下一致，下面在不同量级梯度上的检查也证实了这一点。
+**Q7.** 对 SGD 来说，这两条更新规则只是同一个公式的不同写法；对 Adam 来说则不是，因为 $\ell_2$ 的衰减项会经过那个自适应的分母，而解耦的衰减不会。把 $\gamma = \eta\lambda$ 代入解耦衰减，$`w \leftarrow (1-\eta\lambda)w - \eta g = w - \eta g - \eta\lambda w`$，这恰好就是 $\ell_2$ 正则化的更新 $w - \eta(g+\lambda w)$——对任意 $w$、$`g`$ 两者逐项一致，没有别的附加条件，下面的检查也验证了这一点。对 Adam 来说，$`\ell_2`$ 正则化是在形成 $m_t, v_t$ *之前*就把 $\lambda w$ 并入 $g$，所以这个衰减项会和梯度的其余部分一起被除以 $\sqrt{\hat v_t}$：一个最近梯度量级较大（$`\hat v_t`$ 较大）的坐标，其有效衰减会相对于 $\hat v_t$ 较小的坐标被削弱，尽管两个权重本该按同样的比例 $\gamma$ 收缩。AdamW 则完全不让 $\lambda$ 进入 $m_t$、$`v_t`$，而是对每个坐标同等地施加 $(1-\gamma)$，所以它的衰减强度从不依赖那个坐标的梯度历史。由于 $\hat v_t$ 在不同坐标、不同时间上确实各不相同——这正是 Adam 逐坐标自适应的全部意义所在——没有哪一个 $\gamma$ 能让这两条更新规则在一般情况下一致，下面在不同量级梯度上的检查也证实了这一点。
 
-**Q8.** 预热防的是训练早期 $\hat v_t$ 不可靠；衰减缩小的是恒定学习率在最小值点周围留下的、由噪声驱动的散布。$\hat v_1 = g_1^2$（Q6）：走完第一步之后，Adam 对某个坐标梯度量级的估计，完全是从一个带噪声的样本构建出来的，所以一个运气不好的、偏大或偏小的 $g_1$ 会被全盘照收，得到的步长依然 $\approx \eta$——指数平均还完全没有机会去把 minibatch 噪声平滑掉。用大 batch 训练时这一点更要紧，因为每步的学习率本身通常也会调大（用来补偿每个 epoch 步数的减少），于是早期 $\hat v_t$ 的相对不可靠会转化为更大的绝对风险；把 $\eta$ 从 $0$ 慢慢升上去，恰好能在这段不可靠的窗口期把*实际*步长压小，给 $\hat v_t$ 留出时间，在足够多步之后稳定下来。再看衰减这一半：在二次函数 $f(\theta)=\theta^2/2$（最小值在 $0$）上，用随机梯度 $g_t = \theta_t + \xi_t$（$\xi_t \sim N(0,\sigma^2)$ 独立同分布），SGD 给出 $\theta_{t+1} = (1-\eta)\theta_t - \eta\xi_t$，这是一个线性递推，其平稳方差满足 $\mathrm{Var}_\infty = (1-\eta)^2\mathrm{Var}_\infty + \eta^2\sigma^2$，即
+**Q8.** 预热防的是训练早期 $\hat v_t$ 不可靠；衰减缩小的是恒定学习率在最小值点周围留下的、由噪声驱动的散布。$`\hat v_1 = g_1^2`$（Q6）：走完第一步之后，Adam 对某个坐标梯度量级的估计，完全是从一个带噪声的样本构建出来的，所以一个运气不好的、偏大或偏小的 $g_1$ 会被全盘照收，得到的步长依然 $\approx \eta$——指数平均还完全没有机会去把 minibatch 噪声平滑掉。用大 batch 训练时这一点更要紧，因为每步的学习率本身通常也会调大（用来补偿每个 epoch 步数的减少），于是早期 $\hat v_t$ 的相对不可靠会转化为更大的绝对风险；把 $\eta$ 从 $0$ 慢慢升上去，恰好能在这段不可靠的窗口期把*实际*步长压小，给 $\hat v_t$ 留出时间，在足够多步之后稳定下来。再看衰减这一半：在二次函数 $f(\theta)=\theta^2/2$（最小值在 $0$）上，用随机梯度 $g_t = \theta_t + \xi_t$（$`\xi_t \sim N(0,\sigma^2)`$ 独立同分布），SGD 给出 $\theta_{t+1} = (1-\eta)\theta_t - \eta\xi_t$，这是一个线性递推，其平稳方差满足 $`\mathrm{Var}_\infty = (1-\eta)^2\mathrm{Var}_\infty + \eta^2\sigma^2`$，即
 
-$$\mathrm{Var}_\infty = \frac{\eta^2\sigma^2}{1-(1-\eta)^2} = \frac{\eta\sigma^2}{2-\eta}.$$
+```math
+\mathrm{Var}_\infty = \frac{\eta^2\sigma^2}{1-(1-\eta)^2} = \frac{\eta\sigma^2}{2-\eta}.
+```
 
-迭代点根本不会收敛到最小值点：它们依分布收敛到最小值点周围一个方差为 $\mathrm{Var}_\infty$ 的散布（下面的模拟在其所用误差范围内证实了这一点）——一个大小随 $\eta$ 增长的“噪声球”。训练后期衰减 $\eta$ 会缩小这个球——用更小的 $\eta$ 继续同一个递推，会稳定到同一公式所预言的更小方差——用大步长在早期更快、但更嘈杂的进展，换取围绕最优点更精确的最终落点。
+迭代点根本不会收敛到最小值点：它们依分布收敛到最小值点周围一个方差为 $`\mathrm{Var}_\infty`$ 的散布（下面的模拟在其所用误差范围内证实了这一点）——一个大小随 $\eta$ 增长的“噪声球”。训练后期衰减 $\eta$ 会缩小这个球——用更小的 $\eta$ 继续同一个递推，会稳定到同一公式所预言的更小方差——用大步长在早期更快、但更嘈杂的进展，换取围绕最优点更精确的最终落点。
 
 ### 泛化与正则化
 
 **Q9.** 两次配方，一次用到 $\mathbb E[\varepsilon]=0$，一次用到 $\varepsilon$ 与 $D$ 的独立性。写 $y - \hat f_D(x) = \bigl(f(x)-\hat f_D(x)\bigr) + \varepsilon$；平方后取 $\mathbb E_{D,\varepsilon}$，并用 $\varepsilon$ 与 $D$ 的独立性把交叉项分解开，
 
-$$\mathbb E_{D,\varepsilon}\bigl[(y-\hat f_D(x))^2\bigr] = \mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] + 2\,\mathbb E_D[f(x)-\hat f_D(x)]\cdot\mathbb E[\varepsilon] + \mathbb E[\varepsilon^2];$$
+```math
+\mathbb E_{D,\varepsilon}\bigl[(y-\hat f_D(x))^2\bigr] = \mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] + 2\,\mathbb E_D[f(x)-\hat f_D(x)]\cdot\mathbb E[\varepsilon] + \mathbb E[\varepsilon^2];
+```
 
-$\mathbb E[\varepsilon]=0$ 直接消去中间项，$\mathbb E[\varepsilon^2]=\mathrm{Var}(\varepsilon)=\sigma^2$，剩下 $\mathbb E_D[(f(x)-\hat f_D(x))^2] + \sigma^2$。再把 $f(x)-\hat f_D(x)$ 拆成 $(f(x)-\bar f(x)) + (\bar f(x)-\hat f_D(x))$，再平方一次：
+$\mathbb E[\varepsilon]=0$ 直接消去中间项，$`\mathbb E[\varepsilon^2]=\mathrm{Var}(\varepsilon)=\sigma^2`$，剩下 $\mathbb E_D[(f(x)-\hat f_D(x))^2] + \sigma^2$。再把 $f(x)-\hat f_D(x)$ 拆成 $(f(x)-\bar f(x)) + (\bar f(x)-\hat f_D(x))$，再平方一次：
 
-$$\mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] = (f(x)-\bar f(x))^2 + 2(f(x)-\bar f(x))\underbrace{\mathbb E_D[\bar f(x)-\hat f_D(x)]}_{=\,0} + \mathbb E_D\bigl[(\hat f_D(x)-\bar f(x))^2\bigr],$$
+```math
+\mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] = (f(x)-\bar f(x))^2 + 2(f(x)-\bar f(x))\underbrace{\mathbb E_D[\bar f(x)-\hat f_D(x)]}_{=\,0} + \mathbb E_D\bigl[(\hat f_D(x)-\bar f(x))^2\bigr],
+```
 
 其中中间项消失，是因为按定义 $\mathbb E_D[\hat f_D(x)] = \bar f(x)$——剩下的正好是 $\mathrm{偏差}^2 + \mathrm{方差}$，再加上前面的 $\sigma^2$，就是完整的分解。在一次模拟中，用一个明显欠拟合的模型（对一条弯曲的真实函数拟合一条直线），偏差平方项比方差项大三倍以上，而这三项之和，在下面所用的蒙特卡洛误差范围内，与实测的均方误差相符。
 
-**Q10.** 岭回归的闭式解来自令梯度为零；它的 SVD 形式说明收缩是在每个主方向上独立作用的；在一个列正交的设计上，lasso 的闭式解是软阈值（soft-thresholding），它在恰好为零处有一整段平坦区域，这是岭回归光滑的惩罚项所没有的。$\nabla_w\bigl[\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2\bigr] = -2X^\top(y-Xw) + 2\lambda w = 0 \iff (X^\top X+\lambda I)w = X^\top y$，而 $\lambda>0$ 时 $X^\top X + \lambda I$ 正定（从而可逆），给出唯一的最小值点 $\hat w_\lambda = (X^\top X+\lambda I)^{-1}X^\top y$。设 $X=U\Sigma V^\top$，则 $X^\top X = V\Sigma^2 V^\top$，于是 $X^\top X+\lambda I = V(\Sigma^2+\lambda I)V^\top$（用到 $VV^\top=I$），从而
+**Q10.** 岭回归的闭式解来自令梯度为零；它的 SVD 形式说明收缩是在每个主方向上独立作用的；在一个列正交的设计上，lasso 的闭式解是软阈值（soft-thresholding），它在恰好为零处有一整段平坦区域，这是岭回归光滑的惩罚项所没有的。$`\nabla_w\bigl[\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2\bigr] = -2X^\top(y-Xw) + 2\lambda w = 0 \iff (X^\top X+\lambda I)w = X^\top y`$，而 $\lambda>0$ 时 $X^\top X + \lambda I$ 正定（从而可逆），给出唯一的最小值点 $\hat w_\lambda = (X^\top X+\lambda I)^{-1}X^\top y$。设 $X=U\Sigma V^\top$，则 $X^\top X = V\Sigma^2 V^\top$，于是 $X^\top X+\lambda I = V(\Sigma^2+\lambda I)V^\top$（用到 $VV^\top=I$），从而
 
-$$\hat w_\lambda = V(\Sigma^2+\lambda I)^{-1}\Sigma U^\top y = V\,\mathrm{diag}\Bigl(\frac{d_i}{d_i^2+\lambda}\Bigr)U^\top y.$$
+```math
+\hat w_\lambda = V(\Sigma^2+\lambda I)^{-1}\Sigma U^\top y = V\,\mathrm{diag}\Bigl(\frac{d_i}{d_i^2+\lambda}\Bigr)U^\top y.
+```
 
-普通最小二乘解是 $\lambda=0$ 的特例，$\hat w_{\mathrm{ols}} = V\,\mathrm{diag}(1/d_i)U^\top y$；在 $V$ 给出的坐标系里逐项比较，岭回归把第 $i$ 个最小二乘系数乘上 $d_i^2/(d_i^2+\lambda)$——当 $d_i^2 \gg \lambda$ 时接近 $1$（数据确定得好的方向几乎不动），当 $d_i^2 \ll \lambda$ 时接近 $0$（数据几乎确定不了的方向几乎被压到没有）。当 $X^\top X=I$ 时，记 $c = X^\top y$，同样的展开给出 $\lVert y-Xw\rVert^2 = \mathrm{常数} + \sum_i(w_i-c_i)^2$，于是 $\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2$ 逐坐标分解为 $(w_i-c_i)^2+\lambda w_i^2$；令其导数为零，$2(w_i-c_i)+2\lambda w_i=0$，得到 $w_i^\star = c_i/(1+\lambda)$——除非 $c_i$ 本身恰好是 $0$，否则岭回归总会返回一个非零的系数。对同一个设计上的 $\arg\min_w \tfrac12\lVert y-Xw\rVert^2+\lambda\lVert w\rVert_1$，同样的配方（现在多带一个整体的 $\tfrac12$）逐坐标分解为 $\tfrac12(w_i-c_i)^2+\lambda|w_i|$，其最小值点是软阈值 $w_i^\star=\mathrm{sign}(c_i)\max(|c_i|-\lambda,0)$：$\lambda|w_i|$ 在 $0$ 处的次梯度（subgradient）张成整个区间 $[-\lambda,\lambda]$，所以任何满足 $|c_i|\le\lambda$ 的 $c_i$，在 $w_i=0$ 处都已经精确满足零次梯度的最优性条件，不只是在某个极限意义下。岭回归的惩罚项没有这样的平坦区域——它的梯度 $2\lambda w_i$ 只在 $w_i=0$ 这一点上恰好为零——所以它会连续地收缩每一个系数，却从不会把哪个系数硬压到零。在下面的检查中，lasso 在一个设计上把六个系数里至少两个精确置零，而按上面闭式解算出的每个岭回归系数，量级都大于 $10^{-4}$。
+普通最小二乘解是 $\lambda=0$ 的特例，$`\hat w_{\mathrm{ols}} = V\,\mathrm{diag}(1/d_i)U^\top y`$；在 $V$ 给出的坐标系里逐项比较，岭回归把第 $i$ 个最小二乘系数乘上 $d_i^2/(d_i^2+\lambda)$——当 $d_i^2 \gg \lambda$ 时接近 $1$（数据确定得好的方向几乎不动），当 $d_i^2 \ll \lambda$ 时接近 $0$（数据几乎确定不了的方向几乎被压到没有）。当 $X^\top X=I$ 时，记 $c = X^\top y$，同样的展开给出 $\lVert y-Xw\rVert^2 = \mathrm{常数} + \sum_i(w_i-c_i)^2$，于是 $\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2$ 逐坐标分解为 $(w_i-c_i)^2+\lambda w_i^2$；令其导数为零，$`2(w_i-c_i)+2\lambda w_i=0`$，得到 $w_i^\star = c_i/(1+\lambda)$——除非 $c_i$ 本身恰好是 $0$，否则岭回归总会返回一个非零的系数。对同一个设计上的 $\arg\min_w \tfrac12\lVert y-Xw\rVert^2+\lambda\lVert w\rVert_1$，同样的配方（现在多带一个整体的 $\tfrac12$）逐坐标分解为 $\tfrac12(w_i-c_i)^2+\lambda|w_i|$，其最小值点是软阈值 $w_i^\star=\mathrm{sign}(c_i)\max(|c_i|-\lambda,0)$：$`\lambda|w_i|`$ 在 $0$ 处的次梯度（subgradient）张成整个区间 $[-\lambda,\lambda]$，所以任何满足 $|c_i|\le\lambda$ 的 $c_i$，在 $w_i=0$ 处都已经精确满足零次梯度的最优性条件，不只是在某个极限意义下。岭回归的惩罚项没有这样的平坦区域——它的梯度 $2\lambda w_i$ 只在 $w_i=0$ 这一点上恰好为零——所以它会连续地收缩每一个系数，却从不会把哪个系数硬压到零。在下面的检查中，lasso 在一个设计上把六个系数里至少两个精确置零，而按上面闭式解算出的每个岭回归系数，量级都大于 $10^{-4}$。
 
-**Q11.** $\mathbb E[\tilde h] = h$ 精确成立，这正是 $1/(1-p)$ 这个因子的意义所在：$\mathbb E[\tilde h] = \mathbb E[m]\,h/(1-p) = (1-p)h/(1-p) = h$，这里用到了 $m\sim\mathrm{Bernoulli}(1-p)$ 时 $\mathbb E[m]=1-p$。如果没有这个因子，光是掩码就会给出 $\mathbb E[mh] = (1-p)h$：每个激活值都会被系统性地压低 $1-p$ 这个因子，一层又一层，纯粹是 dropout 的机制造成的，而不是任何学到的东西——下面的检查里把这个“未修正”的情形也验证了一遍。因为训练时的期望前向计算已经等于不做 dropout 时的计算，评估时只需要把 dropout 关掉——每个单元都保留，不做掩码——也不需要再做任何缩放：那已经和训练在期望意义下算出的东西一致，没有什么需要再修正的了。
+**Q11.** $\mathbb E[\tilde h] = h$ 精确成立，这正是 $1/(1-p)$ 这个因子的意义所在：$`\mathbb E[\tilde h] = \mathbb E[m]\,h/(1-p) = (1-p)h/(1-p) = h`$，这里用到了 $m\sim\mathrm{Bernoulli}(1-p)$ 时 $\mathbb E[m]=1-p$。如果没有这个因子，光是掩码就会给出 $\mathbb E[mh] = (1-p)h$：每个激活值都会被系统性地压低 $1-p$ 这个因子，一层又一层，纯粹是 dropout 的机制造成的，而不是任何学到的东西——下面的检查里把这个“未修正”的情形也验证了一遍。因为训练时的期望前向计算已经等于不做 dropout 时的计算，评估时只需要把 dropout 关掉——每个单元都保留，不做掩码——也不需要再做任何缩放：那已经和训练在期望意义下算出的东西一致，没有什么需要再修正的了。
 
-**Q12.** 批归一化沿*批次*（batch）维度归约，每个通道得到一对统计量；层归一化沿特征维度归约，每个样本得到一对统计量。记 $\mu_c = \frac1N\sum_n h_{n,c}$、$\sigma_c^2 = \frac1N\sum_n(h_{n,c}-\mu_c)^2$，批归一化计算 $\hat h_{n,c} = (h_{n,c}-\mu_c)/\sqrt{\sigma_c^2+\epsilon}$——这组统计量由批次里的每个样本共享，每个通道 $c$（第 $0$ 轴）一对。记 $\mu_n = \frac1C\sum_c h_{n,c}$、$\sigma_n^2 = \frac1C\sum_c(h_{n,c}-\mu_n)^2$，层归一化计算 $\hat h_{n,c} = (h_{n,c}-\mu_n)/\sqrt{\sigma_n^2+\epsilon}$——这组统计量是样本 $n$ 私有的，每一行（第 $1$ 轴）一对，与其他任何一行、以及批次的大小都无关。在推理时，批归一化不再从当前批次计算 $\mu_c,\sigma_c^2$，而是改用训练过程中积累下来的滑动平均；这是必要的，因为推理时的批次可能很小，甚至只包含一个样本，此时批次*内部*的方差是退化的——只有一个样本时方差恰好是 $0$，会让归一化后的值全部塌缩为 $0$，与输入无关，下面会展示这一点——而层归一化从来没有这个问题，因为它的统计量来自单个样本自己的特征，无论是训练还是推理都完全不需要批次的上下文信息。这也是 Transformer 架构偏爱层归一化（或者 RMSNorm，它去掉了减均值这一步，只用 $\sqrt{\frac1C\sum_c h_{n,c}^2}$ 归一化）而不是批归一化的原因：序列是变长处理的，而且常常一次解码一个 token、也就是一个样本，逐样本的统计量无论批次大小或组成如何都表现一致，而批次统计量在训练时会把互不相关的序列耦合在一起，在推理的小批次场景下则会变得不可靠或者干脆没有意义。
+**Q12.** 批归一化沿*批次*（batch）维度归约，每个通道得到一对统计量；层归一化沿特征维度归约，每个样本得到一对统计量。记 $\mu_c = \frac1N\sum_n h_{n,c}$、$`\sigma_c^2 = \frac1N\sum_n(h_{n,c}-\mu_c)^2`$，批归一化计算 $\hat h_{n,c} = (h_{n,c}-\mu_c)/\sqrt{\sigma_c^2+\epsilon}$——这组统计量由批次里的每个样本共享，每个通道 $c$（第 $0$ 轴）一对。记 $\mu_n = \frac1C\sum_c h_{n,c}$、$`\sigma_n^2 = \frac1C\sum_c(h_{n,c}-\mu_n)^2`$，层归一化计算 $\hat h_{n,c} = (h_{n,c}-\mu_n)/\sqrt{\sigma_n^2+\epsilon}$——这组统计量是样本 $n$ 私有的，每一行（第 $1$ 轴）一对，与其他任何一行、以及批次的大小都无关。在推理时，批归一化不再从当前批次计算 $\mu_c,\sigma_c^2$，而是改用训练过程中积累下来的滑动平均；这是必要的，因为推理时的批次可能很小，甚至只包含一个样本，此时批次*内部*的方差是退化的——只有一个样本时方差恰好是 $0$，会让归一化后的值全部塌缩为 $0$，与输入无关，下面会展示这一点——而层归一化从来没有这个问题，因为它的统计量来自单个样本自己的特征，无论是训练还是推理都完全不需要批次的上下文信息。这也是 Transformer 架构偏爱层归一化（或者 RMSNorm，它去掉了减均值这一步，只用 $\sqrt{\frac1C\sum_c h_{n,c}^2}$ 归一化）而不是批归一化的原因：序列是变长处理的，而且常常一次解码一个 token、也就是一个样本，逐样本的统计量无论批次大小或组成如何都表现一致，而批次统计量在训练时会把互不相关的序列耦合在一起，在推理的小批次场景下则会变得不可靠或者干脆没有意义。
 
 ### 回归损失与生成模型
 
 **Q13.** L2 损失的最小值点是均值，L1 损失的最小值点是中位数：平方项的导数无界，且随残差增大而增大；而
 $|\cdot|$ 的次梯度有界于 $[-1,1]$，只编码符号——所以单个离群值可以把 L2 的最小值点拖到任意远，却几乎不会移动
 L1 的最小值点。令 $\frac{d}{dc}\sum_i(y_i-c)^2=-2\sum_i(y_i-c)=0$，得到 $c^\star=\frac1n\sum_i y_i$，即均值。对
-$\sum_i|y_i-c|$，在可导的地方其导数是 $\sum_i\mathrm{sign}(c-y_i)=\#\{y_i<c\}-\#\{y_i>c\}$，所以驻点要求 $c$
+$\sum_i|y_i-c|$，在可导的地方其导数是 $`\sum_i\mathrm{sign}(c-y_i)=\#\{y_i<c\}-\#\{y_i>c\}`$，所以驻点要求 $c$
 两侧的 $y_i$ 个数相等；在 $c$ 恰好等于某个 $y_i$ 处，次梯度是同样的计数之差，再加上 $[-1,1]$ 中的一段贡献，而
-$0$ 落在其中当且仅当 $c$ 是一个中位数——当 $n$ 为奇数时唯一。直接求导，$\partial r^2/\partial r=2r$ 随
+$0$ 落在其中当且仅当 $c$ 是一个中位数——当 $n$ 为奇数时唯一。直接求导，$`\partial r^2/\partial r=2r`$ 随
 $|r|\to\infty$ 无界增长，只在 $r=0$ 处为零；而 $|r|$ 的一个次梯度，在 $r\ne0$ 时是 $\mathrm{sign}(r)=\pm1$，在
 $r=0$ 处则是 $[-1,1]$ 中的任意值：一个 $|r_i|$ 极大的离群值，通过 L2 的导数会按其量级对 $c$ 产生拉力，但通过
 L1 的导数却始终只贡献 $\pm1$——所以重要的只是它在哪一侧，而不是它离 $c$ 的距离，下面通过把一个离群值的取值移到
 $10^6$ 验证了这一点。
 
 设残差 $r_i=y_i-f(x_i)$ 独立同分布，密度为 $p$；对 $f$ 最小化 $-\sum_i\log p(r_i)$ 就是最大似然估计。对高斯分布
-$p(r)\propto e^{-r^2/(2\sigma^2)}$，$-\log p(r)=r^2/(2\sigma^2)+\mathrm{常数}$，所以最小化它恰好就是最小化
+$p(r)\propto e^{-r^2/(2\sigma^2)}$，$`-\log p(r)=r^2/(2\sigma^2)+\mathrm{常数}`$，所以最小化它恰好就是最小化
 $\sum_i r_i^2$：L2 损失在高斯噪声下就是最大似然估计。对拉普拉斯分布 $p(r)\propto e^{-|r|/b}$，同样有
 $-\log p(r)=|r|/b+\mathrm{常数}$，这使得 L1 损失在拉普拉斯噪声下是最大似然估计。
 
-Huber 损失的导数是：$|r|\le\delta$ 时为 $r$，$|r|>\delta$ 时为 $\delta\,\mathrm{sign}(r)$（在 $|r|=\delta$ 处连
+Huber 损失的导数是：$`|r|\le\delta`$ 时为 $r$，$`|r|>\delta`$ 时为 $`\delta\,\mathrm{sign}(r)`$（在 $|r|=\delta$ 处连
 续）：在拟合较好的地方是二次的，超过 $\delta$ 之后则是斜率有界的线性函数——所以它适合存在离群值污染、但污染并
 不压倒性的情形：既保留了 L2 损失在最优点附近收敛快的优点，又像 L1 损失一样，给任何单个残差可能造成的破坏设了
-上限。当这两个范数被用作*正则化项*而不是损失时（Q10），同样的转折点与光滑性之间的分野会再次出现：$\ell_1$
+上限。当这两个范数被用作*正则化项*而不是损失时（Q10），同样的转折点与光滑性之间的分野会再次出现：$`\ell_1`$
 惩罚项在 $0$ 处的转折点，会把较小的系数精确压到零，而 $\ell_2$ 惩罚项光滑的梯度只会收缩系数。
 
 **Q14.** 最优判别器是 $D^\star(x)=p_{\mathrm{data}}(x)/(p_{\mathrm{data}}(x)+p_g(x))$；此时博弈的值是 $-\log4$
@@ -162,19 +182,21 @@ Huber 损失的导数是：$|r|\le\delta$ 时为 $r$，$|r|>\delta$ 时为 $\del
 而在训练刚开始、判别器还很自信地拒绝生成样本时，原始生成器损失关于判别器 logit 的梯度会消失，而非饱和损失的梯度
 不会——这正是实践中选择最小化后者的原因。
 
-固定 $G$ 时，代入 $x=G(z)$ 可得 $V(D,G)=\int\bigl[p_{\mathrm{data}}(x)\log D(x)+p_g(x)\log(1-D(x))\bigr]\,\mathrm dx$，
+固定 $G$ 时，代入 $x=G(z)$ 可得 $`V(D,G)=\int\bigl[p_{\mathrm{data}}(x)\log D(x)+p_g(x)\log(1-D(x))\bigr]\,\mathrm dx`$，
 于是 $D(x)$ 可以在每个 $x$ 上独立选取。对常数 $a,b>0$，在 $y\in(0,1)$ 上最大化 $a\log y+b\log(1-y)$：导数
 $a/y-b/(1-y)$ 在 $y^\star=a/(a+b)$ 处为零，且此处二阶导数为负，确认这是一个最大值点；取
-$a=p_{\mathrm{data}}(x)$、$b=p_g(x)$，即得到 $D^\star$。把 $D^\star$ 代回，并记 $m=(p_{\mathrm{data}}+p_g)/2$：
+$a=p_{\mathrm{data}}(x)$、$`b=p_g(x)`$，即得到 $D^\star$。把 $D^\star$ 代回，并记 $m=(p_{\mathrm{data}}+p_g)/2$：
 
-$$V(D^\star,G) = \mathrm{KL}(p_{\mathrm{data}}\Vert m) + \mathrm{KL}(p_g\Vert m) - \log4 = 2\,\mathrm{JSD}(p_{\mathrm{data}}\Vert p_g) - \log4,$$
+```math
+V(D^\star,G) = \mathrm{KL}(p_{\mathrm{data}}\Vert m) + \mathrm{KL}(p_g\Vert m) - \log4 = 2\,\mathrm{JSD}(p_{\mathrm{data}}\Vert p_g) - \log4,
+```
 
 这里用 $\int p_{\mathrm{data}}=\int p_g=1$ 把两个 $-\log2$ 合并，再用 JSD 的定义把两个 KL 项合成一个。因为 JSD
 是两个非负 KL 散度的平均，所以 $\mathrm{JSD}\ge0$，等号成立当且仅当 $p_g=p_{\mathrm{data}}$，于是 $V(D^\star,G)$
 对 $G$ 的全局最小值恰好在此处取到，值为 $-\log4$。
 
-记 $D(G(z))=\sigma(s)$：原始生成器损失 $\log(1-\sigma(s))$ 满足 $\partial/\partial s\,\log(1-\sigma(s))=-\sigma(s)=-D(G(z))$，
-而非饱和损失 $-\log\sigma(s)$ 满足 $\partial/\partial s\,[-\log\sigma(s)]=-(1-\sigma(s))=D(G(z))-1$。在
+记 $D(G(z))=\sigma(s)$：原始生成器损失 $\log(1-\sigma(s))$ 满足 $`\partial/\partial s\,\log(1-\sigma(s))=-\sigma(s)=-D(G(z))`$，
+而非饱和损失 $-\log\sigma(s)$ 满足 $`\partial/\partial s\,[-\log\sigma(s)]=-(1-\sigma(s))=D(G(z))-1`$。在
 $s\ll0$、也就是 $D(G(z))\approx0$ 时——判别器自信地拒绝生成器的样本，这在训练早期很常见——第一个梯度恰好在
 $G$ 最需要信号时消失，而第二个梯度则始终保持在 $\approx-1$；这正是实践中最小化 $-\mathbb E[\log D(G(z))]$
 而不是 $\mathbb E[\log(1-D(G(z)))]$ 的原因。

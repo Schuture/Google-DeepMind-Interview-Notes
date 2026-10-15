@@ -85,10 +85,10 @@ State what each stage's loss optimises. Explain why the SFT loss is masked to th
 Derive the DPO loss from a KL-regularised reward-maximisation objective, and explain why post-training
 keeps a KL penalty to a reference model.
 
-**Q11.** Define greedy decoding, temperature sampling, top-$k$ sampling and nucleus (top-$p$) sampling
+**Q11.** Define greedy decoding, temperature sampling, top-$`k`$ sampling and nucleus (top-$`p`$) sampling
 precisely, each as a transformation of a next-token probability distribution, and state each one's effect
 on the shape of the sampled distribution. A model outputs the distribution
-`{a: 0.5, b: 0.2, c: 0.15, d: 0.1, e: 0.05}` over five tokens. Give the exact token set kept by top-$p$
+`{a: 0.5, b: 0.2, c: 0.15, d: 0.1, e: 0.05}` over five tokens. Give the exact token set kept by top-$`p`$
 sampling with $p = 0.7$.
 
 **Q12.** In a mixture-of-experts (MoE) layer, a router sends each token to $k$ of $E$ experts, and the
@@ -116,12 +116,14 @@ back to $1$ for every $d_h$.
 Write $q^\top k = \sum_{i=1}^{d_h} q_ik_i$. Since $\mathrm{E}[q_i] = \mathrm{E}[k_i] = 0$ and $q_i \perp
 k_i$, $\mathrm{E}[q_ik_i] = 0$, so $\mathrm{E}[q^\top k] = 0$ and
 
-$$\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum_{i=1}^{d_h}\sum_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].$$
+```math
+\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum_{i=1}^{d_h}\sum_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].
+```
 
 For $i \ne j$, $q_i, k_i, q_j, k_j$ are four mutually independent, zero-mean variables, so
-$\mathrm{E}[q_ik_iq_jk_j] = \mathrm{E}[q_i]\,\mathrm{E}[k_i]\,\mathrm{E}[q_j]\,\mathrm{E}[k_j] = 0$; for
-$i = j$, independence of $q_i$ and $k_i$ gives $\mathrm{E}[q_i^2k_i^2] = \mathrm{E}[q_i^2]\,\mathrm{E}[k_i^2]
-= 1 \cdot 1 = 1$ (using $\mathrm{E}[q_i^2] = \mathrm{Var}(q_i) = 1$ since $\mathrm{E}[q_i]=0$). Summing the
+$`\mathrm{E}[q_ik_iq_jk_j] = \mathrm{E}[q_i]\,\mathrm{E}[k_i]\,\mathrm{E}[q_j]\,\mathrm{E}[k_j] = 0`$; for
+$i = j$, independence of $q_i$ and $k_i$ gives $`\mathrm{E}[q_i^2k_i^2] = \mathrm{E}[q_i^2]\,\mathrm{E}[k_i^2]
+= 1 \cdot 1 = 1`$ (using $\mathrm{E}[q_i^2] = \mathrm{Var}(q_i) = 1$ since $\mathrm{E}[q_i]=0$). Summing the
 $d_h$ surviving diagonal terms, $\mathrm{Var}(q^\top k) = d_h$.
 
 So an unscaled dot product has standard deviation $\sqrt{d_h}$, growing with the head width. As $d_h$
@@ -147,7 +149,7 @@ same shape of contraction, another $2T^2d$. Total: $8Td^2 + 4T^2d$ FLOPs, i.e. $
 crossing over at $T \approx 2d$.
 
 The score and weight arrays, in contrast, are $h$ separate $T \times T$ matrices — one per head, because
-each head's softmax normalises independently — so they occupy $hT^2 = (d/d_h)\,T^2$ numbers, which is
+each head's softmax normalises independently — so they occupy $`hT^2 = (d/d_h)\,T^2`$ numbers, which is
 *not* independent of the head split: doubling $h$ (halving $d_h$) doubles this memory even though it
 leaves the FLOP totals above unchanged. Treating $d_h$ as a fixed constant (64–128, essentially
 independent of model size) makes this memory $\Theta(dT^2)$: linear in $d$, quadratic in $T$, dominating
@@ -157,14 +159,16 @@ FlashAttention computes the same $8Td^2 + 4T^2d$ FLOPs (somewhat more in the bac
 recomputes blocks instead of reading back a saved score matrix) but never materialises the full
 $T \times T$ score/weight matrix. It tiles $K, V$ into blocks and keeps a running, unnormalised softmax —
 a running max $m$, running sum $\ell$, and running output accumulator $\mathrm{acc}$ — updated one block
-at a time. Merging a new block's local statistics $(m_2, \ell_2, \mathrm{acc}_2)$ into a running
-$(m_1, \ell_1, \mathrm{acc}_1)$ uses $e^{s - m} = e^{s - m_i}\,e^{m_i - m}$ for either block $i$, so with
+at a time. Merging a new block's local statistics $`(m_2, \ell_2, \mathrm{acc}_2)`$ into a running
+$`(m_1, \ell_1, \mathrm{acc}_1)`$ uses $`e^{s - m} = e^{s - m_i}\,e^{m_i - m}`$ for either block $i$, so with
 $m = \max(m_1, m_2)$,
 
-$$\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}_1e^{m_1 - m} + \mathrm{acc}_2e^{m_2 - m},$$
+```math
+\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}_1e^{m_1 - m} + \mathrm{acc}_2e^{m_2 - m},
+```
 
 and the final output is $\mathrm{acc}/\ell$ — exactly the softmax-weighted sum over every key seen,
-computed while holding only one block's score matrix ($O(\text{block}\times d)$) at a time. Peak memory
+computed while holding only one block's score matrix ($`O(\text{block}\times d)`$) at a time. Peak memory
 drops from $\Theta(dT^2)$ to $O(Td)$, the same order as everything else in the layer.
 
 **Q3.** Caching avoids recomputing $K, V$ for every earlier position at every new decoding step. Cache
@@ -198,14 +202,18 @@ $(m-n)\omega$.
 
 In one 2-D pair, write the rotation matrix
 
-$$R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},$$
+```math
+R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},
+```
 
 which is orthogonal with $R(\theta)^\top = R(-\theta)$ and $R(\theta_1)R(\theta_2) = R(\theta_1+\theta_2)$
 (composing two rotations adds their angles). RoPE rotates
 the query at position $m$ by angle $m\omega$ and the key at position $n$ by angle $n\omega$, for a fixed
-frequency $\omega$: $q_m = R(m\omega)\,q$, $k_n = R(n\omega)\,k$. Then
+frequency $\omega$: $`q_m = R(m\omega)\,q`$, $`k_n = R(n\omega)\,k`$. Then
 
-$$q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\,k = q^\top R(n\omega - m\omega)\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,$$
+```math
+q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\,k = q^\top R(n\omega - m\omega)\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,
+```
 
 using $R(m\omega)^\top = R(-m\omega)$ and then $R(-m\omega)R(n\omega) = R(n\omega - m\omega)$. The
 right-hand side is a fixed function of $q$, $k$, $\omega$ and the single scalar $m-n$: any two pairs
@@ -214,7 +222,7 @@ individually.
 
 For a full $d$-dimensional query/key, RoPE splits the $d$ coordinates into $d/2$ pairs and applies this
 rotation to pair $i$ with its own frequency $\omega_i = \Theta^{-2i/d}$ (a geometric progression, $\Theta$
-typically $10^4$–$10^6$), independently of the other pairs. The full dot product is the sum of the $d/2$
+typically $10^4$–$`10^6`$), independently of the other pairs. The full dot product is the sum of the $d/2$
 pairwise dot products, $q_m^\top k_n = \sum_{i=0}^{d/2-1} q^{(i)\top}R\bigl(-(m-n)\omega_i\bigr)k^{(i)}$,
 and every term depends on $m,n$ only through $m-n$ — so the whole sum does too.
 
@@ -222,7 +230,9 @@ Contrast: a learned or sinusoidal absolute position embedding $p_m$ is *added* t
 before the $Q,K$ projections, so $q_m = W_q(x_m + p_m) = q + W_qp_m$ (writing $q = W_qx_m$), and likewise
 $k_n = k + W_kp_n$. Then
 
-$$q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,$$
+```math
+q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,
+```
 
 and three of the four terms involve $p_m$ or $p_n$ directly rather than a difference — nothing in the
 parameterisation forces the sum to collapse to a function of $m-n$ alone. Any relative-position behaviour
@@ -265,7 +275,7 @@ Post-norm: $x_{l+1} = \mathrm{Norm}\bigl(x_l + f_l(x_l)\bigr)$. Pre-norm:
 $x_{l+1} = x_l + f_l\bigl(\mathrm{Norm}(x_l)\bigr)$, where $f_l$ is the attention or MLP sublayer.
 
 Linearise each sublayer's net effect on the stream by a scalar $a_l$ (a crude but standard simplification
-for this argument). In pre-norm, $x_{l+1} = x_l + a_l\,g(x_l)$ for some bounded $g$ — the normalisation
+for this argument). In pre-norm, $`x_{l+1} = x_l + a_l\,g(x_l)`$ for some bounded $g$ — the normalisation
 inside the branch never touches $x_l$ itself — so $\partial x_{l+1}/\partial x_l = 1 + O(a_l)$, and by the
 chain rule $\partial x_L/\partial x_0 = \prod_{l=1}^{L}\bigl(1 + O(a_l)\bigr)$: an *additive* identity term
 of exactly $1$ survives at every layer, so this product cannot collapse toward $0$ the way a product of
@@ -277,7 +287,9 @@ $L$ terms, which vanishes or explodes exponentially in $L$ unless every $a_l$ si
 This is exactly why deep post-norm transformers historically needed careful learning-rate warm-up to
 survive early training, while pre-norm trains stably out of the box at much greater depth.
 
-$$\mathrm{LN}(v)_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)_i = \frac{v_i}{\mathrm{RMS}(v)}\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.$$
+```math
+\mathrm{LN}(v)_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)_i = \frac{v_i}{\mathrm{RMS}(v)}\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.
+```
 
 RMSNorm drops the mean subtraction $\mu$ (no re-centring, only rescaling) and drops the additive bias
 $\beta$, keeping only the learned per-feature scale $\gamma$. When $v$ already has zero mean,
@@ -301,18 +313,18 @@ With $p_1,\dots,p_4 = 0.5, 0.2, 0.8, 0.25$: $\prod_t p_t = 0.5 \times 0.2 \times
 1/50$, so $\mathrm{PPL} = \bigl(\prod_t p_t\bigr)^{-1/T} = 50^{1/4} = \sqrt[4]{50} \approx 2.659$, and
 $\mathcal{H} = \ln(\mathrm{PPL}) = \tfrac14\ln 50 \approx 0.978$ nats $\approx 1.411$ bits per token.
 
-**Q8.** The first three merges are $(e,s)$, then $(es,t)$, then $(est,\_)$, every one with count $9$.
+**Q8.** The first three merges are $(e,s)$, then $(es,t)$, then $`(est,\_)`$, every one with count $9$.
 
 Split into symbols: `low` → `l o w _` (×5); `lower` → `l o w e r _` (×2); `newest` → `n e w e s t _` (×6);
 `widest` → `w i d e s t _` (×3). Summing adjacent-pair counts, weighted by word frequency, across all four
-words: $(l,o){=}7$, $(o,w){=}7$, $(w,\_){=}5$, $(w,e){=}8$, $(e,r){=}2$, $(r,\_){=}2$, $(n,e){=}6$,
-$(e,w){=}6$, $(e,s){=}9$, $(s,t){=}9$, $(t,\_){=}9$, $(w,i){=}3$, $(i,d){=}3$, $(d,e){=}3$ — a three-way
-tie for the maximum, at $9$, between $(e,s)$, $(s,t)$ and $(t,\_)$ (both `newest` and `widest` share the
+words: $(l,o){=}7$, $(o,w){=}7$, $`(w,\_){=}5`$, $(w,e){=}8$, $(e,r){=}2$, $`(r,\_){=}2`$, $(n,e){=}6$,
+$(e,w){=}6$, $(e,s){=}9$, $(s,t){=}9$, $`(t,\_){=}9`$, $(w,i){=}3$, $(i,d){=}3$, $(d,e){=}3$ — a three-way
+tie for the maximum, at $9$, between $(e,s)$, $(s,t)$ and $`(t,\_)`$ (both `newest` and `widest` share the
 exact suffix `est_`, so every pair inside it gets the same combined count, $6 + 3$). Breaking the tie
 lexicographically picks $(e,s)$ first. Merging it turns `newest` into `n e w es t _` and `widest` into
-`w i d es t _`; recounting, $(es,t)$ and $(t,\_)$ are now tied at $9$, and $(es,t)$ sorts first
+`w i d es t _`; recounting, $(es,t)$ and $`(t,\_)`$ are now tied at $9$, and $(es,t)$ sorts first
 lexicographically (`es` < `t`), so it merges second, giving `n e w est _` / `w i d est _`. Recounting once
-more, only $(est,\_) = 9$ remains at the top, unique this time, and merges third: `n e w est_` /
+more, only $`(est,\_) = 9`$ remains at the top, unique this time, and merges third: `n e w est_` /
 `w i d est_`. `low` and `lower` never contain the letters that these three pairs need together and stay
 untouched.
 
@@ -329,7 +341,9 @@ out-of-vocabulary spellings.
 
 Substituting the rule of thumb $D \approx 20N$ into $C \approx 6ND$: $C \approx 6N(20N) = 120N^2$, so
 
-$$N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.$$
+```math
+N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.
+```
 
 For $C = 10^{23}$: $N \approx \sqrt{10^{23}/120} \approx 2.9\times10^{10}$, and
 $D \approx 20 \times 2.9\times10^{10} \approx 5.8\times10^{11}$.
@@ -350,9 +364,9 @@ expected reward (human preference, or a learned reward model) subject to staying
 to the reference policy — and DPO is exactly the closed-form solution of that same KL-regularised
 objective, needing no separate reward model or RL rollout.
 
-Pretraining: $\mathcal{L}_{\text{pre}} = -\frac1T\sum_t \ln \pi_\theta(x_t \mid x_{<t})$ over raw text $x$.
-SFT, given prompt $x$ and demonstrated response $y$: $\mathcal{L}_{\text{SFT}} = -\frac{1}{|y|}\sum_{t \in
-y} \ln \pi_\theta(y_t \mid x, y_{<t})$ — the loss on the prompt tokens is masked to exactly $0$ (in
+Pretraining: $`\mathcal{L}_{\text{pre}} = -\frac1T\sum_t \ln \pi_\theta(x_t \mid x_{<t})`$ over raw text $x$.
+SFT, given prompt $x$ and demonstrated response $y$: $`\mathcal{L}_{\text{SFT}} = -\frac{1}{|y|}\sum_{t \in
+y} \ln \pi_\theta(y_t \mid x, y_{<t})`$ — the loss on the prompt tokens is masked to exactly $0$ (in
 practice, by giving them an ignored label). The prompt is fixed context the model must condition on, not
 something it should be trained to *generate*: prompts vary enormously in style and are often written by a
 different source (users, templates) than the desired response style, so training on them would spend
@@ -361,27 +375,35 @@ gradient signal imitating prompt phrasing rather than improving response quality
 
 For DPO, the KL-regularised objective is
 
-$$\max_\theta\ \mathbb{E}_{x\sim\mathcal D,\ y\sim\pi_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\,\mathrm{KL}\bigl(\pi_\theta(\cdot|x)\,\|\,\pi_{\mathrm{ref}}(\cdot|x)\bigr).$$
+```math
+\max_\theta\ \mathbb{E}_{x\sim\mathcal D,\ y\sim\pi_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\,\mathrm{KL}\bigl(\pi_\theta(\cdot|x)\,\|\,\pi_{\mathrm{ref}}(\cdot|x)\bigr).
+```
 
 For fixed $x$, maximising $\sum_y \pi(y)r(y) - \beta\sum_y\pi(y)\ln\frac{\pi(y)}{\pi_{\mathrm{ref}}(y)}$
 over distributions $\pi(\cdot|x)$ subject to $\sum_y \pi(y) = 1$ has the closed-form optimum
 
-$$\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\mathrm{ref}}(y\mid x)\,\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi_{\mathrm{ref}}(y\mid x)\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).$$
+```math
+\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\mathrm{ref}}(y\mid x)\,\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi_{\mathrm{ref}}(y\mid x)\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).
+```
 
 Solving for the reward:
 
-$$r(x,y) = \beta\ln\frac{\pi^*(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).$$
+```math
+r(x,y) = \beta\ln\frac{\pi^*(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).
+```
 
 Substituting into the Bradley–Terry preference model $P(y_w \succ y_l \mid x) = \sigma\bigl(r(x,y_w) -
 r(x,y_l)\bigr)$, the $\beta\ln Z(x)$ term is common to $y_w$ and $y_l$ (it depends only on $x$) and cancels
 in the difference:
 
-$$P(y_w \succ y_l \mid x) = \sigma\!\left(\beta\ln\frac{\pi^*(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^*(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right).$$
+```math
+P(y_w \succ y_l \mid x) = \sigma\!\left(\beta\ln\frac{\pi^*(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^*(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right).
+```
 
 Fitting $\pi_\theta$ by maximum likelihood to observed preference pairs under this model is exactly the DPO
-loss, $\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)}
-- \beta\ln\frac{\pi_\theta(y_l|x)}{\pi_{\mathrm{ref}}(y_l|x)}\Bigr)$: no reward model or RL rollout is
-needed, because the closed form relating $\pi^*$ and $r$ substitutes the reward straight into a supervised
+loss, $`\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)}
+- \beta\ln\frac{\pi_\theta(y_l|x)}{\pi_{\mathrm{ref}}(y_l|x)}\Bigr)`$: no reward model or RL rollout is
+needed, because the closed form relating $`\pi^*`$ and $r$ substitutes the reward straight into a supervised
 classification loss on $\pi_\theta$ itself.
 
 Either route keeps the KL term because the reward signal (a learned reward model, or the implicit reward
@@ -389,7 +411,7 @@ inside DPO's preference data) is only accurate near the data distribution it was
 policy free to drift arbitrarily far from $\pi_{\mathrm{ref}}$ can find outputs that score well under an
 imperfect reward without being good ("reward hacking"), and drifting far from $\pi_{\mathrm{ref}}$ also
 risks discarding language capability learned in pretraining/SFT. The closed form above makes this explicit:
-as $\beta \to \infty$, $\pi^* \to \pi_{\mathrm{ref}}$ regardless of $r$; as $\beta \to 0$, $\pi^*$ collapses
+as $\beta \to \infty$, $`\pi^* \to \pi_{\mathrm{ref}}`$ regardless of $r$; as $\beta \to 0$, $`\pi^*`$ collapses
 onto the reward-maximising output(s) with no regularisation left at all.
 
 **Q11.** Write $z$ for the next-token logits and $p = \mathrm{softmax}(z)$.
@@ -398,19 +420,19 @@ onto the reward-maximising output(s) with no regularisation left at all.
 of temperature sampling. *Temperature sampling* rescales the logits before softmax,
 $p_i(\tau) = e^{z_i/\tau} / \sum_je^{z_j/\tau}$: $\tau < 1$ sharpens the distribution toward the arg-max,
 $\tau > 1$ flattens it toward uniform, $\tau = 1$ leaves it unchanged — every token stays reachable at any
-finite $\tau$, only re-weighted. *Top-$k$ sampling* keeps only the $k$ tokens with the highest probability,
+finite $\tau$, only re-weighted. *Top-$`k`$ sampling* keeps only the $k$ tokens with the highest probability,
 renormalises them to sum to $1$, and samples from that truncated distribution (zero elsewhere): it fixes
-the *size* of the kept set regardless of how the mass is distributed. *Nucleus (top-$p$) sampling* sorts
+the *size* of the kept set regardless of how the mass is distributed. *Nucleus (top-$`p`$) sampling* sorts
 tokens by probability descending and keeps the shortest prefix whose cumulative probability is $\ge p$,
 renormalising and sampling from it: it fixes the kept *probability mass* instead, so the kept set's size
 adapts — small when the distribution is peaked (the model is confident), large when it is flat.
 
 Worked example, already sorted descending — `a:0.5, b:0.2, c:0.15, d:0.1, e:0.05` — with $p=0.7$:
 cumulative mass after `a` is $0.5 < 0.7$; after `a, b` it is exactly $0.7 \ge 0.7$, so the kept set is
-$\{a, b\}$.
+$`\{a, b\}`$.
 
 **Q12.** Total parameters $= 1.65 \times 10^{10}$; active parameters per token $= 4.5 \times 10^{9}$
-($\approx 27\%$ of the total).
+($`\approx 27\%`$ of the total).
 
 Total parameters are the shared parameters plus every expert's, whether or not it is used for a given
 token: $\text{shared} + E \cdot P_{\text{expert}}$. Active parameters per token are the shared parameters
@@ -419,7 +441,7 @@ plus only the $k$ experts that token's router actually selects: $\text{shared} +
 $E=8$, $P_{\text{expert}} = 2\times10^9$, shared $=5\times10^8$, $k=2$:
 $\text{total} = 5\times10^8 + 8 \times 2\times10^9 = 1.65\times10^{10}$, and
 $\text{active} = 5\times10^8 + 2 \times 2\times10^9 = 4.5\times10^9$ — the model has the per-token inference
-compute of a $4.5$B-parameter dense model but the capacity, and memory footprint, of a $16.5$B-parameter
+compute of a $`4.5`$B-parameter dense model but the capacity, and memory footprint, of a $`16.5`$B-parameter
 one.
 
 The router is trained purely to minimise task loss, which has no inherent pressure to spread tokens evenly
@@ -433,7 +455,7 @@ $E \cdot \sum_e f_e P_e$ (experts times the dot product of the actual routed-tok
 router's average softmax probability $P_e$ for each expert), minimised exactly when routing is uniform,
 pushing the router away from collapse without supervising which expert handles which token.
 
-The *capacity factor* $c$ (typically $1$–$2$) sets each expert's maximum tokens per batch to
+The *capacity factor* $c$ (typically $1$–$`2`$) sets each expert's maximum tokens per batch to
 $\mathrm{capacity} = c \cdot N_{\text{tokens}}/E$ — headroom above the $N_{\text{tokens}}/E$ that perfectly
 even routing would send, since routing is never perfectly even in practice, while still bounding the worst
 case. Tokens routed to an expert already at capacity are dropped (skipped, e.g. passed through via a

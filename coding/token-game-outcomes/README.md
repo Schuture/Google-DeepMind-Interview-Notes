@@ -285,9 +285,9 @@ any given node, which is why *position* only ever needed a node, never a player 
 tokens, a move picks one of `k` independent single-token games and advances it; this is the standard *sum
 of games*, and the Sprague–Grundy theorem gives it a single number rather than requiring a fresh W/L/D
 analysis of the whole product state space. Assign every node `v` a *Grundy number*
-$g(v) = \operatorname{mex}\{g(w) : w \text{ a successor of } v\}$, the *minimum excludant*: the smallest
+$`g(v) = \mathrm{mex}\{g(w) : w \text{ a successor of } v\}`$, the *minimum excludant*: the smallest
 non-negative integer that is not the Grundy number of any successor of `v` (a sink has no successors, so
-$g(\text{sink}) = \operatorname{mex}(\emptyset) = 0$). The claim to derive: with tokens on nodes
+$`g(\text{sink}) = \mathrm{mex}(\emptyset) = 0`$). The claim to derive: with tokens on nodes
 $t_1, \ldots, t_k$, the first player can force a win if and only if
 $g(t_1) \oplus \cdots \oplus g(t_k) \neq 0$, where $\oplus$ is bitwise XOR — Bouton's rule for Nim, with
 $g(t_i)$ playing the role of the size of the $i$-th pile.

@@ -44,7 +44,7 @@ Premise, all numbers given:
 - $200{,}000$ measured rows, over $20{,}000$ distinct molecules.
 - The lookup table gives every molecule name's SMILES structure.
 - The reaction factor is strictly positive and spans about four orders of magnitude.
-- About $5\%$ of the distinct unordered pairs were measured two or more times; across repeated
+- About $`5\%`$ of the distinct unordered pairs were measured two or more times; across repeated
   measurements of the same pair, the spread is about $0.1$ in $\log_{10}$ units.
 - The order of the two names in a row carries no chemical meaning — the lab confirms the factor measured
   for $(a, b)$ equals the factor for $(b, a)$ — but both orders occur in the raw file: which molecule is
@@ -103,7 +103,9 @@ given).
 **Coverage of pair-space.** The number of distinct unordered pairs of $20{,}000$ molecules is
 $\binom{20{,}000}{2} = 199{,}990{,}000$, so the $200{,}000$ measured rows cover about
 
-$$\frac{200{,}000}{199{,}990{,}000} \approx 0.1\%$$
+```math
+\frac{200{,}000}{199{,}990{,}000} \approx 0.1\%
+```
 
 of every possible pair — the measured data is an extremely sparse sample of pair-space, and almost
 everything the model will ever be asked about (in particular, every candidate the active-learning loop
@@ -140,18 +142,18 @@ foreshadows a generalisation gap before any model is fit: a model that relies on
 only be trusted for the hub end of this distribution.
 
 **Replicate noise.** Group rows by an order-independent pair key (Splits and leakage, below, gives the
-construction) and look at the roughly $5\%$ of distinct pairs measured two or more times; the standard
+construction) and look at the roughly $`5\%`$ of distinct pairs measured two or more times; the standard
 deviation of $\log_{10}(\text{reaction factor})$ within each such group estimates the irreducible
 measurement noise. This is the source of the $0.1$ figure in the premise, and it becomes the noise floor
 that Evaluation compares every model's RMSE against.
 
 **Outliers and unit errors.** A value many decades away from its neighbours for an otherwise unremarkable
-pair, or an exact factor-of-$10$ or factor-of-$1{,}000$ offset shared by a whole subset of rows, is a
+pair, or an exact factor-of-$`10`$ or factor-of-$`1{,}000`$ offset shared by a whole subset of rows, is a
 classic sign of a units mistake or a transcription error upstream, not a genuinely extreme measurement, and
 should be checked before being trusted.
 
 **Order conflicts.** Because order carries no chemical meaning but both orders occur in the file, grouping
-by the order-independent pair key surfaces any pair recorded once as $(a, b)$ and again — among the $5\%$
+by the order-independent pair key surfaces any pair recorded once as $(a, b)$ and again — among the $`5\%`$
 replicated pairs — as $(b, a)$; a large discrepancy between the two recordings of the same physical pair is
 a second, independent read on the replicate-noise question above, and also a direct check that the lab's
 claim of order-independence actually holds in the data rather than being merely asserted.
@@ -189,7 +191,7 @@ Four ways to build one:
   most useful alongside the sum rather than instead of it.
 - Elementwise absolute **difference**, $|h(a) - h(b)|$ — order-invariant, useful when the target depends on
   how dissimilar the two molecules are rather than on their joint magnitude.
-- A **symmetric bilinear form**, $h(a)^\top S\, h(b)$ for a learned matrix with $S = S^\top$ — order-invariant
+- A **symmetric bilinear form**, $`h(a)^\top S\, h(b)`$ for a learned matrix with $S = S^\top$ — order-invariant
   because $h(a)^\top S h(b) = h(b)^\top S h(a)$ exactly when $S$ is symmetric (a general, non-symmetric $S$
   would not have this property), and strictly more expressive than the elementwise product, since it can mix
   different coordinates of $h(a)$ against different coordinates of $h(b)$.
@@ -292,11 +294,11 @@ not predicted to the exact value.
 
 **The noise floor.** The replicate standard deviation measured in Data and EDA (about $0.1$ in $\log_{10}$
 units) is the standard deviation of the noise added to every individual measurement, including every one in
-the test set. For a test label generated as (true value) $+$ (independent noise of standard deviation
+the test set. For a test label generated as (true value) $`+`$ (independent noise of standard deviation
 $\sigma$), the expected mean squared error of even the perfect predictor of the true value is exactly
 $\sigma^2$ — RMSE cannot be driven below $\sigma$ by a better model, only by a better measurement. The
 checks below fit the best model possible on synthetic data — least squares on the hidden features the
-labels are generated from — and its test RMSE lands within $5\%$ of $\sigma$. Every RMSE figure should be
+labels are generated from — and its test RMSE lands within $`5\%`$ of $\sigma$. Every RMSE figure should be
 read against this floor, not against zero.
 
 **Slices.** Report every metric broken out at least by split type (random row, one-unseen, both-unseen,
@@ -320,7 +322,7 @@ about, feeding directly into the active-learning loop in (b).
 **(b) Closing the loop: choosing what to measure next.** Using the model for use (ii) is an
 active-learning problem, not a plain prediction problem: the goal is not to predict accurately everywhere,
 but to choose measurements that improve the model, or find a high-value pair, as fast as possible — relevant
-because Requirements and scale already showed only about $0.1\%$ of pair-space has ever been measured. An
+because Requirements and scale already showed only about $`0.1\%`$ of pair-space has ever been measured. An
 *upper confidence bound* rule ranks candidates by $\hat y + \kappa \hat\sigma$, for a predicted value
 $\hat y$, a calibrated uncertainty estimate $\hat\sigma$ (the ensemble spread from (a), calibrated as in the
 last follow-up below) and a constant $\kappa$ trading exploiting pairs already predicted high-value against
@@ -337,7 +339,7 @@ uncertainty term).
 
 **(c) Self-attention and its cost.** One transformer layer projects a sequence of $L$ token embeddings to
 queries, keys and values, $Q = XW_Q$, $K = XW_K$, $V = XW_V$, and computes
-$\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(QK^\top / \sqrt{d_k}\right) V$: every position attends
+$`\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(QK^\top / \sqrt{d_k}\right) V`$: every position attends
 to every other position through the $L \times L$ score matrix $QK^\top$. Forming and softmax-normalising
 that matrix costs $O(L^2 d_k)$ time and $O(L^2)$ memory, quadratic in sequence length — for a SMILES string,
 $L$ is the string's character (or token) length, so a long SMILES string costs disproportionately more than
@@ -394,7 +396,7 @@ squared error for small residuals, linear past a threshold — than by taking ei
   generalisation of a symmetric combiner is a function symmetric over all three inputs — for example summing
   every pairwise bilinear term, $\sum_{i<j} h_i^\top S h_j$, plus a per-participant single-molecule term —
   but the number of possible combinations of a fixed molecule set grows combinatorially with group size, so
-  the sparsity already seen at pairs (about $0.1\%$ of pair-space measured) becomes far more severe for
+  the sparsity already seen at pairs (about $`0.1\%`$ of pair-space measured) becomes far more severe for
   triples, leaning even more heavily on the structure-based generalisation of deep dive (a) than on anything
   identity-based.
 - **Multi-task learning.** If the lab also runs a related assay on the same molecules far more often than

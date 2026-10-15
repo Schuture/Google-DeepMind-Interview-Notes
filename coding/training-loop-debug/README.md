@@ -18,17 +18,17 @@ $z^{(2)} = h_{\mathrm{drop}}W_2 + b_2 \in \mathbb{R}^3$ ($W_2 \in \mathbb{R}^{32
 where $h_{\mathrm{drop}}$ is $h$ after *inverted dropout*: during training, each of the $32$ hidden units
 is independently zeroed with probability $p = 0.2$ and every surviving unit is rescaled by $1/(1-p)$; at
 evaluation time no unit is dropped and no rescaling is applied, so $h_{\mathrm{drop}} = h$. The predicted
-class probabilities are $\mathrm{probs}_c = e^{z^{(2)}_c} / \sum_{c'=0}^{2} e^{z^{(2)}_{c'}}$, and the
-loss on a batch of $N$ examples with true labels $y \in \{0,1,2\}^N$ is the mean cross-entropy
-$L = \frac1N\sum_{i=1}^N -\log \mathrm{probs}_{i, y_i}$.
+class probabilities are $`\mathrm{probs}_c = e^{z^{(2)}_c} / \sum_{c'=0}^{2} e^{z^{(2)}_{c'}}`$, and the
+loss on a batch of $N$ examples with true labels $`y \in \{0,1,2\}^N`$ is the mean cross-entropy
+$`L = \frac1N\sum_{i=1}^N -\log \mathrm{probs}_{i, y_i}`$.
 
-`make_dataset` draws $600$ training points and $300$ validation points ($200$/$100$ per class) from
+`make_dataset` draws $600$ training points and $300$ validation points ($200$/$`100`$ per class) from
 three Gaussian blobs in the plane, then standardises both input features using only the training
 split's own mean and standard deviation, $x' = (x - \hat\mu) / \hat\sigma$, applying the same $\hat\mu,
 \hat\sigma$ to the validation split. Training runs mini-batch SGD with momentum for $30$ epochs of batch
 size $32$, reshuffling the training data at the start of every epoch: the velocity $v$ (one array per
 parameter, initialised to $\mathbf 0$ once, before training starts) updates as
-$v \leftarrow \mu v - \eta\, \nabla_\theta L$ and each parameter as $\theta \leftarrow \theta + v$, with
+$`v \leftarrow \mu v - \eta\, \nabla_\theta L`$ and each parameter as $\theta \leftarrow \theta + v$, with
 momentum $\mu = 0.9$ and learning rate $\eta$.
 
 ### Part 1 — Find and fix every bug
@@ -216,7 +216,7 @@ forward pass and accuracy function regardless of which bugs are still active els
 | --- | --- | --- | --- |
 | none | $\approx 26$, climbing to `nan` by epoch $16$ | $0.333$ / $0.333$ | the softmax axis |
 | softmax axis | $\approx 2.0$, still far above a healthy run | $0.333$ / $0.333$ | the missing $1/N$ |
-| + gradient scale | $\approx 1.1$–$1.2$, the $\ln 3$ plateau | $0.333$ / $0.243$ | the mismatched shuffle |
+| + gradient scale | $\approx 1.1$–$`1.2`$, the $\ln 3$ plateau | $0.333$ / $0.243$ | the mismatched shuffle |
 | + shuffle | decreasing normally, epoch $1 \approx 0.39$ | $0.333$ / $0.957$ | the accuracy function |
 | + accuracy function | unchanged | $0.963$ / $0.957$ | close but not exact — the momentum reset |
 | + momentum | epoch $1$ improves to $\approx 0.30$ | $0.953$ / $0.957$ | still not exact — evaluation-time dropout |
@@ -225,16 +225,16 @@ forward pass and accuracy function regardless of which bugs are still active els
 **Bug 2: softmax over the batch axis.** `logits.max(axis=0)` and `.sum(axis=0)` reduce over the $N$
 examples of the batch for each fixed class, not over the $3$ classes of each fixed example: the result
 does not sum to $1$ along a row, so it is not any example's probability distribution, and it depends on
-which other examples happen to share the batch. Class $c$'s mass $\sum_i e^{z^{(2)}_{i,c}}$ is shared
+which other examples happen to share the batch. Class $c$'s mass $`\sum_i e^{z^{(2)}_{i,c}}`$ is shared
 out among the $N$ rows in proportion to their own logit for that class alone, so whichever row has the
 largest logit for class $c$ claims nearly all of it, leaving the other $N-1$ rows a probability for
 class $c$ close to $0$ — including, for most rows, their own true class — which is exactly what drives
-$-\log(\mathrm{probs}_{i,y_i})$ into the tens seen above.
+$`-\log(\mathrm{probs}_{i,y_i})`$ into the tens seen above.
 
 **Bug 3: the missing $1/N$.** The forward loss averages the $N$ per-example terms,
-$L=\frac1N\sum_i \ell_i$ with $\ell_i=-\log \mathrm{probs}_{i,y_i} = -z^{(2)}_{i,y_i} + \log\sum_{c'} e^{z^{(2)}_{i,c'}}$,
-so $\partial \ell_i/\partial z^{(2)}_{i,c} = \mathrm{probs}_{i,c}-\mathbb 1[c=y_i]$ and
-$\partial L/\partial z^{(2)}_{i,c}=\frac1N(\mathrm{probs}_{i,c}-\mathbb 1[c=y_i])$. `dlogits = probs -
+$L=\frac1N\sum_i \ell_i$ with $`\ell_i=-\log \mathrm{probs}_{i,y_i} = -z^{(2)}_{i,y_i} + \log\sum_{c'} e^{z^{(2)}_{i,c'}}`$,
+so $`\partial \ell_i/\partial z^{(2)}_{i,c} = \mathrm{probs}_{i,c}-\mathbb 1[c=y_i]`$ and
+$`\partial L/\partial z^{(2)}_{i,c}=\frac1N(\mathrm{probs}_{i,c}-\mathbb 1[c=y_i])`$. `dlogits = probs -
 onehot` omits that $\frac1N$, leaving every gradient — and so every parameter update, since $\eta$
 multiplies the gradient directly — exactly $N=32$ times too large: training behaves as though the
 learning rate were $32\times 0.15=4.8$ rather than $0.15$, and the loss never settles into the healthy
@@ -251,18 +251,18 @@ plateau above.
 
 **Bug 6: `keepdims=True` in accuracy.** `np.argmax(probs, axis=1, keepdims=True)` has shape $(N,1)$;
 comparing it against `y`'s shape $(N,)$ right-aligns and broadcasts to $(N,N)$, whose entry $(i,j)$ is
-$\mathrm{pred}_i=y_j$ — the $N$ correct per-example comparisons that belong on the diagonal, diluted by
+$`\mathrm{pred}_i=y_j`$ — the $N$ correct per-example comparisons that belong on the diagonal, diluted by
 $N(N-1)$ unrelated off-diagonal ones. Writing $q_c$ for the fraction of the $N$ predictions equal to
-class $c$ and $q'_c$ for the true fraction, the mean over all $N^2$ pairs is
-$\frac{1}{N^2}\sum_c (Nq_c)(Nq'_c)=\sum_c q_c q'_c$; for a model whose predictions land on each of $3$
-balanced classes about as often as that class truly occurs, every $q_c,q'_c\approx1/3$ and the reported
+class $c$ and $`q'_c`$ for the true fraction, the mean over all $N^2$ pairs is
+$`\frac{1}{N^2}\sum_c (Nq_c)(Nq'_c)=\sum_c q_c q'_c`$; for a model whose predictions land on each of $3$
+balanced classes about as often as that class truly occurs, every $`q_c,q'_c\approx1/3`$ and the reported
 number is $\approx 3\cdot(1/3)^2=1/3$ regardless of how many of the $N$ diagonal entries are actually
 correct. Nothing about training is affected, so the loss curve gives no hint of it either.
 
 **Bug 4: momentum reset every step.** Recreating `velocity` as all zeros at the top of the mini-batch
 loop means every step computes $v=\mu\cdot\mathbf 0-\eta\nabla_\theta L=-\eta\nabla_\theta L$: a plain
 gradient step, regardless of $\mu$. A genuinely accumulating velocity, over $k$ consecutive steps with a
-roughly constant gradient $g$, reaches $v_k=-\eta g\sum_{j=0}^{k-1}\mu^j=-\eta g\,(1-\mu^k)/(1-\mu)$,
+roughly constant gradient $g$, reaches $`v_k=-\eta g\sum_{j=0}^{k-1}\mu^j=-\eta g\,(1-\mu^k)/(1-\mu)`$,
 approaching $-\eta g/(1-\mu)=10\times$ the plain step as $k$ grows at $\mu=0.9$; resetting every step
 pins every update at the $k=1$ term instead, so the first several epochs move noticeably more slowly
 than a correctly accumulating run, even though both reach the same place once $30$ epochs have given the
@@ -270,7 +270,7 @@ un-accelerated updates enough time to catch up — a bug that changes the *shape
 changing where it ends up.
 
 **Bug 5: dropout active at evaluation.** Leaving the random mask unconditional — not gated by
-`training` — means `forward(..., training=False, ...)` still zeroes $20\%$ of the hidden units at random
+`training` — means `forward(..., training=False, ...)` still zeroes $`20\%`$ of the hidden units at random
 and rescales the rest by $1/(1-p)=1.25$: two calls on the very same `X` draw two different masks and can
 disagree, so `forward` is no longer a deterministic function of its input at evaluation time. Like bug 6,
 nothing about training changes, so this bug is invisible in the training-loss curve; it shows up only by
@@ -389,8 +389,8 @@ def train(seed: int = 0) -> dict:
 | Bug (isolated) | Training-loss curve | Reported validation accuracy |
 | --- | --- | --- |
 | 1 — mismatched shuffle | plateaus near $\ln 3\approx1.10$ every epoch | $\approx 1/3$ |
-| 2 — softmax over the batch axis | huge, $17$–$27$, no downward trend | $\approx 1/3$ |
-| 3 — missing $1/N$ | elevated and erratic, $1.1$–$4.7$, never converges | $\approx 1/3$ |
+| 2 — softmax over the batch axis | huge, $17$–$`27`$, no downward trend | $\approx 1/3$ |
+| 3 — missing $1/N$ | elevated and erratic, $1.1$–$`4.7`$, never converges | $\approx 1/3$ |
 | 4 — momentum reset every step | decreasing normally, but epoch $1\approx0.39$ against $\approx0.30$ correctly | matches the correct run, $\approx 0.96$ |
 | 5 — dropout at evaluation | identical to the correct run | close to the correct run on any one call, but changes between calls |
 | 6 — `keepdims` in accuracy | identical to the correct run | $\approx 1/3$ regardless of how good the model is |

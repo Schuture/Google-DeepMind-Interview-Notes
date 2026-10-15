@@ -337,7 +337,9 @@ turn (the resize at size $m/2$ grows the capacity to $m$, comfortably covering t
 with no further resize), and each one copies exactly that many elements, so the total number of copies is the
 geometric sum
 
-$$1 + 2 + 4 + \cdots + \frac{m}{2} = m - 1.$$
+```math
+1 + 2 + 4 + \cdots + \frac{m}{2} = m - 1.
+```
 
 Because $m$ is the *smallest* power of two at least $n$, the previous power of two, $m/2$, must be smaller
 than $n$ — otherwise $m$ would not have been smallest — so $m < 2n$, and the total is $m - 1 < 2n$: fewer

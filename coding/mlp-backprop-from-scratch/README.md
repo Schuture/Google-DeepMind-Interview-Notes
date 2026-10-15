@@ -13,17 +13,21 @@
 A two-layer network maps a batch of inputs to class scores. Given a batch $X \in \mathbb{R}^{B\times d}$
 of $B$ examples in $\mathbb{R}^d$, a hidden layer of $m$ units, and $C$ output classes,
 
-$$Z_1 = XW_1 + b_1, \qquad H = \mathrm{ReLU}(Z_1), \qquad S = HW_2 + b_2,$$
+```math
+Z_1 = XW_1 + b_1, \qquad H = \mathrm{ReLU}(Z_1), \qquad S = HW_2 + b_2,
+```
 
 where $\mathrm{ReLU}(z) = \max(z, 0)$ is applied elementwise, $W_1 \in \mathbb{R}^{d\times m}$,
 $b_1 \in \mathbb{R}^m$, $W_2 \in \mathbb{R}^{m\times C}$, $b_2 \in \mathbb{R}^C$, and each row of
 $S \in \mathbb{R}^{B\times C}$ holds one example's *scores* (equivalently *logits*). Parameters are
 collected in a `dict`, `{"W1": W1, "b1": b1, "W2": W2, "b2": b2}`, each value an `np.ndarray` of the
 shape just given. The predicted class probabilities are the row-wise *softmax* of $S$,
-$\mathrm{probs}_{i,c} = e^{S_{i,c}} / \sum_{c'=0}^{C-1} e^{S_{i,c'}}$, and given integer labels
-$y \in \{0,\dots,C-1\}^B$, the loss on the batch is the mean *softmax cross-entropy*,
+$`\mathrm{probs}_{i,c} = e^{S_{i,c}} / \sum_{c'=0}^{C-1} e^{S_{i,c'}}`$, and given integer labels
+$`y \in \{0,\dots,C-1\}^B`$, the loss on the batch is the mean *softmax cross-entropy*,
 
-$$L = \frac{1}{B}\sum_{i=0}^{B-1} -\log \mathrm{probs}_{i,y_i}.$$
+```math
+L = \frac{1}{B}\sum_{i=0}^{B-1} -\log \mathrm{probs}_{i,y_i}.
+```
 
 ### Part 1 — Forward and backward
 
@@ -37,7 +41,9 @@ def forward_backward(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray
 Before writing any code, derive every gradient in matrix form, in this order: $\partial L/\partial S$
 first — it has the closed form
 
-$$\frac{\partial L}{\partial S} = \frac{\mathrm{softmax}(S) - Y}{B}, \qquad Y \in \{0,1\}^{B\times C},\ \ Y_{i,c} = \mathbb{1}[c=y_i]$$
+```math
+\frac{\partial L}{\partial S} = \frac{\mathrm{softmax}(S) - Y}{B}, \qquad Y \in \{0,1\}^{B\times C},\ \ Y_{i,c} = \mathbb{1}[c=y_i]
+```
 
 ($Y$ the matrix of one-hot labels) — then, by the chain rule through each layer in turn,
 $\partial L/\partial W_2$, $\partial L/\partial b_2$, $\partial L/\partial H$, $\partial L/\partial Z_1$,
@@ -75,15 +81,19 @@ def grad_check(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, eps:
 For one scalar parameter entry $\theta$, holding every other entry of `params` fixed, the *central
 finite difference* is
 
-$$g_n[\theta] = \frac{L(\theta+\epsilon) - L(\theta-\epsilon)}{2\epsilon},$$
+```math
+g_n[\theta] = \frac{L(\theta+\epsilon) - L(\theta-\epsilon)}{2\epsilon},
+```
 
 where $L(\theta')$ is the loss `forward_backward` reports with that one entry set to $\theta'$. Writing
 $g_a[\theta]$ for the matching entry of `forward_backward`'s analytic gradient, the entry's *relative
 error* is
 
-$$\mathrm{rel\_err}[\theta] = \frac{|g_a[\theta] - g_n[\theta]|}{\max\bigl(|g_a[\theta]| + |g_n[\theta]|,\ 10^{-12}\bigr)},$$
+```math
+\mathrm{rel\_err}[\theta] = \frac{|g_a[\theta] - g_n[\theta]|}{\max\bigl(|g_a[\theta]| + |g_n[\theta]|,\ 10^{-12}\bigr)},
+```
 
-and `grad_check` returns the maximum of $\mathrm{rel\_err}[\theta]$ over every entry $\theta$ of `W1`,
+and `grad_check` returns the maximum of $`\mathrm{rel\_err}[\theta]`$ over every entry $\theta$ of `W1`,
 `b1`, `W2` and `b2`. As a rule of thumb, used below, a maximum under $10^{-7}$ passes and one above
 $10^{-4}$ is grounds to suspect a bug. Explain the choice of the default `eps` (why not $10^{-8}$, or
 $10^{-2}$?); why `grad_check` needs `float64` parameters and data rather than the `float32` a model
@@ -118,23 +128,23 @@ def train(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, *, steps:
 ```
 
 The two arms `make_spirals` produces are not linearly separable: no single straight line has every
-class-$0$ point on one side and every class-$1$ point on the other, which the checks below confirm
+class-$`0`$ point on one side and every class-$`1`$ point on the other, which the checks below confirm
 independently by showing that a linear classifier (logistic regression) cannot get much past chance on
-it, well short of the target below. Using `he_init`, train to at least $95\%$ **training** accuracy —
+it, well short of the target below. Using `he_init`, train to at least $`95\%`$ **training** accuracy —
 the argmax of $S$ against $y$, evaluated on the same `X`, `y` used for training — with a fixed seed
 throughout.
 
-Justify `he_init`'s variance, $\mathrm{Var}(W) = 2/\mathrm{fan\_in}$ ($\mathrm{fan\_in}$ is how many
+Justify `he_init`'s variance, $`\mathrm{Var}(W) = 2/\mathrm{fan\_in}`$ ($`\mathrm{fan\_in}`$ is how many
 inputs each output unit reads: $d$ for `W1`, since every one of the $m$ hidden units reads all $d$ input
 features, and $m$ for `W2`, since every one of the $C$ output units reads all $m$ hidden features), by
 deriving what it does to the *second moment* of a layer's activations — $\mathrm{E}[h^2]$, meaningful
 even when $\mathrm{E}[h]\ne0$, unlike the variance $\mathrm E[(h-\mathrm E[h])^2]$. For a single ReLU
 layer $h=\mathrm{ReLU}(xW)$ ($x$'s entries have some common second moment $s$; $W$'s
-$\mathrm{fan\_in}\times\mathrm{fan\_out}$ entries are drawn i.i.d., mean $0$, variance $\sigma^2$,
-independent of $x$), find $\mathrm E[h^2]$ as a function of $s$, $\sigma^2$ and $\mathrm{fan\_in}$, and
+$`\mathrm{fan\_in}\times\mathrm{fan\_out}`$ entries are drawn i.i.d., mean $0$, variance $\sigma^2$,
+independent of $x$), find $\mathrm E[h^2]$ as a function of $s$, $\sigma^2$ and $`\mathrm{fan\_in}`$, and
 the $\sigma^2$ that makes it equal $s$ again — then confirm by Monte Carlo that stacking $10$ such
 layers keeps $\mathrm E[h^2]$ roughly constant with this $\sigma^2$, against what happens with
-$\sigma^2=1/\mathrm{fan\_in}$ instead.
+$`\sigma^2=1/\mathrm{fan\_in}`$ instead.
 
 Separately, using `zero_init` in place of `he_init`: from Part 1's gradient formulas, derive exactly
 what `forward_backward` returns at $W_1=b_1=W_2=b_2=0$, and what every step of `train` after that does
@@ -153,11 +163,13 @@ the one-hot matrix internally.
 
 ### Part 1
 
-Write $s_{i,c}$ for entry $(i,c)$ of $S$ and $p_{i,c}=\mathrm{probs}_{i,c}$. The per-example loss is
+Write $s_{i,c}$ for entry $(i,c)$ of $S$ and $`p_{i,c}=\mathrm{probs}_{i,c}`$. The per-example loss is
 $\ell_i = -\log p_{i,y_i} = -s_{i,y_i} + \log\sum_{c'} e^{s_{i,c'}}$ (substitute the definition of
 $p_{i,y_i}$ and take the log). Differentiating with respect to one score of that same example,
 
-$$\frac{\partial \ell_i}{\partial s_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s_{i,c}}}{\sum_{c'}e^{s_{i,c'}}} = p_{i,c} - \mathbb{1}[c=y_i],$$
+```math
+\frac{\partial \ell_i}{\partial s_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s_{i,c}}}{\sum_{c'}e^{s_{i,c'}}} = p_{i,c} - \mathbb{1}[c=y_i],
+```
 
 and $\ell_i$ does not depend on any score of a different example, so $\partial \ell_i/\partial
 s_{i',c}=0$ for $i'\ne i$. Averaging over the batch, $\partial L/\partial s_{i,c} =
@@ -168,13 +180,17 @@ Every remaining gradient follows from $dS$ by the chain rule, one layer at a tim
 $s_{i,c}=\sum_j h_{i,j}w2_{j,c}+b2_c$, so $\partial s_{i,c}/\partial w2_{j,c'}$ equals $h_{i,j}$ when
 $c=c'$ and $0$ otherwise (only column $c'$ of $S$ involves $w2_{j,c'}$):
 
-$$\frac{\partial L}{\partial w2_{j,c}} = \sum_{i,c'} \frac{\partial L}{\partial s_{i,c'}}\frac{\partial s_{i,c'}}{\partial w2_{j,c}} = \sum_i (dS)_{i,c}\, h_{i,j} = (H^\top dS)_{j,c}, \qquad\text{so}\quad \frac{\partial L}{\partial W_2} = H^\top dS.$$
+```math
+\frac{\partial L}{\partial w2_{j,c}} = \sum_{i,c'} \frac{\partial L}{\partial s_{i,c'}}\frac{\partial s_{i,c'}}{\partial w2_{j,c}} = \sum_i (dS)_{i,c}\, h_{i,j} = (H^\top dS)_{j,c}, \qquad\text{so}\quad \frac{\partial L}{\partial W_2} = H^\top dS.
+```
 
-The same sum with $\partial s_{i,c}/\partial b2_c = 1$ gives $\partial L/\partial b_2 = \sum_i
-(dS)_{i,:}$ — column sums of $dS$, i.e. `dS.sum(axis=0)`. For $H$, $\partial s_{i,c}/\partial
+The same sum with $\partial s_{i,c}/\partial b2_c = 1$ gives $`\partial L/\partial b_2 = \sum_i
+(dS)_{i,:}`$ — column sums of $dS$, i.e. `dS.sum(axis=0)`. For $H$, $\partial s_{i,c}/\partial
 h_{i,j}=w2_{j,c}$ (row $i$ of $H$ only feeds row $i$ of $S$):
 
-$$\frac{\partial L}{\partial h_{i,j}} = \sum_c \frac{\partial L}{\partial s_{i,c}}\, w2_{j,c} = (dS\, W_2^\top)_{i,j}, \qquad\text{so}\quad dH := \frac{\partial L}{\partial H} = dS\, W_2^\top.$$
+```math
+\frac{\partial L}{\partial h_{i,j}} = \sum_c \frac{\partial L}{\partial s_{i,c}}\, w2_{j,c} = (dS\, W_2^\top)_{i,j}, \qquad\text{so}\quad dH := \frac{\partial L}{\partial H} = dS\, W_2^\top.
+```
 
 $H=\mathrm{ReLU}(Z_1)$ acts elementwise, $h_{i,j}=\max(z1_{i,j},0)$, with derivative $\partial
 h_{i,j}/\partial z1_{i,j}=\mathbb 1[z1_{i,j}>0]$ (the subgradient $0$ is taken at the kink itself,
@@ -182,7 +198,7 @@ $z1_{i,j}=0$ — Part 2 returns to why this one point is a nuisance for gradient
 backprop itself), so $dZ_1 := \partial L/\partial Z_1 = dH \odot \mathbb 1[Z_1>0]$, an elementwise
 product. Finally $Z_1=XW_1+b_1$ has exactly the shape of $S=HW_2+b_2$ with $(X,W_1,b_1,dZ_1)$ standing
 in for $(H,W_2,b_2,dS)$, so the same two derivations give $\partial L/\partial W_1 = X^\top dZ_1$ and
-$\partial L/\partial b_1 = \sum_i (dZ_1)_{i,:}$.
+$`\partial L/\partial b_1 = \sum_i (dZ_1)_{i,:}`$.
 
 ```python
 import numpy as np
@@ -219,15 +235,15 @@ def forward_backward(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray
     return loss, {"W1": dW1, "b1": db1, "W2": dW2, "b2": db2}
 ```
 
-On the worked example above, this returns `loss ~= 0.0354` and $dS \approx \begin{pmatrix}-0.0315 &
-0.0315\\ 0.0029 & -0.0029\end{pmatrix}$: row $0$ pulls class $0$'s score up and class $1$'s down, since
-the true label is $0$ but $\mathrm{probs}_{0,0}=0.9370$ still slightly under-predicts it; row $1$'s pull
-is much smaller, since $\mathrm{probs}_{1,1}=0.9942$ is already close to the label. The checks verify
+On the worked example above, this returns `loss ~= 0.0354` and $`dS \approx \begin{pmatrix}-0.0315 &
+0.0315\\ 0.0029 & -0.0029\end{pmatrix}`$: row $0$ pulls class $0$'s score up and class $1$'s down, since
+the true label is $0$ but $`\mathrm{probs}_{0,0}=0.9370`$ still slightly under-predicts it; row $1$'s pull
+is much smaller, since $`\mathrm{probs}_{1,1}=0.9942`$ is already close to the label. The checks verify
 every one of `W1`, `b1`, `W2`, `b2`'s returned gradients on this example against an independent
 finite-difference loop.
 
 The forward pass costs $O(Bdm)$ for $XW_1$ and $O(BmC)$ for $HW_2$; the backward pass repeats the same
-two products transposed — $H^\top dS$ and $dS\,W_2^\top$ are each $O(BmC)$, $X^\top dZ_1$ is $O(Bdm)$ —
+two products transposed — $H^\top dS$ and $`dS\,W_2^\top`$ are each $O(BmC)$, $X^\top dZ_1$ is $O(Bdm)$ —
 so `forward_backward` costs $O(B(dm+mC))$ time overall, the same order as the forward pass alone (a
 general fact about backprop, revisited in the Follow-ups). Memory is $O(B(d+m+C))$ for the cached $X$,
 $Z_1$, $H$ (the backward pass reads all three), on top of $O(dm+mC)$ for the parameters themselves.
@@ -238,12 +254,16 @@ $g_n$ approximates $g_a$ up to a *truncation error*, from stopping the Taylor ex
 finite order, and a *rounding error*, from evaluating $L$ in finite-precision arithmetic; the choice of
 `eps` trades one against the other. Expanding $L$ around $\theta$,
 
-$$L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),$$
+```math
+L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),
+```
 
 so $L(\theta+\epsilon)-L(\theta-\epsilon) = 2\epsilon L'(\theta) + \frac{\epsilon^3}{3}L'''(\theta) +
 O(\epsilon^5)$, and dividing by $2\epsilon$,
 
-$$g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4):$$
+```math
+g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4):
+```
 
 the truncation error is $O(\epsilon^2)$ — smaller `eps` helps on this term alone, and this term is why
 central differences are used at all rather than a one-sided difference
@@ -308,20 +328,22 @@ a loss-only variant keeps the two code paths manifestly in sync, at a cost that 
 
 **He initialisation.** Consider one ReLU layer in isolation, $h=\mathrm{ReLU}(z)$, $z=xW$ (biases only
 shift the pre-activation's distribution and are $0$ throughout, in both the derivation and `he_init`, so
-they are dropped here), where $x\in\mathbb R^{\mathrm{fan\_in}}$'s entries share a second moment
-$s=\mathrm E[x_j^2]$ and $W$'s $\mathrm{fan\_in}\times\mathrm{fan\_out}$ entries are drawn i.i.d. from a
+they are dropped here), where $`x\in\mathbb R^{\mathrm{fan\_in}}`$'s entries share a second moment
+$s=\mathrm E[x_j^2]$ and $W$'s $`\mathrm{fan\_in}\times\mathrm{fan\_out}`$ entries are drawn i.i.d. from a
 distribution symmetric about $0$ (`he_init` uses a Gaussian) with variance $\sigma^2$, independent of
-$x$. For one output feature $z_k=\sum_{j=1}^{\mathrm{fan\_in}} x_jW_{jk}$: since $\mathrm E[W_{jk}]=0$
+$x$. For one output feature $`z_k=\sum_{j=1}^{\mathrm{fan\_in}} x_jW_{jk}`$: since $\mathrm E[W_{jk}]=0$
 and $W_{jk}$ is independent of $x_j$, $\mathrm E[z_k]=\sum_j\mathrm E[x_j]\mathrm E[W_{jk}]=0$ regardless
 of $x$'s own mean, so $\mathrm{Var}(z_k)=\mathrm E[z_k^2]$. Expanding the square,
 
-$$\mathrm E[z_k^2] = \sum_{j,j'}\mathrm E[x_jx_{j'}W_{jk}W_{j'k}];$$
+```math
+\mathrm E[z_k^2] = \sum_{j,j'}\mathrm E[x_jx_{j'}W_{jk}W_{j'k}];
+```
 
 for $j\ne j'$, $W_{jk}$ and $W_{j'k}$ are independent of each other and of $x_j,x_{j'}$, with
-$\mathrm E[W_{jk}]=\mathrm E[W_{j'k}]=0$, so that term is $\mathrm E[x_jx_{j'}]\,\mathrm
-E[W_{jk}]\,\mathrm E[W_{j'k}]=0$; for $j=j'$, independence of $W_{jk}$ and $x_j$ gives $\mathrm
-E[x_j^2W_{jk}^2]=\mathrm E[x_j^2]\,\mathrm E[W_{jk}^2]=s\sigma^2$. So $\mathrm
-E[z_k^2]=\mathrm{fan\_in}\cdot s\sigma^2$ — a clean recursion on second moments, regardless of $x$'s own
+$\mathrm E[W_{jk}]=\mathrm E[W_{j'k}]=0$, so that term is $`\mathrm E[x_jx_{j'}]\,\mathrm
+E[W_{jk}]\,\mathrm E[W_{j'k}]=0`$; for $j=j'$, independence of $W_{jk}$ and $x_j$ gives $`\mathrm
+E[x_j^2W_{jk}^2]=\mathrm E[x_j^2]\,\mathrm E[W_{jk}^2]=s\sigma^2`$. So $`\mathrm
+E[z_k^2]=\mathrm{fan\_in}\cdot s\sigma^2`$ — a clean recursion on second moments, regardless of $x$'s own
 distribution.
 
 Because $W_{jk}$'s distribution is symmetric about $0$ and independent of $x_j$, so is the product
@@ -332,10 +354,12 @@ symmetric about $0$, $\mathrm E[z^2\mathbb 1[z>0]]=\mathrm E[z^2\mathbb 1[z<0]]$
 inside the expectation: $z^2$ is unchanged, $\mathbb 1[z>0]$ becomes $\mathbb 1[z<0]$), and the two sum
 to $\mathrm E[z^2]$ (an entry is almost surely never exactly $0$), so each is exactly half of it:
 
-$$\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\,\mathrm{fan\_in}\cdot s\sigma^2.$$
+```math
+\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\,\mathrm{fan\_in}\cdot s\sigma^2.
+```
 
 Setting $\mathrm E[h^2]=s$ — the layer preserves the activation second moment — gives
-$\sigma^2=2/\mathrm{fan\_in}$: He initialisation. Using $\sigma^2=1/\mathrm{fan\_in}$ instead (the
+$`\sigma^2=2/\mathrm{fan\_in}`$: He initialisation. Using $`\sigma^2=1/\mathrm{fan\_in}`$ instead (the
 variance that would preserve a *linear* layer's output variance, ignoring $\mathrm{ReLU}$'s factor of
 $\tfrac12$) gives $\mathrm E[h^2]=s/2$: the second moment is cut in half at every layer, so after $10$
 stacked layers it is about $2^{-10}\approx0.001$ of where it started — confirmed by Monte Carlo below.
@@ -360,8 +384,8 @@ for every row regardless of $X$, so $H=\mathrm{ReLU}(0)=0$ too, for every hidden
 — every hidden unit computes the same, identically-zero function of the input, which is what "the hidden
 units stay identical" means at its most literal. This propagates all the way back through
 `forward_backward`: $dW_2=H^\top dS=0$ (the zero matrix times anything is zero, whatever $dS$ turns out
-to be), $dH=dS\,W_2^\top=0$ (since $W_2=0$), $dZ_1=dH\odot\mathbb 1[Z_1>0]=0$ ($\mathbb 1[0>0]$ is
-`False`), $dW_1=X^\top dZ_1=0$, $db_1=\sum_i(dZ_1)_{i,:}=0$. Only $db_2=\sum_i(dS)_{i,:}$ can be nonzero,
+to be), $`dH=dS\,W_2^\top=0`$ (since $W_2=0$), $dZ_1=dH\odot\mathbb 1[Z_1>0]=0$ ($\mathbb 1[0>0]$ is
+`False`), $dW_1=X^\top dZ_1=0$, $`db_1=\sum_i(dZ_1)_{i,:}=0`$. Only $`db_2=\sum_i(dS)_{i,:}`$ can be nonzero,
 since it never multiplies by $H$ or $W_2$.
 
 By induction, this holds at *every* training step, not just the first: if $W_1^{(t)}=b_1^{(t)}=0$ at
@@ -412,14 +436,14 @@ Momentum changes what learning rate is safe: for a roughly steady gradient $g$, 
 $v^{(t+1)}=\mathrm{momentum}\cdot v^{(t)}-\mathrm{lr}\cdot g$ converges to the fixed point
 $v_\infty=-\mathrm{lr}\cdot g/(1-\mathrm{momentum})$ (solve $v_\infty=\mathrm{momentum}\cdot
 v_\infty-\mathrm{lr}\cdot g$ for $v_\infty$), so at $\mathrm{momentum}=0.9$ the raw `lr` acts through an
-effective step ten times larger; `lr`$=0.15$ (effective step $1.5$) was chosen empirically to sit
+effective step ten times larger; `lr`$`=0.15`$ (effective step $1.5$) was chosen empirically to sit
 comfortably inside the range that still converges rather than oscillates.
 
 With `he_init(2, 64, 2, seed=1)`, `make_spirals(150, n_turns=1.5, noise=0.08, seed=0)` and
 `train(..., steps=4000, batch_size=32, lr=0.15, momentum=0.9, seed=2)`, training accuracy reaches
-$99\%$, comfortably past the $95\%$ target; with `zero_init(2, 64, 2)` in place of `he_init` and
+$`99\%`$, comfortably past the $`95\%`$ target; with `zero_init(2, 64, 2)` in place of `he_init` and
 everything else unchanged, `W1`, `b1` and `W2` come back bit-for-bit equal to their starting zero, and
-accuracy is exactly $50\%$ — chance, on this perfectly class-balanced dataset, since the frozen network
+accuracy is exactly $`50\%`$ — chance, on this perfectly class-balanced dataset, since the frozen network
 predicts the same class for every input.
 
 ### Follow-ups

@@ -10,18 +10,22 @@
 
 ## Problem
 
-Data $X = \{x_1, \dots, x_n\} \subset \mathbb{R}^d$ (equivalently an array of shape $(n, d)$) is modelled as
+Data $`X = \{x_1, \dots, x_n\} \subset \mathbb{R}^d`$ (equivalently an array of shape $`(n, d)`$) is modelled as
 drawn i.i.d. from a mixture of $K$ multivariate Gaussians. Component $k$ ($1 \le k \le K$) has a *weight*
 $\pi_k \ge 0$ with $\sum_{k=1}^K \pi_k = 1$, a *mean* $\mu_k \in \mathbb{R}^d$, and a *covariance*
 $\Sigma_k \in \mathbb{R}^{d \times d}$ — symmetric and positive-definite ($v^\top \Sigma_k v > 0$ for every
 $v \ne 0$), so $\Sigma_k$ is invertible and $|\Sigma_k| > 0$ — giving the density
 
-$$\mathcal N(x; \mu, \Sigma) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left(-\frac12 (x - \mu)^\top \Sigma^{-1} (x - \mu)\right), \qquad p(x) = \sum_{k=1}^K \pi_k\, \mathcal N(x; \mu_k, \Sigma_k).$$
+```math
+\mathcal N(x; \mu, \Sigma) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left(-\frac12 (x - \mu)^\top \Sigma^{-1} (x - \mu)\right), \qquad p(x) = \sum_{k=1}^K \pi_k\, \mathcal N(x; \mu_k, \Sigma_k).
+```
 
 Write $\theta = (\pi_{1:K}, \mu_{1:K}, \Sigma_{1:K})$ for all the parameters together. The *log-likelihood* of
 $X$ under $\theta$ is
 
-$$\ell(\theta) = \sum_{i=1}^n \log \sum_{k=1}^K \pi_k\, \mathcal N(x_i; \mu_k, \Sigma_k).$$
+```math
+\ell(\theta) = \sum_{i=1}^n \log \sum_{k=1}^K \pi_k\, \mathcal N(x_i; \mu_k, \Sigma_k).
+```
 
 Example with $K = 2$, $d = 1$ (so each $\Sigma_k$ is the $1 \times 1$ matrix $[\sigma_k^2]$),
 $\pi = (0.5, 0.5)$, $\mu = (-1, 1)$, $\sigma_1^2 = \sigma_2^2 = 1$, and $X = (-2, 0, 3)$:
@@ -44,7 +48,7 @@ the components to that estimate.
 
 ### Part 1 — Derive EM
 
-Introduce a latent (unobserved) variable $z_i \in \{1, \dots, K\}$ for every point, with $p(z_i = k) = \pi_k$
+Introduce a latent (unobserved) variable $`z_i \in \{1, \dots, K\}`$ for every point, with $p(z_i = k) = \pi_k$
 and $p(x_i \mid z_i = k) = \mathcal N(x_i; \mu_k, \Sigma_k)$, so that marginalising $z_i$ out recovers
 $p(x_i) = \sum_k \pi_k \mathcal N(x_i; \mu_k, \Sigma_k)$ and $\ell(\theta) = \sum_i \log p(x_i)$ as above. Fix
 a current estimate $\theta^{\mathrm{old}} = (\pi^{\mathrm{old}}, \mu^{\mathrm{old}}, \Sigma^{\mathrm{old}})$.
@@ -54,7 +58,9 @@ a current estimate $\theta^{\mathrm{old}} = (\pi^{\mathrm{old}}, \mu^{\mathrm{ol
 
 **(b)** The *expected complete-data log-likelihood* is
 
-$$Q(\theta; \theta^{\mathrm{old}}) = \mathbb E_{z \mid X, \theta^{\mathrm{old}}}\bigl[\log p(X, Z \mid \theta)\bigr] = \sum_{i=1}^n \sum_{k=1}^K \gamma_{ik} \bigl[\log \pi_k + \log \mathcal N(x_i; \mu_k, \Sigma_k)\bigr],$$
+```math
+Q(\theta; \theta^{\mathrm{old}}) = \mathbb E_{z \mid X, \theta^{\mathrm{old}}}\bigl[\log p(X, Z \mid \theta)\bigr] = \sum_{i=1}^n \sum_{k=1}^K \gamma_{ik} \bigl[\log \pi_k + \log \mathcal N(x_i; \mu_k, \Sigma_k)\bigr],
+```
 
 with $\gamma_{ik}$ from (a) held fixed. Derive $\arg\max_\pi Q$ subject to $\sum_k \pi_k = 1$ using a Lagrange
 multiplier for the constraint, and derive $\arg\max_{\mu_k} Q$ and $\arg\max_{\Sigma_k} Q$ — each $k$
@@ -63,7 +69,7 @@ independently — by setting the relevant gradient to zero.
 **(c)** One *EM iteration* takes $\theta^{\mathrm{old}}$, computes $\gamma$ by (a) — the *E-step* — then sets
 $\theta^{\mathrm{new}}$ to the maximiser found in (b) — the *M-step*. Prove
 $\ell(\theta^{\mathrm{new}}) \ge \ell(\theta^{\mathrm{old}})$ for every $\theta^{\mathrm{old}}$: for an
-arbitrary distribution $q_i$ over $\{1, \dots, K\}$ at every point ($q_i(k) \ge 0$, $\sum_k q_i(k) = 1$), use
+arbitrary distribution $q_i$ over $`\{1, \dots, K\}`$ at every point ($q_i(k) \ge 0$, $`\sum_k q_i(k) = 1`$), use
 *Jensen's inequality* — for a concave function $\varphi$ and a random variable $Y$,
 $\varphi(\mathbb E[Y]) \ge \mathbb E[\varphi(Y)]$ — to construct a lower bound $F(\theta, q) \le \ell(\theta)$
 that holds for every $\theta$ and every choice of $q$; show it is tight at $\theta = \theta^{\mathrm{old}}$
@@ -112,7 +118,7 @@ ell(theta_old) ~= -7.1225,  ell(theta_new) ~= -6.0408   # improved, as Part 1c p
 not updated by the M-step) and fix positive weights $\pi_k$. For a point $x$ with a *unique* nearest mean
 $\mu_{k^\ast} = \arg\min_k \lVert x - \mu_k \rVert_2$ (assume no exact ties), show that the E-step
 responsibility $\gamma_k(x) \to \mathbb 1[k = k^\ast]$ as $\sigma \to 0^+$, and that the M-step mean update
-then converges to $\mu_k \to \frac{1}{|C_k|} \sum_{i \in C_k} x_i$, where $C_k = \{i : k^\ast(x_i) = k\}$ —
+then converges to $\mu_k \to \frac{1}{|C_k|} \sum_{i \in C_k} x_i$, where $`C_k = \{i : k^\ast(x_i) = k\}`$ —
 the centroid update of the *k-means* algorithm, which alternates assigning each point to its nearest of $K$
 centroids and moving each centroid to the mean of the points assigned to it.
 
@@ -145,7 +151,9 @@ covariance, and an absolute tolerance on $\ell$.
 
 **(a) The responsibility.** By Bayes' rule,
 
-$$\gamma_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum_{j=1}^K \pi_j^{\mathrm{old}}\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},$$
+```math
+\gamma_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum_{j=1}^K \pi_j^{\mathrm{old}}\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},
+```
 
 the denominator marginalising $z_i$ out over its $K$ values, i.e. $p(x_i)$ itself; consequently
 $\sum_k \gamma_{ik} = 1$ for every $i$, since $\gamma_{i,\cdot}$ is a probability distribution over the $K$
@@ -156,7 +164,9 @@ $\sum_i \sum_k \gamma_{ik} \log \pi_k = \sum_k N_k \log \pi_k$, writing $N_k = \
 *soft count* of component $k$ (pulling the sum over $i$ inside since $\log \pi_k$ does not depend on $i$).
 Maximise subject to $\sum_k \pi_k = 1$ with a Lagrange multiplier $\lambda$:
 
-$$\mathcal L(\pi, \lambda) = \sum_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.$$
+```math
+\mathcal L(\pi, \lambda) = \sum_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.
+```
 
 Summing over $k$ and using $\sum_k \pi_k = 1$ and $\sum_k N_k = \sum_k \sum_i \gamma_{ik} = \sum_i 1 = n$:
 $1 = -\sum_k N_k / \lambda = -n/\lambda$, so $\lambda = -n$ and $\pi_k = N_k / n$.
@@ -166,31 +176,39 @@ $\sum_i \gamma_{ik} \log \mathcal N(x_i; \mu_k, \Sigma_k) = -\frac12 \sum_i \gam
 (the normalising constant, and every other component's terms, do not depend on $\mu_k$). Differentiate and
 set to zero:
 
-$$\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma_{ik}\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma_{ik}\, x_i = \Bigl(\sum_i \gamma_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma_{ik}\, x_i}{N_k},$$
+```math
+\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma_{ik}\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma_{ik}\, x_i = \Bigl(\sum_i \gamma_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma_{ik}\, x_i}{N_k},
+```
 
 multiplying through by the invertible $\Sigma_k$.
 
 **(b) The covariances.** Work with the precision $\Lambda_k = \Sigma_k^{-1}$ rather than $\Sigma_k$ directly:
-using $(x_i - \mu_k)^\top \Lambda_k (x_i - \mu_k) = \operatorname{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)$
+using $(x_i - \mu_k)^\top \Lambda_k (x_i - \mu_k) = \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)$
 (a scalar equals its own $1 \times 1$ trace) and linearity of the trace to pull the sum over $i$ inside, the
 terms of $Q$ depending on $\Lambda_k$ are
 
-$$\sum_i \gamma_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \operatorname{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \operatorname{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.$$
+```math
+\sum_i \gamma_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \mathrm{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.
+```
 
 Two standard matrix-derivative identities close this out: for symmetric $\Lambda$,
-$\partial \log |\Lambda| / \partial \Lambda = \Lambda^{-1}$ (Jacobi's formula, $d|\Lambda| = |\Lambda| \operatorname{tr}(\Lambda^{-1} d\Lambda)$,
-read off entrywise), and $\partial \operatorname{tr}(\Lambda S) / \partial \Lambda = S$ for symmetric $S$
+$\partial \log |\Lambda| / \partial \Lambda = \Lambda^{-1}$ (Jacobi's formula, $d|\Lambda| = |\Lambda| \mathrm{tr}(\Lambda^{-1} d\Lambda)$,
+read off entrywise), and $\partial \mathrm{tr}(\Lambda S) / \partial \Lambda = S$ for symmetric $S$
 (linear in every entry of $\Lambda$). So
 
-$$\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,$$
+```math
+\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,
+```
 
 since $\Lambda_k^{-1} = \Sigma_k$ by definition.
 
-**(c) Monotonicity.** For an arbitrary distribution $q_i$ over $\{1, \dots, K\}$ at each point, write the
+**(c) Monotonicity.** For an arbitrary distribution $q_i$ over $`\{1, \dots, K\}`$ at each point, write the
 $i$-th summand of $\ell(\theta)$ as an expectation under $q_i$ and apply Jensen's inequality to the concave
 $\log$:
 
-$$\log p(x_i) = \log \sum_{k=1}^K q_i(k)\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum_{k=1}^K q_i(k)\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},$$
+```math
+\log p(x_i) = \log \sum_{k=1}^K q_i(k)\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum_{k=1}^K q_i(k)\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},
+```
 
 for every $\theta$ and every $q_i$ with $q_i(k) > 0$ wherever $\pi_k \mathcal N(x_i; \mu_k, \Sigma_k) > 0$.
 Summing over $i$ gives $\ell(\theta) \ge F(\theta, q)$ for every $\theta$ and every $q = (q_1, \dots, q_n)$,
@@ -211,7 +229,9 @@ $\theta$ is exactly maximising $Q(\cdot; \theta^{\mathrm{old}})$ over $\theta$ �
 Jensen's inequality (holds at $\theta^{\mathrm{new}}$ too), the M-step's maximising property, and equality at
 $\theta^{\mathrm{old}}$:
 
-$$\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),$$
+```math
+\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),
+```
 
 proves $\ell(\theta^{\mathrm{new}}) \ge \ell(\theta^{\mathrm{old}})$ for every $\theta^{\mathrm{old}}$: one EM
 iteration never decreases the log-likelihood.
@@ -221,7 +241,9 @@ iteration never decreases the log-likelihood.
 Combining the $K$ components in log space uses the same identity as a numerically stable softmax: for any
 constant $m$ not depending on the index summed over,
 
-$$\log \sum_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},$$
+```math
+\log \sum_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},
+```
 
 since $e^{a_k} = e^m e^{a_k - m}$ for every $k$, so $e^m$ factors out of the sum and cancels against the
 outer $\log(e^m \cdot (\cdot)) = m + \log(\cdot)$. Taking $m = \max_k a_k$ keeps every exponent $\le 0$, so
@@ -330,7 +352,7 @@ one squared distance per remaining point, $O(nd)$. Each E-step evaluates `_log_g
 component: factoring $\Sigma_k$ for `slogdet`/`solve` costs $O(d^3)$, and solving for all $n$ points' Mahalanobis
 terms costs $O(nd^2)$, so $O(K(d^3 + nd^2))$ per E-step. Each M-step's $K$ covariance updates cost $O(nd^2)$
 apiece, $O(Knd^2)$ total, dominating the $O(nKd)$ mean update. Over at most `n_iter` iterations, `fit_gmm`
-costs $O(\mathrm{n\_iter} \cdot K(nd^2 + d^3))$ — linear in $n$ and $K$, cubic in $d$ through the per-component
+costs $`O(\mathrm{n\_iter} \cdot K(nd^2 + d^3))`$ — linear in $n$ and $K$, cubic in $d$ through the per-component
 linear algebra.
 
 On `X, true_means = make_gmm_clusters(seed=0)` (600 points, 3 true clusters), `fit_gmm(X, 3, seed=0)`
@@ -347,13 +369,17 @@ reports the *mean* log-likelihood per sample (its `lower_bound_`), where `log_li
 $\log \mathcal N(x; \mu_k, \sigma^2 I_d) = -\frac{d}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \lVert x - \mu_k \rVert^2$,
 so component $k$'s responsibility at a point $x$ is
 
-$$\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},$$
+```math
+\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},
+```
 
 the $-\frac{d}{2}\log(2\pi\sigma^2)$ term cancelling between numerator and denominator (the same for every
 $k$). Let $k^\ast = \arg\min_k \lVert x - \mu_k \rVert^2$ (unique by assumption) and divide every term by
 $\exp\bigl(-\lVert x - \mu_{k^\ast} \rVert^2 / 2\sigma^2\bigr)$:
 
-$$\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.$$
+```math
+\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.
+```
 
 For $k \ne k^\ast$, $\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 > 0$ strictly (uniqueness of
 $k^\ast$), so that term's exponent $\to -\infty$ as $\sigma \to 0^+$ and the term $\to 0$; the $k = k^\ast$
@@ -365,7 +391,7 @@ $\gamma(x) \to \mathbb 1[k = k^\ast]$, a one-hot vector.
 With $\gamma$ one-hot at every point in the limit, the M-step mean update
 $\mu_k = \sum_i \gamma_{ik} x_i / \sum_i \gamma_{ik}$ becomes a sum over exactly the points with
 $k^\ast(x_i) = k$, divided by their count: $\mu_k \to \frac{1}{|C_k|} \sum_{i \in C_k} x_i$,
-$C_k = \{i : k^\ast(x_i) = k\}$ — the mean of the points nearest to $\mu_k$, exactly k-means's centroid
+$`C_k = \{i : k^\ast(x_i) = k\}`$ — the mean of the points nearest to $\mu_k$, exactly k-means's centroid
 update, with argmin-distance hard assignment in place of a soft responsibility. A tied point (equidistant
 from two or more means) is exactly where the argument breaks:
 $\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 = 0$ for more than one $k$, and $\gamma$ stays

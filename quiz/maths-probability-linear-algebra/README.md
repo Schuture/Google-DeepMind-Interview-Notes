@@ -36,16 +36,16 @@ variance, and $\mathcal{N}(\mu, \sigma^2)$ denotes the density of a Gaussian wit
   $\mathbb{E}[\hat\sigma^2] = \frac{n-1}{n}\sigma^2$.
 - **Q6.** Let $y = Xw + \varepsilon$ with $\varepsilon \sim \mathcal{N}(0, \sigma^2 I)$, and put an
   independent $\mathcal{N}(0, \tau^2)$ prior on each weight $w_j$. Show that the maximum a posteriori (MAP)
-  estimate of $w$ is the ridge-regression solution $\hat w = \arg\min_w \|Xw - y\|^2 + \lambda \|w\|^2$, for some $\lambda$ that you
+  estimate of $w$ is the ridge-regression solution $`\hat w = \arg\min_w \|Xw - y\|^2 + \lambda \|w\|^2`$, for some $\lambda$ that you
   should express in terms of $\sigma^2$ and $\tau^2$. Then show that replacing the Gaussian prior with an
   independent Laplace prior on each $w_j$ makes the MAP estimate the L1-regularised (lasso) solution, and
   express its $\lambda$ the same way.
-- **Q7.** Define the Kullback–Leibler divergence $\mathrm{KL}(p\,\|\,q)$ between two densities on the same
-  space, and prove that $\mathrm{KL}(p\,\|\,q) \ge 0$, with equality iff $p = q$ almost everywhere. Give a
-  two-point (Bernoulli) example with $\mathrm{KL}(p\,\|\,q) \ne \mathrm{KL}(q\,\|\,p)$. Then consider fitting
+- **Q7.** Define the Kullback–Leibler divergence $`\mathrm{KL}(p\,\|\,q)`$ between two densities on the same
+  space, and prove that $`\mathrm{KL}(p\,\|\,q) \ge 0`$, with equality iff $p = q$ almost everywhere. Give a
+  two-point (Bernoulli) example with $`\mathrm{KL}(p\,\|\,q) \ne \mathrm{KL}(q\,\|\,p)`$. Then consider fitting
   a single Gaussian $q$ to a distribution $p$ that is a two-component Gaussian mixture with well-separated
-  modes: with a derivation, say what $q$ minimising the forward divergence $\mathrm{KL}(p\,\|\,q)$ looks like
-  ("mode-covering"), and, qualitatively, what $q$ minimising the reverse divergence $\mathrm{KL}(q\,\|\,p)$
+  modes: with a derivation, say what $q$ minimising the forward divergence $`\mathrm{KL}(p\,\|\,q)`$ looks like
+  ("mode-covering"), and, qualitatively, what $q$ minimising the reverse divergence $`\mathrm{KL}(q\,\|\,p)`$
   looks like ("mode-seeking").
 - **Q8.** You want to estimate a classifier's accuracy to within $\pm 1$ percentage point at 95% confidence,
   using the normal approximation to a Bernoulli proportion. How many i.i.d. test examples are needed in the
@@ -62,9 +62,9 @@ variance, and $\mathcal{N}(\mu, \sigma^2)$ denotes the density of a Gaussian wit
   matrix is PSD. State and justify the relationship between a PSD Hessian and the convexity of a
   twice-differentiable function.
 - **Q11.** Derive $\nabla_x (x^\top A x)$ for $x \in \mathbb{R}^n$, $A \in \mathbb{R}^{n \times n}$;
-  $\nabla_W \|XW - Y\|_F^2$, the gradient of the squared Frobenius norm (the sum of squared entries) of
+  $`\nabla_W \|XW - Y\|_F^2`$, the gradient of the squared Frobenius norm (the sum of squared entries) of
   $XW - Y$, for $X \in \mathbb{R}^{m \times p}$, $W \in \mathbb{R}^{p \times k}$, $Y \in \mathbb{R}^{m \times
-  k}$; and the Jacobian of the softmax function $s = \operatorname{softmax}(z)$ with respect to
+  k}$; and the Jacobian of the softmax function $s = \mathrm{softmax}(z)$ with respect to
   $z \in \mathbb{R}^K$.
 - **Q12.** For $f(x) = \tfrac12 x^\top A x$ with $A \in \mathbb{R}^{n \times n}$ symmetric positive definite,
   with eigenvalues $0 < \lambda_1 \le \dots \le \lambda_n = \lambda_{\max}$, consider gradient descent
@@ -89,14 +89,18 @@ given in full regardless.
 $P(\text{red} \mid A) = 3/4$ and $P(\text{red} \mid B) = 1/4$, so
 $P(\text{red}) = \tfrac12 \cdot \tfrac34 + \tfrac12 \cdot \tfrac14 = \tfrac12$ and
 
-$$P(A \mid \text{red}) = \frac{P(\text{red} \mid A)\,P(A)}{P(\text{red})} = \frac{\tfrac34 \cdot \tfrac12}{\tfrac12} = \frac34.$$
+```math
+P(A \mid \text{red}) = \frac{P(\text{red} \mid A)\,P(A)}{P(\text{red})} = \frac{\tfrac34 \cdot \tfrac12}{\tfrac12} = \frac34.
+```
 
 For the second draw, condition on the urn: with probability $3/4$ the urn is A, now holding 2 red and 1 blue
 after the first (red) ball is removed, so the second ball is red with probability $2/3$; with probability
 $1/4$ the urn is B, which after losing its only red ball holds 0 red and 3 blue, so the second ball is red
 with probability $0$. Hence
 
-$$P(\text{2nd red} \mid \text{1st red}) = \frac34 \cdot \frac23 + \frac14 \cdot 0 = \frac12.$$
+```math
+P(\text{2nd red} \mid \text{1st red}) = \frac34 \cdot \frac23 + \frac14 \cdot 0 = \frac12.
+```
 
 **Q2.** $\mathbb{E}[\text{flips to HH}] = 6$ and $\mathbb{E}[\text{flips to HT}] = 4$. Track one bit of state:
 $0$ if the last flip was not H (or none has been seen yet), $H$ if the last flip was H. For HH, from state
@@ -114,17 +118,21 @@ first one was. Overlapping patterns are, on average, slower to wait for.
 **Q3.** $\mathbb{E}[\max] = n/(n+1)$ and $\mathbb{E}[\min] = 1/(n+1)$. The maximum has $P(\max \le x) = x^n$
 for $x \in [0, 1]$ (every $X_i \le x$), hence density $n x^{n-1}$ and
 
-$$\mathbb{E}[\max] = \int_0^1 x \cdot n x^{n-1}\,dx = \frac{n}{n+1}.$$
+```math
+\mathbb{E}[\max] = \int_0^1 x \cdot n x^{n-1}\,dx = \frac{n}{n+1}.
+```
 
 For the minimum, note that if $U \sim \mathrm{Uniform}(0,1)$ then so is $1 - U$, so
 $1 - \min_i X_i = \max_i (1 - X_i)$ has the same distribution as $\max_i X_i$; taking expectations,
 $1 - \mathbb{E}[\min] = n/(n+1)$, so $\mathbb{E}[\min] = 1/(n+1)$.
 
-**Q4.** $P(\text{disease} \mid \text{positive}) = 1/6 \approx 16.7\%$. By the law of total probability,
+**Q4.** $`P(\text{disease} \mid \text{positive}) = 1/6 \approx 16.7\%`$. By the law of total probability,
 $P(\text{positive}) = P(\text{pos} \mid D)P(D) + P(\text{pos} \mid \lnot D)P(\lnot D) = 0.99 \times 0.01 + 0.05
 \times 0.99 = 0.0594$, and Bayes' theorem gives
 
-$$P(D \mid \text{positive}) = \frac{0.99 \times 0.01}{0.0594} = \frac{0.0099}{0.0594} = \frac16.$$
+```math
+P(D \mid \text{positive}) = \frac{0.99 \times 0.01}{0.0594} = \frac{0.0099}{0.0594} = \frac16.
+```
 
 This is the base-rate effect: because the disease is rare, the healthy population (99% of everyone) is far
 larger than the diseased population, so even a small false-positive rate (5%) on that huge group produces
@@ -140,10 +148,12 @@ $\partial \ell/\partial \mu = 0$ gives $\sum_i (X_i - \mu) = 0$, i.e. $\hat\mu =
 $\partial \ell/\partial \sigma^2 = 0$ at $\mu = \hat\mu$ gives $\hat\sigma^2 = \frac1n \sum_i (X_i - \bar X)^2$.
 For the bias, expand around the true mean:
 
-$$\sum_i (X_i - \bar X)^2 = \sum_i \bigl[(X_i - \mu) - (\bar X - \mu)\bigr]^2 = \sum_i (X_i - \mu)^2 - n(\bar X - \mu)^2,$$
+```math
+\sum_i (X_i - \bar X)^2 = \sum_i \bigl[(X_i - \mu) - (\bar X - \mu)\bigr]^2 = \sum_i (X_i - \mu)^2 - n(\bar X - \mu)^2,
+```
 
 using $\sum_i (X_i - \mu) = n (\bar X - \mu)$. Taking expectations, $\mathbb{E}\sum_i (X_i - \mu)^2 = n\sigma^2$
-and $\mathbb{E}[n(\bar X - \mu)^2] = n\,\mathrm{Var}(\bar X) = \sigma^2$, so
+and $`\mathbb{E}[n(\bar X - \mu)^2] = n\,\mathrm{Var}(\bar X) = \sigma^2`$, so
 $\mathbb{E}\sum_i (X_i - \bar X)^2 = (n-1)\sigma^2$ and $\mathbb{E}[\hat\sigma^2] = \frac{n-1}{n}\sigma^2$. The
 estimator spends one degree of freedom estimating $\mu$ with $\bar X$, which is on average slightly closer to
 the sample than the true $\mu$ is, understating the spread; dividing by $n - 1$ instead of $n$ removes the
@@ -152,53 +162,61 @@ bias exactly.
 **Q6.** $\lambda = \sigma^2/\tau^2$ for ridge; for the Laplace prior with scale $b$, the L1 penalty has
 $\lambda = 2\sigma^2/b$. By Bayes' theorem the posterior satisfies $p(w \mid X, y) \propto p(y \mid X, w)
 p(w)$, so the MAP estimate maximises $\log p(y \mid X, w) + \log p(w)$, equivalently minimises its negative.
-The Gaussian likelihood gives $-\log p(y \mid X, w) = \frac{1}{2\sigma^2}\|Xw - y\|^2 + \text{const}$, and the
-Gaussian prior gives $-\log p(w) = \frac{1}{2\tau^2}\|w\|^2 + \text{const}$, so the MAP objective is
+The Gaussian likelihood gives $`-\log p(y \mid X, w) = \frac{1}{2\sigma^2}\|Xw - y\|^2 + \text{const}`$, and the
+Gaussian prior gives $`-\log p(w) = \frac{1}{2\tau^2}\|w\|^2 + \text{const}`$, so the MAP objective is
 
-$$\frac{1}{2\sigma^2}\|Xw - y\|^2 + \frac{1}{2\tau^2}\|w\|^2,$$
+```math
+\frac{1}{2\sigma^2}\|Xw - y\|^2 + \frac{1}{2\tau^2}\|w\|^2,
+```
 
-and multiplying by $2\sigma^2$ (which does not change the minimiser) gives $\|Xw - y\|^2 + \lambda \|w\|^2$
+and multiplying by $2\sigma^2$ (which does not change the minimiser) gives $`\|Xw - y\|^2 + \lambda \|w\|^2`$
 with $\lambda = \sigma^2/\tau^2$: exactly ridge regression. Replacing the prior with an independent
-Laplace$(0, b)$ on each $w_j$, with density $\frac{1}{2b} e^{-|w_j|/b}$, gives
-$-\log p(w) = \frac1b \|w\|_1 + \text{const}$, so the MAP objective becomes
-$\frac{1}{2\sigma^2}\|Xw - y\|^2 + \frac1b \|w\|_1$; multiplying by $2\sigma^2$ gives
-$\|Xw - y\|^2 + \lambda \|w\|_1$ with $\lambda = 2\sigma^2/b$ — the lasso. A Gaussian prior penalises large
+Laplace$`(0, b)`$ on each $w_j$, with density $\frac{1}{2b} e^{-|w_j|/b}$, gives
+$`-\log p(w) = \frac1b \|w\|_1 + \text{const}`$, so the MAP objective becomes
+$`\frac{1}{2\sigma^2}\|Xw - y\|^2 + \frac1b \|w\|_1`$; multiplying by $2\sigma^2$ gives
+$`\|Xw - y\|^2 + \lambda \|w\|_1`$ with $\lambda = 2\sigma^2/b$ — the lasso. A Gaussian prior penalises large
 weights quadratically and shrinks every coordinate smoothly toward $0$; a Laplace prior has a sharp peak at
 $0$ (its penalty is not differentiable there), and the subgradient at that kink can hold a coordinate exactly
 at $0$, which is why the lasso produces sparse solutions and ridge, generically, does not.
 
-**Q7.** $\mathrm{KL}(p\,\|\,q) = \mathbb{E}_p\bigl[\log \frac{p(X)}{q(X)}\bigr] = \int p(x) \log
-\frac{p(x)}{q(x)}\,dx \ge 0$. For non-negativity, apply Jensen's inequality to the convex function $-\log$
-with $Y = q(X)/p(X)$ under $X \sim p$: $\mathbb{E}_p[Y] = \int p(x) \frac{q(x)}{p(x)}\,dx = \int q(x)\,dx = 1$
+**Q7.** $`\mathrm{KL}(p\,\|\,q) = \mathbb{E}_p\bigl[\log \frac{p(X)}{q(X)}\bigr] = \int p(x) \log
+\frac{p(x)}{q(x)}\,dx \ge 0`$. For non-negativity, apply Jensen's inequality to the convex function $-\log$
+with $Y = q(X)/p(X)$ under $X \sim p$: $`\mathbb{E}_p[Y] = \int p(x) \frac{q(x)}{p(x)}\,dx = \int q(x)\,dx = 1`$
 (over the support of $p$), so
 
-$$\mathrm{KL}(p\,\|\,q) = \mathbb{E}_p[-\log Y] \ge -\log \mathbb{E}_p[Y] = -\log 1 = 0,$$
+```math
+\mathrm{KL}(p\,\|\,q) = \mathbb{E}_p[-\log Y] \ge -\log \mathbb{E}_p[Y] = -\log 1 = 0,
+```
 
 with equality iff $Y$ is almost surely constant (since $-\log$ is strictly convex), i.e. $q = p$ almost
 everywhere. Asymmetry: for $p = \mathrm{Bernoulli}(0.9)$, $q = \mathrm{Bernoulli}(0.5)$,
 
-$$\mathrm{KL}(p\,\|\,q) = 0.9 \log\frac{0.9}{0.5} + 0.1 \log\frac{0.1}{0.5} \approx 0.368, \qquad \mathrm{KL}(q\,\|\,p) = 0.5 \log\frac{0.5}{0.9} + 0.5 \log\frac{0.5}{0.1} \approx 0.511,$$
+```math
+\mathrm{KL}(p\,\|\,q) = 0.9 \log\frac{0.9}{0.5} + 0.1 \log\frac{0.1}{0.5} \approx 0.368, \qquad \mathrm{KL}(q\,\|\,p) = 0.5 \log\frac{0.5}{0.9} + 0.5 \log\frac{0.5}{0.1} \approx 0.511,
+```
 
 which are not equal. For the Gaussian fit, write $q = \mathcal{N}(\mu, \sigma^2)$; minimising
-$\mathrm{KL}(p\,\|\,q) = -H(p) + H(p, q)$ over $q$ is the same as minimising the cross-entropy
-$H(p, q) = \mathbb{E}_p[-\log q(X)] = \frac12 \log(2\pi\sigma^2) + \frac{\mathbb{E}_p[(X - \mu)^2]}{2\sigma^2}$.
-This is minimised over $\mu$ at $\mu = \mathbb{E}_p[X]$ regardless of $\sigma^2$, and then over $\sigma^2$ at
-$\sigma^2 = \mathrm{Var}_p(X)$: forward KL is minimised by *moment matching*. Since $p$ is symmetric with
-modes at $\pm 3$ and unit variance, $\mathbb{E}_p[X] = 0$ and $\mathrm{Var}_p(X) = \mathbb{E}_p[X^2] = 10$
+$`\mathrm{KL}(p\,\|\,q) = -H(p) + H(p, q)`$ over $q$ is the same as minimising the cross-entropy
+$`H(p, q) = \mathbb{E}_p[-\log q(X)] = \frac12 \log(2\pi\sigma^2) + \frac{\mathbb{E}_p[(X - \mu)^2]}{2\sigma^2}`$.
+This is minimised over $\mu$ at $`\mu = \mathbb{E}_p[X]`$ regardless of $\sigma^2$, and then over $\sigma^2$ at
+$`\sigma^2 = \mathrm{Var}_p(X)`$: forward KL is minimised by *moment matching*. Since $p$ is symmetric with
+modes at $\pm 3$ and unit variance, $`\mathbb{E}_p[X] = 0`$ and $`\mathrm{Var}_p(X) = \mathbb{E}_p[X^2] = 10`$
 (each component has $\mathrm{Var} + \text{mean}^2 = 1 + 9 = 10$), so the forward-KL fit is
 $\mathcal{N}(0, 10)$: wide and centred between the modes, in order to keep $q$ positive wherever $p$ is (else
-$p \log(p/q) \to \infty$). The reverse divergence $\mathrm{KL}(q\,\|\,p) = \mathbb{E}_q[\log q(X) - \log
-p(X)]$ instead penalises $q$ for putting mass where $p$ is small, so it has no incentive to cover both modes;
+$`p \log(p/q) \to \infty`$). The reverse divergence $`\mathrm{KL}(q\,\|\,p) = \mathbb{E}_q[\log q(X) - \log
+p(X)]`$ instead penalises $q$ for putting mass where $p$ is small, so it has no incentive to cover both modes;
 started near one mode, gradient-based fitting finds a $q$ tightly wrapped around that single mode, close to
 its own mean and variance, rather than one covering both.
 
-**Q8.** $n \approx 9{,}604$ in the worst case. For $n$ i.i.d. Bernoulli$(p)$ trials, the sample proportion
+**Q8.** $n \approx 9{,}604$ in the worst case. For $n$ i.i.d. Bernoulli$`(p)`$ trials, the sample proportion
 $\hat p$ has $\mathrm{Var}(\hat p) = p(1-p)/n$ and, by the central limit theorem, is approximately
-$\mathcal{N}(p,\, p(1-p)/n)$ once $n$ is large enough. A two-sided 95% interval has half-width
+$`\mathcal{N}(p,\, p(1-p)/n)`$ once $n$ is large enough. A two-sided 95% interval has half-width
 $z_{0.975}\sqrt{p(1-p)/n}$ with $z_{0.975} = 1.96$; setting this equal to the target margin $E = 0.01$ and
 solving for $n$ gives
 
-$$n = \frac{z_{0.975}^2\, p(1-p)}{E^2}.$$
+```math
+n = \frac{z_{0.975}^2\, p(1-p)}{E^2}.
+```
 
 Since $p(1-p) \le \frac14$ for every $p \in [0, 1]$, with equality at $p = 1/2$, the worst case is
 $n = 1.96^2 \times 0.25 / 0.01^2 = 9{,}604$. This requires $n$ to be large enough that the normal
@@ -229,7 +247,9 @@ onto those directions) are $X_c V = U\Sigma$.
 $x \in \mathbb{R}^n$ (equivalently, every eigenvalue is $\ge 0$). For a random vector $X$ with mean $\mu$ and
 covariance $\Sigma = \mathbb{E}[(X - \mu)(X - \mu)^\top]$, and any $a \in \mathbb{R}^n$,
 
-$$a^\top \Sigma a = \mathbb{E}\bigl[a^\top (X-\mu)(X-\mu)^\top a\bigr] = \mathbb{E}\bigl[(a^\top(X-\mu))^2\bigr] \ge 0,$$
+```math
+a^\top \Sigma a = \mathbb{E}\bigl[a^\top (X-\mu)(X-\mu)^\top a\bigr] = \mathbb{E}\bigl[(a^\top(X-\mu))^2\bigr] \ge 0,
+```
 
 since this is the expectation of a squared scalar random variable; the same argument applies verbatim to the
 sample covariance, with $\mathbb{E}$ replaced by an average over the sample. So $\Sigma$ is always PSD. A
@@ -242,17 +262,17 @@ remainder gives, for any $x, y$, $f(y) = f(x) + \nabla f(x)^\top (y - x) + \frac
 $f(y) \ge f(x) + \nabla f(x)^\top (y - x)$ for all $x, y$, which is exactly the first-order characterisation
 of convexity.
 
-**Q11.** $\nabla_x (x^\top A x) = (A + A^\top) x$; $\nabla_W \|XW - Y\|_F^2 = 2X^\top(XW - Y)$; the softmax
-Jacobian is $\operatorname{diag}(s) - s s^\top$. Writing $x^\top A x = \sum_{i,j} A_{ij} x_i x_j$ and
-differentiating with respect to $x_k$: $\partial_k (x^\top A x) = \sum_j A_{kj} x_j + \sum_i A_{ik} x_i =
-(Ax)_k + (A^\top x)_k$, so $\nabla_x(x^\top A x) = (A + A^\top)x$ (equal to $2Ax$ when $A$ is symmetric). For
+**Q11.** $\nabla_x (x^\top A x) = (A + A^\top) x$; $`\nabla_W \|XW - Y\|_F^2 = 2X^\top(XW - Y)`$; the softmax
+Jacobian is $\mathrm{diag}(s) - s s^\top$. Writing $x^\top A x = \sum_{i,j} A_{ij} x_i x_j$ and
+differentiating with respect to $x_k$: $`\partial_k (x^\top A x) = \sum_j A_{kj} x_j + \sum_i A_{ik} x_i =
+(Ax)_k + (A^\top x)_k`$, so $\nabla_x(x^\top A x) = (A + A^\top)x$ (equal to $2Ax$ when $A$ is symmetric). For
 the second, write $R = XW - Y$ and use differentials:
-$d\|R\|_F^2 = d\,\mathrm{tr}(R^\top R) = 2\,\mathrm{tr}(R^\top dR) = 2\,\mathrm{tr}(R^\top X\,dW) = 2\,
-\mathrm{tr}\bigl((X^\top R)^\top dW\bigr)$, and since $d\|R\|_F^2 = \mathrm{tr}(G^\top dW)$ defines the
+$`d\|R\|_F^2 = d\,\mathrm{tr}(R^\top R) = 2\,\mathrm{tr}(R^\top dR) = 2\,\mathrm{tr}(R^\top X\,dW) = 2\,
+\mathrm{tr}\bigl((X^\top R)^\top dW\bigr)`$, and since $`d\|R\|_F^2 = \mathrm{tr}(G^\top dW)`$ defines the
 gradient $G$, reading off gives $G = 2X^\top R = 2X^\top(XW - Y)$. For the softmax, $s_i = e^{z_i}/Z$ with
 $Z = \sum_k e^{z_k}$; by the quotient rule, $\partial s_i/\partial z_j = \delta_{ij} e^{z_i}/Z - e^{z_i}
 e^{z_j}/Z^2 = \delta_{ij} s_i - s_i s_j = s_i(\delta_{ij} - s_j)$, which in matrix form is
-$J = \operatorname{diag}(s) - s s^\top$ — symmetric, and with rows summing to $0$ (perturbing every logit by
+$J = \mathrm{diag}(s) - s s^\top$ — symmetric, and with rows summing to $0$ (perturbing every logit by
 the same amount leaves softmax unchanged).
 
 **Q12.** The minimiser is $x^\star = 0$, so the error is $x_t$ itself. $\nabla f(x) = Ax$, so
@@ -260,14 +280,16 @@ $x_{t+1} = (I - \eta A) x_t$ with $\eta = 1/\lambda_{\max}$. Diagonalise $A = Q\
 $y_t = Q^\top x_t$ for the coordinates of $x_t$ in the eigenbasis; then $y_{t+1} = (I - \eta\Lambda) y_t$ is
 diagonal, so coordinate by coordinate,
 
-$$y_{t+1,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr) y_{t,i} \quad\Longrightarrow\quad y_{t,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr)^{t} y_{0,i}.$$
+```math
+y_{t+1,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr) y_{t,i} \quad\Longrightarrow\quad y_{t,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr)^{t} y_{0,i}.
+```
 
 Every coordinate contracts geometrically, at a rate that depends only on its own eigenvalue: the direction of
 $\lambda_{\max}$ has $1 - \lambda_{\max}/\lambda_{\max} = 0$ and reaches exactly $0$ after a single step,
 while the direction of $\lambda_{\min}$ has the largest (slowest) contraction factor
-$1 - \lambda_{\min}/\lambda_{\max} = 1 - 1/\kappa$. Because the error norm $\|x_t\|$ is a sum of these
+$1 - \lambda_{\min}/\lambda_{\max} = 1 - 1/\kappa$. Because the error norm $`\|x_t\|`$ is a sum of these
 per-direction terms, once the faster directions have died away it is dominated by the $\lambda_{\min}$ term,
-so $\|x_t\| / \|x_{t-1}\| \to 1 - 1/\kappa$: the overall rate is set by the *worst-conditioned* direction,
+so $`\|x_t\| / \|x_{t-1}\| \to 1 - 1/\kappa`$: the overall rate is set by the *worst-conditioned* direction,
 however fast the others converge. When $\kappa \gg 1$ (ill-conditioning — some directions of $f$ are much
 flatter than others), $1 - 1/\kappa$ is close to $1$ and convergence along the flat directions is extremely
 slow, even though the step size is tuned optimally for the steepest direction; a smaller step would only slow

@@ -14,19 +14,21 @@
 位置 $0,\dots,t$。这道题实现同一个计算的三种形式：一次性处理整个序列的批量形式、复用已经算好的键和值的
 自回归解码路径，以及内存受限的分块（blockwise）形式。
 
-三个部分都共用下面这些记号：$x \in \mathbb{R}^{T\times d}$ 是一个输入，有 $T$ 个位置（行，下标
+三个部分都共用下面这些记号：$`x \in \mathbb{R}^{T\times d}`$ 是一个输入，有 $T$ 个位置（行，下标
 $0,\dots,T-1$），每个位置 $d$ 个特征；权重矩阵 $W_Q, W_K, W_V, W_O \in \mathbb{R}^{d\times d}$ 把它投影成
-查询（query）、键（key）、值（value）和最终输出。一个整数个数的*头*（head）$h$ 把 $d$ 个特征切成 $h$ 个
-连续的块，每块 $d_h = d/h$ 个特征：头 $i$ 拥有 $Q = xW_Q$、$K = xW_K$、$V = xW_V$ 的第
+查询（query）、键（key）、值（value）和最终输出。一个整数个数的*头*（head）$`h`$ 把 $d$ 个特征切成 $h$ 个
+连续的块，每块 $d_h = d/h$ 个特征：头 $i$ 拥有 $Q = xW_Q$、$`K = xW_K`$、$`V = xW_V`$ 的第
 $i\cdot d_h,\dots,(i+1)\cdot d_h - 1$ 列。记 $Q_i, K_i, V_i \in \mathbb{R}^{T\times d_h}$ 为头 $i$ 的切片，
 头 $i$ 计算
 
-$$\mathrm{head}_i = \mathrm{softmax}\!\left(\frac{Q_iK_i^\top}{\sqrt{d_h}} + M\right)V_i, \qquad
-M_{ts} = \begin{cases}0 & s \le t\\ -\infty & s > t\end{cases},$$
+```math
+\mathrm{head}_i = \mathrm{softmax}\!\left(\frac{Q_iK_i^\top}{\sqrt{d_h}} + M\right)V_i, \qquad
+M_{ts} = \begin{cases}0 & s \le t\\ -\infty & s > t\end{cases},
+```
 
 softmax 沿键轴 $s$ 进行，于是 $M$ 的第 $t$ 行会挡住位置 $t$ 之后的每一个键（*因果掩码*，causal
 masking），并且要以数值稳定的方式计算（在做指数运算之前先减去每行的最大值）。把
-$\mathrm{head}_0,\dots,\mathrm{head}_{h-1}$ 沿特征轴拼接起来，再乘以 $W_O$，就得到最终输出，形状
+$`\mathrm{head}_0,\dots,\mathrm{head}_{h-1}`$ 沿特征轴拼接起来，再乘以 $W_O$，就得到最终输出，形状
 $(T, d)$。
 
 ### Part 1 —— 带因果掩码的多头注意力
@@ -40,7 +42,7 @@ def causal_mha(x: np.ndarray, Wq: np.ndarray, Wk: np.ndarray, Wv: np.ndarray, Wo
 
 对全部 `n_heads` 个头、全部 $T$ 个位置一次性计算上面的公式。如果 `d % n_heads != 0`，抛出 `ValueError`。
 
-取 `n_heads = 1`，$W_Q = W_K = W_V = W_O = I_2$（于是 $Q = K = V = x$）：
+取 `n_heads = 1`，$`W_Q = W_K = W_V = W_O = I_2`$（于是 $Q = K = V = x$）：
 
 ```text
 x = [[1, 0],
@@ -108,19 +110,19 @@ def kv_cache_bytes(n_layers: int, n_kv_heads: int, d_head: int, seq_len: int, ba
     number."""
 ```
 
-取 $L=32$ 层，$h_{kv}=8$ 个键/值头，$d_h=128$，序列长度 $T=32{,}768$，batch 为 $1$，每个元素 $2$ 字节，
+取 $L=32$ 层，$`h_{kv}=8`$ 个键/值头，$`d_h=128`$，序列长度 $T=32{,}768$，batch 为 $1$，每个元素 $2$ 字节，
 `kv_cache_bytes(32, 8, 128, 32_768, 1, 2)` 恰好等于 $2^{32}$。
 
 ### Part 3 —— 用在线 softmax 分块计算注意力
 
 这一部分去掉了因果掩码和权重矩阵，直接处理已经投影好的某一个头的查询、键、值：
-$Q \in \mathbb{R}^{T_q\times d_h}$，$K, V \in \mathbb{R}^{T_k\times d_h}$，计算
+$Q \in \mathbb{R}^{T_q\times d_h}$，$`K, V \in \mathbb{R}^{T_k\times d_h}`$，计算
 $O = \mathrm{softmax}(QK^\top/\sqrt{d_h})V \in \mathbb{R}^{T_q\times d_h}$（不带掩码）。实现时不能在内存
 中保留完整的 $T_q \times T_k$ 得分矩阵：按连续的、每块 `block` 个位置的方式访问这些键
-（$K[0{:}\mathrm{block}], K[\mathrm{block}{:}2\cdot\mathrm{block}], \dots$，最后一块可能更短），每访问
+（$`K[0{:}\mathrm{block}], K[\mathrm{block}{:}2\cdot\mathrm{block}], \dots`$，最后一块可能更短），每访问
 完一块，就为每个查询行更新一个运行中的最大得分 $m$、运行中的归一化项 $\ell$，以及运行中的未归一化输出
-$o \in \mathbb{R}^{d_h}$，使得所有块都访问完之后，$o/\ell$ 恰好等于该查询在 $O$ 中的那一行。在访问任何
-一块之前，$m=-\infty$，$\ell=0$，$o=0$。推导 $m,\ell,o$ 从一块到下一块应该如何更新，使得这个不变量在
+$o \in \mathbb{R}^{d_h}$，使得所有块都访问完之后，$`o/\ell`$ 恰好等于该查询在 $O$ 中的那一行。在访问任何
+一块之前，$`m=-\infty`$，$`\ell=0`$，$`o=0`$。推导 $m,\ell,o$ 从一块到下一块应该如何更新，使得这个不变量在
 每一块之后都成立，不仅仅是最后一块，并对访问过的块数做归纳证明。
 
 ```py
@@ -132,7 +134,7 @@ def attention_blockwise(Q: np.ndarray, K: np.ndarray, V: np.ndarray, block: int)
 结果必须对从 $1$ 到大于 $T_k$ 的每一个 `block` 都等于上面的直接计算，并且即使原始得分
 $QK^\top/\sqrt{d_h}$ 达到 $10^3$ 量级甚至更大，也要保持有限——这时不做平移的 `np.exp` 早就已经溢出了。
 
-取 $Q=[[1]]$，$K=[[0],[1],[3],[2]]$，$V=[[10],[20],[30],[40]]$（$d_h=1$，一个查询，`block = 2`，于是
+取 $Q=[[1]]$，$`K=[[0],[1],[3],[2]]`$，$`V=[[10],[20],[30],[40]]`$（$`d_h=1`$，一个查询，`block = 2`，于是
 原始得分 $QK^\top=[0,1,3,2]$ 被分成两块 $[0,1]$ 和 $[3,2]$）：
 
 ```text
@@ -161,10 +163,10 @@ Part 3 的大得分压力测试和精度相关的追问才会真正涉及精度�
 
 ### Part 1
 
-$Q$、$K$、$V$ 各是一次投影，`x @ W`，形状 $(T, d)$。把最后一个轴拆成 $h$ 个、每个 $d_h$ 个特征的头，
+$Q$、$`K`$、$`V`$ 各是一次投影，`x @ W`，形状 $(T, d)$。把最后一个轴拆成 $h$ 个、每个 $d_h$ 个特征的头，
 再把头轴移到最前面，是一次 `reshape` 加一次 `transpose`，得到形状 $(h, T, d_h)$；接下来 NumPy 的 `@`
 会把每个头的得分和加权求和都当作在头这个前导轴上分批处理，就像处理一个前导的 batch 轴一样。因为位置
-$t$ 总能看到自己（$M_{tt}=0$，从不是 $-\infty$），这里的 `scores.max(axis=-1)` 永远不是 $-\infty$，
+$t$ 总能看到自己（$`M_{tt}=0`$，从不是 $-\infty$），这里的 `scores.max(axis=-1)` 永远不是 $-\infty$，
 稳定 softmax 也就不会算出 $0/0$。
 
 ```python
@@ -200,7 +202,7 @@ def causal_mha(x, Wq, Wk, Wv, Wo, n_heads):
 
 复杂度：四个 $(d,d)$ 投影合计花费 $O(Td^2)$；每个头的得分和加权求和合计花费
 $O(hT^2d_h) = O(T^2d)$，因为 $h\cdot d_h = d$；`scores`/`weights` 占用 $O(hT^2)$ 内存。序列很长时
-（$T \gg d$）$T^2$ 那一项占主导；序列短时，$d^2$ 的投影占主导。
+（$`T \gg d`$）$`T^2`$ 那一项占主导；序列短时，$`d^2`$ 的投影占主导。
 
 ### Part 2
 
@@ -262,7 +264,7 @@ def kv_cache_bytes(n_layers, n_kv_heads, d_head, seq_len, batch, bytes_per_elem)
 **每一步的开销。** 把 $x_t$ 投影到 $W_Q,W_K,W_V,W_O$ 花费 $O(d^2)$，和已经缓存了多少个位置无关。让
 $q_t$（每个头一个查询）关注 cache 里现在的 $t+1$ 个键——刚追加进去的位置 $t$ 自己的键，加上它之前的
 $t$ 个——每个头要做 $t+1$ 次点积和 $t+1$ 次加权求和，每次长度都是 $d_h$，也就是 $O(t\cdot d_h)$；对
-$h$ 个头求和，$O(t\cdot d_h\cdot h)=O(td)$。于是一步花费 $O(d^2+td)$，$T$
+$h$ 个头求和，$`O(t\cdot d_h\cdot h)=O(td)`$。于是一步花费 $O(d^2+td)$，$`T`$
 步合计 $O(Td^2+T^2d)$——和 `causal_mha` 自己的复杂度（Part 1）完全一致，只是把它摊开成一次一个 token，
 而不需要一开始就拿到整个序列。如果不用 cache，而是在第 $t$ 步从头重算——对前 $t+1$ 个位置重新跑一遍
 `causal_mha`——一旦 $t$ 超过 $d$，单单这一步就要花费 $O(t^2d)$，因为它把 Part 1 自己 $O(t^2d)$ 的注意力
@@ -272,13 +274,13 @@ $h$ 个头求和，$O(t\cdot d_h\cdot h)=O(td)$。于是一步花费 $O(d^2+td)$
 **字节数公式。** $L=$ `n_layers` 个 Transformer 层，每层各自维护自己的 cache。每一层为每个已缓存的
 位置存一个键向量和一个值向量，每个都是 $d_h$ 个元素长，一共 $h_{kv}=$ `n_kv_heads` 个头、`seq_len`
 个位置、`batch` 个并排处理的序列。于是元素总数是
-$L\cdot 2\cdot h_{kv}\cdot d_h\cdot\mathrm{seq\_len}\cdot\mathrm{batch}$（因子 $2$ 是因为键和值分别
-计数），再乘以 `bytes_per_elem` 就得到字节数。取 $L=32$，$h_{kv}=8$，$d_h=128$，$T=32{,}768$，batch
-为 $1$，$2$ 字节：$32\cdot2\cdot8\cdot128\cdot32{,}768\cdot1\cdot2 = 2^5\cdot2\cdot2^3\cdot2^7\cdot2^{15}\cdot2 = 2^{32}$
+$`L\cdot 2\cdot h_{kv}\cdot d_h\cdot\mathrm{seq\_len}\cdot\mathrm{batch}`$（因子 $2$ 是因为键和值分别
+计数），再乘以 `bytes_per_elem` 就得到字节数。取 $L=32$，$`h_{kv}=8`$，$`d_h=128`$，$`T=32{,}768`$，batch
+为 $1$，$`2`$ 字节：$`32\cdot2\cdot8\cdot128\cdot32{,}768\cdot1\cdot2 = 2^5\cdot2\cdot2^3\cdot2^7\cdot2^{15}\cdot2 = 2^{32}`$
 字节，恰好，也就是 $4\ \mathrm{GiB}$。
 
 **为什么是 `n_kv_heads`，而不是 `n_heads`。** cache 只存键和值，从不存查询，而*分组查询注意力*
-（grouped-query attention）让 $K$、$V$ 的头数比 $Q$ 少：它把 $K$、$V$ 投影到 $h_{kv}<h$ 个键/值头，
+（grouped-query attention）让 $K$、$`V`$ 的头数比 $Q$ 少：它把 $K$、$`V`$ 投影到 $h_{kv}<h$ 个键/值头，
 让每组 $h/h_{kv}$ 个查询头共用同一份 $K_i,V_i$ 切片；上面实现的普通多头注意力，正是 $h_{kv}=h$
 （每个查询头都有自己的键/值头）这个特例。因为 $Q$ 从不进 cache——每一步只用当前这一个查询，用完即
 弃——`kv_cache_bytes` 只依赖 $h_{kv}$：把 $h_{kv}$ 调低到比 $h$ 小，缓存就会变小，而参与关注的查询头
@@ -286,26 +288,32 @@ $L\cdot 2\cdot h_{kv}\cdot d_h\cdot\mathrm{seq\_len}\cdot\mathrm{batch}$（因�
 
 ### Part 3
 
-对某一个查询行，记 $s_j=(QK^\top)_j/\sqrt{d_h}$ 为它对键 $j$ 的原始得分；访问完块 $B_1,\dots,B_n$
-（对 $\{0,\dots,T_k-1\}$ 按连续块划分之后的一段前缀）之后，维持这样一个不变量：
+对某一个查询行，记 $`s_j=(QK^\top)_j/\sqrt{d_h}`$ 为它对键 $j$ 的原始得分；访问完块 $B_1,\dots,B_n$
+（对 $`\{0,\dots,T_k-1\}`$ 按连续块划分之后的一段前缀）之后，维持这样一个不变量：
 
-$$m_n=\max_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad
+```math
+m_n=\max_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad
 \ell_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n},\qquad
-o_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,$$
+o_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,
+```
 
-这样 $o_n/\ell_n$ 就恰好是目前访问过的这些键上的 softmax 加权和（$m_n$ 起的作用和 Part 1 里那一行的
+这样 $o_n/\ell_n$ 就恰好是目前访问过的这些键上的 softmax 加权和（$`m_n`$ 起的作用和 Part 1 里那一行的
 最大值一样，只是限制在键的一段前缀上）。基础情形 $n=0$（还没访问任何块）由给定的初始值直接满足：
 空集合的最大值是 $-\infty$，空的和是 $0$。
 
-**归纳步骤。** 假设不变量在 $n$ 块之后成立；访问块 $B_{n+1}$，它的原始得分是 $\{s_j : j\in B_{n+1}\}$。
+**归纳步骤。** 假设不变量在 $n$ 块之后成立；访问块 $B_{n+1}$，它的原始得分是 $`\{s_j : j\in B_{n+1}\}`$。
 两个集合并集上的最大值，等于各自最大值的最大值，所以
 
-$$m_{n+1}=\max\Bigl(m_n,\ \max_{j\in B_{n+1}}s_j\Bigr)$$
+```math
+m_{n+1}=\max\Bigl(m_n,\ \max_{j\in B_{n+1}}s_j\Bigr)
+```
 
 恰好等于 $\max_{j\in B_1\cup\cdots\cup B_{n+1}}s_j$，与不变量对 $m_{n+1}$ 的定义一致。把 $\ell_{n+1}$
 定义中的求和，按 $B_1\cup\cdots\cup B_{n+1}$ 的这两部分拆开：
 
-$$\ell_{n+1}=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_{n+1}}+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}.$$
+```math
+\ell_{n+1}=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_{n+1}}+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}.
+```
 
 在第一个和式里，对每个 $j$ 都有 $e^{s_j-m_{n+1}}=e^{s_j-m_n}\cdot e^{m_n-m_{n+1}}$，而
 $e^{m_n-m_{n+1}}$ 不依赖 $j$，可以提到求和外面，剩下
@@ -313,19 +321,23 @@ $e^{m_n-m_{n+1}}\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}=e^{m_n-m_{n+1}}\ell
 于是 $\ell_{n+1}=e^{m_n-m_{n+1}}\ell_n+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}$，正是要证明的更新公式；对
 $o$ 逐项做完全相同的提取（每个 $v_j$ 只是原样跟着走）就得到
 $o_{n+1}=e^{m_n-m_{n+1}}o_n+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}v_j$。由归纳法，这个不变量在每一块之后
-都成立，特别是在最后一块 $N$ 之后：这时 $m_N=\max_js_j$ 取遍所有键，$\ell_N=\sum_je^{s_j-m_N}$，于是
+都成立，特别是在最后一块 $N$ 之后：这时 $m_N=\max_js_j$ 取遍所有键，$`\ell_N=\sum_je^{s_j-m_N}`$，于是
 
-$$\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)_j\,v_j,$$
+```math
+\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)_j\,v_j,
+```
 
 和 Part 1 用到的是同一个减去最大值不改变结果的等式，只不过这里是对整行得分一次性用，而不是一块一块
-地用。把每一步的更新写得紧凑一些，记 $m,\ell,o$ 为一块之前的累积量，$m',\ell',o'$ 为这一块之后的
-累积量，$s_j$ 取遍这一块：
+地用。把每一步的更新写得紧凑一些，记 $m,\ell,o$ 为一块之前的累积量，$`m',\ell',o'`$ 为这一块之后的
+累积量，$`s_j`$ 取遍这一块：
 
-$$m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad
-o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.$$
+```math
+m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad
+o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.
+```
 
 上面每一个指数要么是 $s_j-m'\le0$（由 $m'$ 的定义），要么是 $m-m'\le0$（因为
-$m'=\max(m,\dots)\ge m$），所以这个递推式里不论原始得分多大，都不会有指数运算溢出。$-\infty$ 唯一
+$m'=\max(m,\dots)\ge m$），所以这个递推式里不论原始得分多大，都不会有指数运算溢出。$`-\infty`$ 唯一
 可能惹麻烦的地方是 $-\infty-(-\infty)$，结果是 `nan`，而这需要相减的两边*同时*是 $-\infty$。这里
 $m$ 一开始是 $-\infty$，但 $m'=\max(m,\max_js_j)$ 从第一块起就已经是有限值，因为一个块从不为空、
 它的得分也都是有限的；于是 $m-m'$ 永远只是 $-\infty$ 减去一个有限值，也就是干干净净的 $-\infty$，
@@ -371,14 +383,14 @@ def attention_blockwise(Q, K, V, block):
   的更新；完全落在对角线下方的块完全不需要掩码，完全落在对角线上方的块则直接跳过。
 - **分组查询注意力对缓存的影响。** 把 `n_kv_heads` 从 $h$（普通多头注意力）调小到 $h_{kv}<h$，会让
   `kv_cache_bytes` 恰好缩小 $h/h_{kv}$ 倍这个分组大小，因为公式里其余每一个因子都不变。取 $h=64$ 个
-  查询头共用 $h_{kv}=8$ 个键/值头（分组大小 $8$）为例，Part 2 里 $2^{32}$ 字节（$4\ \mathrm{GiB}$）的
-  缓存，换成 $h_{kv}=64$ 的完整多头注意力就需要 $2^{35}$ 字节（$32\ \mathrm{GiB}$）——这 $8$ 倍的差距
+  查询头共用 $h_{kv}=8$ 个键/值头（分组大小 $8$）为例，Part 2 里 $2^{32}$ 字节（$`4\ \mathrm{GiB}`$）的
+  缓存，换成 $h_{kv}=64$ 的完整多头注意力就需要 $2^{35}$ 字节（$`32\ \mathrm{GiB}`$）——这 $8$ 倍的差距
   完全是缓存占用上的差距，因为 $Q$ 自身的大小从未出现在这个公式里。
 - **bf16，以及为什么低精度下减去最大值更重要。** bf16 保留了 float32 的 8 位指数位，所以它只会在和
   float32 相同的地方溢出（原始得分超过大约 $88$）；不做平移时，它的问题不在范围，而在精度：只有 7
   位尾数，大约相当于 2 位有效十进制数字，于是只要同一行里两个指数值相差超过大约 $2^7$ 倍（得分差距
   超过大约 $\ln128\approx4.85$），把它们相加时较小的那个就会在 bf16 里被完全舍入掉——而这在一行得分
-  里是很平常的差距。float16 的尾数位更多（$10$ 位），但只有 5 位指数位，所以原始得分一旦超过大约
+  里是很平常的差距。float16 的尾数位更多（$`10`$ 位），但只有 5 位指数位，所以原始得分一旦超过大约
   $11$ 就会直接溢出（下面验证代码里用的那个不大的得分差距就已经如此）。减去当前的运行最大值，能让
   每一个平移后的指数值都落在 $(0,1]$ 里，不论原始得分的范围有多大，两种失效方式都被一次性绕开
   了——这也是为什么即使 $\ell$ 本身是用低精度类型累加的，生产环境的 kernel 也依然要做这一步平移。

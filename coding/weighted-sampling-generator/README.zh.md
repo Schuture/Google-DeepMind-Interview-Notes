@@ -289,8 +289,8 @@ def weighted_sampler(values: Sequence[int], weights: Sequence[float], rng: rando
 ```
 
 建好 `cumulative` 的开销是 $O(n)$，每次调用 `weighted_sampler` 只需要付出一次；此后每次抽样都在它
-上面做一次 `bisect_right`，$O(\log n)$，外加 $O(1)$ 的其他工作。`bisect_right(cumulative, u)` 要
-返回下标 $i$，$u$ 必须落在 $[\,\mathrm{cumulative}[i-1],\ \mathrm{cumulative}[i])$ 之内，其中
+上面做一次 `bisect_right`，$`O(\log n)`$，外加 $O(1)$ 的其他工作。`bisect_right(cumulative, u)` 要
+返回下标 $i$，$`u`$ 必须落在 $`[\,\mathrm{cumulative}[i-1],\ \mathrm{cumulative}[i])`$ 之内，其中
 $i = 0$ 时区间的下端是 $0$，`u >= 0` 满足这一点。当 $\mathrm{weights}[i] = 0$ 时，
 $\mathrm{cumulative}[i] = \mathrm{cumulative}[i - 1]$，这个区间为空，所以一个零权重的下标绝不可能是
 `bisect_right` 的答案——下标 $0$ 也是同样的道理：它需要
@@ -399,10 +399,10 @@ $(1 - \mathrm{prob}[i]) / n$。`sample()` 先用 `rng.randrange(n)` 均匀选出
 $\mathrm{scaled}[i] = n \cdot \mathrm{weights}[i] / \mathrm{total}$。一个 $\mathrm{scaled}[i] < 1$
 的下标（*轻*列，light）持有的份额不到自己应得的份额，需要别处的援助；一个
 $\mathrm{scaled}[i] \geq 1$ 的下标（*重*列，heavy）持有的份额不少于自己应得的份额，还能拿出多余的
-部分援助别人。这个方法反复把一个轻下标 $s$ 和一个重下标 $l$ 配成一对：$s$ 自己在表中的条目当场就
-此敲定，$\mathrm{prob}[s] = \mathrm{scaled}[s]$，$\mathrm{alias}[s] = l$，而 $l$ 恰好援助 $s$ 所缺
-的 $1 - \mathrm{scaled}[s]$，$\mathrm{scaled}[l]\ {-}{=}\ 1 - \mathrm{scaled}[s]$。如果这次援助让
-$l$ 跌破 $1$，$l$ 自己就变成了轻列，重新进入待处理的池子，等着之后再和别的重列配对；否则它仍然是
+部分援助别人。这个方法反复把一个轻下标 $s$ 和一个重下标 $l$ 配成一对：$`s`$ 自己在表中的条目当场就
+此敲定，$`\mathrm{prob}[s] = \mathrm{scaled}[s]`$，$`\mathrm{alias}[s] = l`$，而 $l$ 恰好援助 $s$ 所缺
+的 $1 - \mathrm{scaled}[s]$，$`\mathrm{scaled}[l]\ {-}{=}\ 1 - \mathrm{scaled}[s]`$。如果这次援助让
+$l$ 跌破 $1$，$`l`$ 自己就变成了轻列，重新进入待处理的池子，等着之后再和别的重列配对；否则它仍然是
 重列，继续对外援助。
 
 ```python
@@ -464,7 +464,7 @@ class AliasSampler:
 
 （当 $n = 1$ 时，唯一的那个下标有 $\mathrm{scaled}[0] = 1 \cdot w_0 / \mathrm{total} = 1$，不多不
 少，所以它一开始就在 `heavy` 里，`light` 永远不会有成员，`while` 循环体一次都不会执行，这一列就直
-接落入最后兜底的那一步，$\mathrm{prob}[0] = 1$——那里唯一的值总会被抽到。）
+接落入最后兜底的那一步，$`\mathrm{prob}[0] = 1`$——那里唯一的值总会被抽到。）
 
 这个构造依赖一条不变式，在每一次配对中都保持成立：在任意时刻，尚未敲定的那些列，它们的缩放权重之
 和恰好等于这些列的数目。一开始，
@@ -473,7 +473,7 @@ $\sum_i \mathrm{scaled}[i] = \sum_i n \cdot w_i / \mathrm{total} = n$，恰好�
 $\mathrm{scaled}[s]$ 从这个和里减掉，并把 $l$ 的缩放权重减少 $1 - \mathrm{scaled}[s]$；于是未敲定
 列的这个和恰好减少了 $\mathrm{scaled}[s] + (1 - \mathrm{scaled}[s]) = 1$，正好对应未敲定列的数目
 从 $k$ 变成 $k - 1$。所以只要还剩 $k$ 列未敲定，它们的缩放权重之和就恰好是 $k$。因此循环不可能在
-`light` 非空时因 `heavy` 变空而停下——$k \geq 1$ 个全都小于 $1$ 的数，和不可能等于 $k$——所以它停下
+`light` 非空时因 `heavy` 变空而停下——$`k \geq 1`$ 个全都小于 $1$ 的数，和不可能等于 $k$——所以它停下
 时 `light` 为空，而留在 `heavy` 里的 $k$ 列，每列都至少是 $1$、总和是 $k$，于是每列都*必然*恰好等
 于 $1$：这正是最后 $\mathrm{prob} = 1$ 那一步所处理的情形（例如权重全部相等时，每一列都会留在那
 里）。浮点舍入误差可能让某个剩下的列只是在 $1$ 附近的舍入误差范围内，而不是恰好等于 $1$，这样的列
@@ -483,18 +483,18 @@ $\mathrm{scaled}[s]$ 从这个和里减掉，并把 $l$ 的缩放权重减少 $1
 $\mathrm{values}[\mathrm{alias}[s]]$，而 $1 - \mathrm{prob}[s]$ 恰好就是 $s$ 被敲定时从
 $l = \mathrm{alias}[s]$ 的当前权重里减掉的量。任意下标 $v$ 的当前权重从 $n \cdot w_v / \mathrm{total}$
 开始，恰好减去 $v$ 援助给其他列的量，剩下的部分在 $v$ 自己那一列被敲定时成为 $\mathrm{prob}[v]$
-（剩下未配对的列则是 $1$，它不再对外援助）。把所有列加总，$v$ 得到的恰好是
+（剩下未配对的列则是 $1$，它不再对外援助）。把所有列加总，$`v`$ 得到的恰好是
 
-$$
+```math
 \frac{1}{n}\Bigl(\mathrm{prob}[v] + \sum_{s:\ \mathrm{alias}[s] = v} \bigl(1 - \mathrm{prob}[s]\bigr)\Bigr)
 = \frac{1}{n} \cdot \frac{n \, w_v}{\mathrm{total}} = \frac{w_v}{\mathrm{total}},
-$$
+```
 
 这正是下面的验证代码直接从 `prob` 和 `alias` 里验证的那个精确分布，完全不需要真的抽样。
 
 构建 `light`、`heavy` 和 `scaled` 的开销是 $O(n)$；`while` 循环至多执行 $n - 1$ 次，因为每一次迭
 代都会彻底敲定一列，每次迭代的开销是 $O(1)$——所以 `__init__` 总的开销是 $O(n)$。`sample()` 只做
-一次 `randrange` 调用、一次 `random` 调用和一次比较：$O(1)$，与 $n$ 无关。
+一次 `randrange` 调用、一次 `random` 调用和一次比较：$`O(1)`$，与 $n$ 无关。
 
 ### 追问
 
@@ -505,7 +505,7 @@ $$
 - **带权重地采样 $k$ 个不放回的元素。** Efraimidis–Spirakis 采样给每个元素 $i$ 一个键
   $u_i^{1/w_i}$，其中 $u_i$ 从 $(0, 1)$ 中均匀抽取，然后保留键最大的 $k$ 个元素；只需要一趟遍历、
   每个元素一个键，不需要移除后再重新归一化的步骤。由于 $P(u_i^{1/w_i} \leq t) = t^{w_i}$，元素 $i$
-  持有最大键的概率是 $\int_0^1 w_i t^{w_i - 1} \prod_{j \neq i} t^{w_j}\,dt = w_i / \sum_j w_j$（即
+  持有最大键的概率是 $`\int_0^1 w_i t^{w_i - 1} \prod_{j \neq i} t^{w_j}\,dt = w_i / \sum_j w_j`$（即
   Part 2、Part 3 的一次抽样），而其余的键除以最大键之后，仍然是同一形式的键；所以这 $k$ 个元素按键
   从大到小排列，其分布恰好等于连续 $k$ 次抽样：每次在尚未选中的元素中，以正比于权重的概率选出一个。
 - **数据流太长、存不下的加权水库抽样（reservoir sampling）。** 把同样的键配上一个大小为 $k$ 的小
