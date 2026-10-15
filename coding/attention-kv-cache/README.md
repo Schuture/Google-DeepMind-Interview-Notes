@@ -308,11 +308,7 @@ For one query row, write $`s_j=(QK^\top)_j/\sqrt{d_h}`$ for the raw score agains
 visiting blocks $B_1,\dots,B_n$ (a prefix of the partition of $`\{0,\dots,T_k-1\}`$ into consecutive
 blocks), maintain the invariant
 
-```math
-m_n=\max_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad
-\ell_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n},\qquad
-o_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,
-```
+$$m_n=\max\_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad \ell_n=\sum\_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n},\qquad o_n=\sum\_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,$$
 
 so that $o_n/\ell_n$ is exactly the softmax-weighted sum over the keys visited so far ($m_n$ plays the
 same role as Part 1's row maximum, just restricted to a prefix of the keys). The base case $n=0$ (no
@@ -321,16 +317,12 @@ blocks visited) holds by the stated initial values: an empty maximum is $-\infty
 **Inductive step.** Suppose the invariant holds after $n$ blocks; visit block $B_{n+1}$, with raw scores
 $`\{s_j : j\in B_{n+1}\}`$. A maximum over a union of two sets is the maximum of their two maxima, so
 
-```math
-m_{n+1}=\max\Bigl(m_n,\ \max_{j\in B_{n+1}}s_j\Bigr)
-```
+$$m\_{n+1}=\max\Bigl(m_n,\ \max\_{j\in B\_{n+1}}s_j\Bigr)$$
 
 already equals $\max_{j\in B_1\cup\cdots\cup B_{n+1}}s_j$, matching the invariant's definition of
 $m_{n+1}$. Split $\ell_{n+1}$'s defining sum over the two parts of $B_1\cup\cdots\cup B_{n+1}$:
 
-```math
-\ell_{n+1}=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_{n+1}}+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}.
-```
+$$\ell\_{n+1}=\sum\_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m\_{n+1}}+\sum\_{j\in B\_{n+1}}e^{s_j-m\_{n+1}}.$$
 
 In the first sum, $e^{s_j-m_{n+1}}=e^{s_j-m_n}\cdot e^{m_n-m_{n+1}}$ for every $j$, and $e^{m_n-m_{n+1}}$
 does not depend on $j$, so it factors out of the sum, leaving
@@ -341,18 +333,13 @@ gives $o_{n+1}=e^{m_n-m_{n+1}}o_n+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}v_j$. By ind
 after every block, in particular the last one, $N$, where $m_N=\max_js_j$ over every key and
 $\ell_N=\sum_je^{s_j-m_N}$, so
 
-```math
-\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)_j\,v_j,
-```
+$$\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)\_j\\,v_j,$$
 
 the same max-subtraction identity used in Part 1, applied here to the whole row of scores rather than to
 one block at a time. Writing the one-step update compactly, with $m,\ell,o$ the accumulators before a
 block and $m',\ell',o'$ after it, and $s_j$ ranging over that block:
 
-```math
-m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad
-o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.
-```
+$$m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.$$
 
 Every exponent above is $s_j-m'\le0$ (by definition of $m'$) or $m-m'\le0$ (since $`m'=\max(m,\dots)\ge
 m`$), so no exponential in this recurrence ever overflows, for scores of any magnitude. The only way

@@ -167,9 +167,7 @@ Write $s_{i,c}$ for entry $(i,c)$ of $S$ and $`p_{i,c}=\mathrm{probs}_{i,c}`$. T
 $\ell_i = -\log p_{i,y_i} = -s_{i,y_i} + \log\sum_{c'} e^{s_{i,c'}}$ (substitute the definition of
 $p_{i,y_i}$ and take the log). Differentiating with respect to one score of that same example,
 
-```math
-\frac{\partial \ell_i}{\partial s_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s_{i,c}}}{\sum_{c'}e^{s_{i,c'}}} = p_{i,c} - \mathbb{1}[c=y_i],
-```
+$$\frac{\partial \ell_i}{\partial s\_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s\_{i,c}}}{\sum\_{c'}e^{s\_{i,c'}}} = p\_{i,c} - \mathbb{1}[c=y_i],$$
 
 and $\ell_i$ does not depend on any score of a different example, so $\partial \ell_i/\partial
 s_{i',c}=0$ for $i'\ne i$. Averaging over the batch, $\partial L/\partial s_{i,c} =
@@ -180,17 +178,13 @@ Every remaining gradient follows from $dS$ by the chain rule, one layer at a tim
 $s_{i,c}=\sum_j h_{i,j}w2_{j,c}+b2_c$, so $\partial s_{i,c}/\partial w2_{j,c'}$ equals $h_{i,j}$ when
 $c=c'$ and $0$ otherwise (only column $c'$ of $S$ involves $w2_{j,c'}$):
 
-```math
-\frac{\partial L}{\partial w2_{j,c}} = \sum_{i,c'} \frac{\partial L}{\partial s_{i,c'}}\frac{\partial s_{i,c'}}{\partial w2_{j,c}} = \sum_i (dS)_{i,c}\, h_{i,j} = (H^\top dS)_{j,c}, \qquad\text{so}\quad \frac{\partial L}{\partial W_2} = H^\top dS.
-```
+$$\frac{\partial L}{\partial w2\_{j,c}} = \sum\_{i,c'} \frac{\partial L}{\partial s\_{i,c'}}\frac{\partial s\_{i,c'}}{\partial w2\_{j,c}} = \sum_i (dS)\_{i,c}\\, h\_{i,j} = (H^\top dS)\_{j,c}, \qquad\text{so}\quad \frac{\partial L}{\partial W_2} = H^\top dS.$$
 
 The same sum with $\partial s_{i,c}/\partial b2_c = 1$ gives $`\partial L/\partial b_2 = \sum_i
 (dS)_{i,:}`$ — column sums of $dS$, i.e. `dS.sum(axis=0)`. For $H$, $\partial s_{i,c}/\partial
 h_{i,j}=w2_{j,c}$ (row $i$ of $H$ only feeds row $i$ of $S$):
 
-```math
-\frac{\partial L}{\partial h_{i,j}} = \sum_c \frac{\partial L}{\partial s_{i,c}}\, w2_{j,c} = (dS\, W_2^\top)_{i,j}, \qquad\text{so}\quad dH := \frac{\partial L}{\partial H} = dS\, W_2^\top.
-```
+$$\frac{\partial L}{\partial h\_{i,j}} = \sum_c \frac{\partial L}{\partial s\_{i,c}}\\, w2\_{j,c} = (dS\\, W_2^\top)\_{i,j}, \qquad\text{so}\quad dH := \frac{\partial L}{\partial H} = dS\\, W_2^\top.$$
 
 $H=\mathrm{ReLU}(Z_1)$ acts elementwise, $h_{i,j}=\max(z1_{i,j},0)$, with derivative $\partial
 h_{i,j}/\partial z1_{i,j}=\mathbb 1[z1_{i,j}>0]$ (the subgradient $0$ is taken at the kink itself,
@@ -254,16 +248,12 @@ $g_n$ approximates $g_a$ up to a *truncation error*, from stopping the Taylor ex
 finite order, and a *rounding error*, from evaluating $L$ in finite-precision arithmetic; the choice of
 `eps` trades one against the other. Expanding $L$ around $\theta$,
 
-```math
-L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),
-```
+$$L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),$$
 
 so $L(\theta+\epsilon)-L(\theta-\epsilon) = 2\epsilon L'(\theta) + \frac{\epsilon^3}{3}L'''(\theta) +
 O(\epsilon^5)$, and dividing by $2\epsilon$,
 
-```math
-g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4):
-```
+$$g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4):$$
 
 the truncation error is $O(\epsilon^2)$ — smaller `eps` helps on this term alone, and this term is why
 central differences are used at all rather than a one-sided difference
@@ -335,9 +325,7 @@ $x$. For one output feature $`z_k=\sum_{j=1}^{\mathrm{fan\_in}} x_jW_{jk}`$: sin
 and $W_{jk}$ is independent of $x_j$, $\mathrm E[z_k]=\sum_j\mathrm E[x_j]\mathrm E[W_{jk}]=0$ regardless
 of $x$'s own mean, so $\mathrm{Var}(z_k)=\mathrm E[z_k^2]$. Expanding the square,
 
-```math
-\mathrm E[z_k^2] = \sum_{j,j'}\mathrm E[x_jx_{j'}W_{jk}W_{j'k}];
-```
+$$\mathrm E[z_k^2] = \sum\_{j,j'}\mathrm E[x_jx\_{j'}W\_{jk}W\_{j'k}];$$
 
 for $j\ne j'$, $W_{jk}$ and $W_{j'k}$ are independent of each other and of $x_j,x_{j'}$, with
 $\mathrm E[W_{jk}]=\mathrm E[W_{j'k}]=0$, so that term is $`\mathrm E[x_jx_{j'}]\,\mathrm
@@ -354,9 +342,7 @@ symmetric about $0$, $\mathrm E[z^2\mathbb 1[z>0]]=\mathrm E[z^2\mathbb 1[z<0]]$
 inside the expectation: $z^2$ is unchanged, $\mathbb 1[z>0]$ becomes $\mathbb 1[z<0]$), and the two sum
 to $\mathrm E[z^2]$ (an entry is almost surely never exactly $0$), so each is exactly half of it:
 
-```math
-\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\,\mathrm{fan\_in}\cdot s\sigma^2.
-```
+$$\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\\,\mathrm{fan\\\_in}\cdot s\sigma^2.$$
 
 Setting $\mathrm E[h^2]=s$ — the layer preserves the activation second moment — gives
 $`\sigma^2=2/\mathrm{fan\_in}`$: He initialisation. Using $`\sigma^2=1/\mathrm{fan\_in}`$ instead (the

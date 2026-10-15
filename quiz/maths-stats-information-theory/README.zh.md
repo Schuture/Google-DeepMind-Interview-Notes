@@ -191,9 +191,7 @@ e^{-\lambda x}\,dx = \lambda/(\lambda - t)`$（$`t < \lambda`$），把 $e^{tX} 
 逐项展开，得到 $`M_X(t) = \sum_k E[X^k]\,t^k/k!`$，于是 $E[X^k] = M_X^{(k)}(0)$，即 $M_X$ 在 $t = 0$ 处的
 第 $k$ 阶导数（这正好对应泰勒系数的定义）。直接代换 $u = \lambda x$，
 
-```math
-E[X^k] = \int_0^\infty x^k \lambda e^{-\lambda x}\,dx = \frac{1}{\lambda^k}\int_0^\infty u^k e^{-u}\,du = \frac{k!}{\lambda^k},
-```
+$$E[X^k] = \int_0^\infty x^k \lambda e^{-\lambda x}\\,dx = \frac{1}{\lambda^k}\int_0^\infty u^k e^{-u}\\,du = \frac{k!}{\lambda^k},$$
 
 这里用到对整数 $k$ 有 $\Gamma(k + 1) = k!$。由原点矩，$`\mu = 1/\lambda`$，
 $\sigma^2 = E[X^2] - \mu^2 = 2/\lambda^2 - 1/\lambda^2 = 1/\lambda^2$；把中心矩用原点矩展开，
@@ -215,9 +213,7 @@ $\sqrt n(\bar X_n - \mu)/\sigma$ 依分布收敛到 $N(0, 1)$。在有限的 $n$
 和方差都不存在，大数定律与中心极限定理都无从谈起；(b) *不独立*——对具有公共方差 $\sigma^2$、两两相关
 系数为 $\rho > 0$ 的等相关（equicorrelated）$`X_i`$，
 
-```math
-\mathrm{Var}(\bar X_n) = \frac1{n^2}\Bigl(\sum_i \mathrm{Var}(X_i) + \sum_{i \ne j}\mathrm{Cov}(X_i, X_j)\Bigr) = \frac1{n^2}\bigl(n\sigma^2 + n(n-1)\rho\sigma^2\bigr) = \frac{\sigma^2}{n}\bigl(1 + (n-1)\rho\bigr) \xrightarrow{n \to \infty} \rho\sigma^2 \ne 0,
-```
+$$\mathrm{Var}(\bar X_n) = \frac1{n^2}\Bigl(\sum_i \mathrm{Var}(X_i) + \sum\_{i \ne j}\mathrm{Cov}(X_i, X_j)\Bigr) = \frac1{n^2}\bigl(n\sigma^2 + n(n-1)\rho\sigma^2\bigr) = \frac{\sigma^2}{n}\bigl(1 + (n-1)\rho\bigr) \xrightarrow{n \to \infty} \rho\sigma^2 \ne 0,$$
 
 所以样本均值永远不会集中到 $\mu$——无论 $n$ 多大，它的方差都保持在 $\rho\sigma^2$ 之上——因为 $X_i$ 中共享的
 成分永远不会被平均掉；(c) *中等样本量下的
@@ -239,9 +235,7 @@ $H_0$ 的概率。
 记 $`C_i^{(1)}, C_i^{(2)}\in\{0,1\}`$ 表示两个模型在样本 $i$ 上是否正确，$`D_i=C_i^{(1)}-C_i^{(2)}`$。点估计
 $\bar D$ 无论哪种做法都相同，但方差不同：配对做法用的是
 
-```math
-\mathrm{Var}(\bar D) = \tfrac1n\bigl(\mathrm{Var}(C^{(1)}_i)+\mathrm{Var}(C^{(2)}_i)-2\,\mathrm{Cov}(C^{(1)}_i,C^{(2)}_i)\bigr),
-```
+$$\mathrm{Var}(\bar D) = \tfrac1n\bigl(\mathrm{Var}(C^{(1)}\_i)+\mathrm{Var}(C^{(2)}\_i)-2\\,\mathrm{Cov}(C^{(1)}\_i,C^{(2)}\_i)\bigr),$$
 
 而把两个准确率当作独立样本处理时，则完全省略了 $`-2\,\mathrm{Cov}/n`$ 这一项。两个模型往往在哪些样本容易、
 哪些样本难上超出偶然地保持一致，所以实践中 $\mathrm{Cov}>0$；独立样本方差因而高估了真实方差，使得检验
@@ -261,9 +255,7 @@ $H_{(1)},\dots,H_{(k)}$；它控制的是错误发现率（false discovery rate�
 
 **Q8.** 掷 600 次公平骰子，每个面的期望计数是 $E_i = 100$；统计量为
 
-```math
-\chi^2 = \sum_{i=1}^6 \frac{(O_i - E_i)^2}{E_i} = \frac{10^2 + 10^2 + 5^2 + 5^2 + 20^2 + 20^2}{100} = \frac{100 + 100 + 25 + 25 + 400 + 400}{100} = 10.5.
-```
+$$\chi^2 = \sum\_{i=1}^6 \frac{(O_i - E_i)^2}{E_i} = \frac{10^2 + 10^2 + 5^2 + 5^2 + 20^2 + 20^2}{100} = \frac{100 + 100 + 25 + 25 + 400 + 400}{100} = 10.5.$$
 
 自由度是 $6 - 1 = 5$，而不是 $6$，因为六个观测计数不能各自自由变化：它们之和必须等于掷骰总次数，所以六个偏差
 满足一条线性约束 $\sum_i (O_i - E_i) = 600 - 600 = 0$（而且这里没有从数据中估计原假设分布的任何参数，否则每估计
@@ -281,9 +273,7 @@ $\chi^2_{0.95, 5} \approx 11.07$，p 值是 $P(\chi^2_5 \ge 10.5) \approx 0.062$
 斯分布）、用核密度估计，或者换成最近邻规则；贝叶斯最优规则把 $x$ 判给后验
 $P(C\mid x)\propto\pi_C p_C(x)$ 较大的类别，而应当报告的是后验本身，
 
-```math
-P(a\mid x) = \frac{\pi_a p_a(x)}{\pi_a p_a(x) + \pi_b p_b(x)},
-```
+$$P(a\mid x) = \frac{\pi_a p_a(x)}{\pi_a p_a(x) + \pi_b p_b(x)},$$
 
 而不仅仅是取最大值对应的标签。若用高斯拟合且两者方差不等，取对数后边界 $\pi_a p_a(x)=\pi_b p_b(x)$ 在
 $x$ 中是二次的，因此一般有两个根而非一个：一个数组占据中间区间，另一个占据两侧尾部，具体哪个占中间取决
@@ -309,9 +299,7 @@ analysis）和朴素贝叶斯（naive Bayes）从各类别分别拟合的类条�
 集合上的第二个分布 $q$，$`H(p, q) = -\sum_x p(x)\log q(x) = E_p[-\log q(X)]`$。在求和号内把 $\log q(x)$
 拆成 $\log p(x) - \log\frac{p(x)}{q(x)}$，
 
-```math
-H(p, q) = -\sum_x p(x)\log p(x) - \sum_x p(x)\log\frac{q(x)}{p(x)} = H(p) + \sum_x p(x)\log\frac{p(x)}{q(x)} = H(p) + \mathrm{KL}(p \,\|\, q).
-```
+$$H(p, q) = -\sum_x p(x)\log p(x) - \sum_x p(x)\log\frac{q(x)}{p(x)} = H(p) + \sum_x p(x)\log\frac{p(x)}{q(x)} = H(p) + \mathrm{KL}(p \\,\\|\\, q).$$
 
 由于 $H(p)$ 不依赖于 $q$，对固定的 $p$ 在 $q$ 上最小化 $H(p, q)$，恰好就是在最小化
 $`\mathrm{KL}(p \,\|\, q)`$；当 $p$ 是真实（或经验）数据分布、$`q_\theta`$ 是一个模型时，大数定律给出：
@@ -330,17 +318,13 @@ ML：交叉熵正是用极大似然训练分类器或语言模型时被最小化
 **Q11.** $`I(X; Y) = \mathrm{KL}\bigl(p(x,y) \,\|\, p(x)p(y)\bigr) = \sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)p(y)}`$。
 把 $\frac{p(x,y)}{p(x)p(y)}$ 写成 $\frac{p(x \mid y)}{p(x)}$，
 
-```math
-I(X; Y) = \sum_{x,y} p(x,y)\log\frac{p(x \mid y)}{p(x)} = -\sum_{x,y} p(x,y)\log p(x) + \sum_{x,y} p(x,y)\log p(x \mid y) = H(X) - H(X \mid Y),
-```
+$$I(X; Y) = \sum\_{x,y} p(x,y)\log\frac{p(x \mid y)}{p(x)} = -\sum\_{x,y} p(x,y)\log p(x) + \sum\_{x,y} p(x,y)\log p(x \mid y) = H(X) - H(X \mid Y),$$
 
 其中 $H(X \mid Y) = -\sum_{x,y}p(x,y)\log p(x\mid y) = E_Y[H(X \mid Y = y)]$ 是条件熵。链式法则
 $H(X, Y) = H(Y) + H(X \mid Y)$ 由 $p(x,y) = p(y)p(x\mid y)$ 两边取 $-\log$ 再对 $p(x,y)$ 求期望得到；
 把 $H(X\mid Y) = H(X,Y) - H(Y)$ 代入，得到第三种形式，
 
-```math
-I(X; Y) = H(X) - \bigl(H(X,Y) - H(Y)\bigr) = H(X) + H(Y) - H(X, Y),
-```
+$$I(X; Y) = H(X) - \bigl(H(X,Y) - H(Y)\bigr) = H(X) + H(Y) - H(X, Y),$$
 
 这个表达式在 $X, Y$ 之间显然对称，所以 $I(X; Y) = I(Y; X)$。非负性 $I(X; Y) \ge 0$（等号成立当且仅当
 $p(x,y) = p(x)p(y)$ 几乎处处成立，即 $X \perp Y$）直接来自把 KL 的非负性应用于 $p(x,y)$ 与 $p(x)p(y)$。
@@ -349,9 +333,7 @@ $N \sim \mathrm{Bernoulli}(0.1)$ 与 $X$ 独立：由于 $X$ 均匀且信道对�
 而无论 $X$ 取何值，$`Y = X \oplus N`$ 的熵恰好就是 $N$ 的熵，所以 $H(Y \mid X) = H_b(0.1)$，即 $0.1$ 的
 二元熵（以比特为单位）。于是
 
-```math
-I(X; Y) = H(Y) - H(Y \mid X) = 1 - H_b(0.1) \approx 1 - 0.469 = 0.531 \text{ 比特}.
-```
+$$I(X; Y) = H(Y) - H(Y \mid X) = 1 - H_b(0.1) \approx 1 - 0.469 = 0.531 \text{ 比特}.$$
 
 ML：决策树中用来选择划分的信息增益，恰好就是划分变量与标签之间的互信息，
 $I(\text{split}; Y) = H(Y) - H(Y \mid \text{split})$；而 InfoNCE 对比损失 $L$（对每个锚点用一个正样本
@@ -366,23 +348,17 @@ $`\int\ln x\,dx = x\ln x - x + C`$：分部积分取 $u = \ln x$，$`dv = dx`$�
 $`\int \ln x\,dx = x\ln x - \int x \cdot \tfrac1x\,dx = x\ln x - x + C`$。$`\int\frac{dx}{1 + x^2} = \arctan
 x + C`$，因为 $\frac{d}{dx}\arctan x = \frac1{1+x^2}$；由此柯西密度积分为 $1$，
 
-```math
-\int_{-\infty}^{\infty} \frac{dx}{\pi(1 + x^2)} = \frac1\pi\Bigl[\arctan x\Bigr]_{-\infty}^{\infty} = \frac1\pi\Bigl(\frac\pi2 - \bigl(-\frac\pi2\bigr)\Bigr) = 1.
-```
+$$\int\_{-\infty}^{\infty} \frac{dx}{\pi(1 + x^2)} = \frac1\pi\Bigl[\arctan x\Bigr]\_{-\infty}^{\infty} = \frac1\pi\Bigl(\frac\pi2 - \bigl(-\frac\pi2\bigr)\Bigr) = 1.$$
 
 $`\int_{-\infty}^{\infty} e^{-x^2/2}\,dx = \sqrt{2\pi}`$：把这个积分记作 $I$ 并对它平方，
 
-```math
-I^2 = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2 + y^2)/2}\,dx\,dy = \int_0^{2\pi}\int_0^\infty e^{-r^2/2}\,r\,dr\,d\theta = 2\pi\Bigl[-e^{-r^2/2}\Bigr]_0^\infty = 2\pi,
-```
+$$I^2 = \int\_{-\infty}^{\infty}\int\_{-\infty}^{\infty} e^{-(x^2 + y^2)/2}\\,dx\\,dy = \int_0^{2\pi}\int_0^\infty e^{-r^2/2}\\,r\\,dr\\,d\theta = 2\pi\Bigl[-e^{-r^2/2}\Bigr]\_0^\infty = 2\pi,$$
 
 换成极坐标（$`x = r\cos\theta`$，$`y = r\sin\theta`$，面积元 $`r\,dr\,d\theta`$），于是 $I = \sqrt{2\pi}$，
 取正根，因为被积函数处处为正。对 $X \sim \mathrm{Exp}(\lambda)$，$`E[X] = 1/\lambda`$：分部积分取
 $u = x$，$`dv = \lambda e^{-\lambda x}\,dx`$（$`v = -e^{-\lambda x}`$），
 
-```math
-E[X] = \int_0^\infty x\lambda e^{-\lambda x}\,dx = \Bigl[-xe^{-\lambda x}\Bigr]_0^\infty + \int_0^\infty e^{-\lambda x}\,dx = 0 + \frac1\lambda = \frac1\lambda,
-```
+$$E[X] = \int_0^\infty x\lambda e^{-\lambda x}\\,dx = \Bigl[-xe^{-\lambda x}\Bigr]\_0^\infty + \int_0^\infty e^{-\lambda x}\\,dx = 0 + \frac1\lambda = \frac1\lambda,$$
 
 这与 Q5 中 $E[X^k] = k!/\lambda^k$ 在 $k = 1$ 时的结果一致。ML：正是这一类积分被用来对密度做归一化
 （验证或推导某个密度积分为 $1$，如上面的柯西分布与高斯分布），并用于计算出现在似然函数及其梯度中的

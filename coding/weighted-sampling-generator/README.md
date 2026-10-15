@@ -500,10 +500,7 @@ starts at $n \cdot w_v / \mathrm{total}$, loses exactly what $v$ donates to othe
 becomes $\mathrm{prob}[v]$ when $v$'s own column is finalised ($1$ for a leftover column, which donates
 nothing more). Summing over all columns, $v$ therefore receives exactly
 
-```math
-\frac{1}{n}\Bigl(\mathrm{prob}[v] + \sum_{s:\ \mathrm{alias}[s] = v} \bigl(1 - \mathrm{prob}[s]\bigr)\Bigr)
-= \frac{1}{n} \cdot \frac{n \, w_v}{\mathrm{total}} = \frac{w_v}{\mathrm{total}},
-```
+$$\frac{1}{n}\Bigl(\mathrm{prob}[v] + \sum\_{s:\ \mathrm{alias}[s] = v} \bigl(1 - \mathrm{prob}[s]\bigr)\Bigr) = \frac{1}{n} \cdot \frac{n \\, w_v}{\mathrm{total}} = \frac{w_v}{\mathrm{total}},$$
 
 the exact distribution the checks below verify directly from `prob` and `alias`, with no sampling
 involved.

@@ -111,30 +111,22 @@ $`\mathrm{Var}_\mu(W)`$ 推导成 $T$ 和 $`\chi^2(\pi\,\|\,\mu)`$ 的一个闭�
 通链式法则的改写，这就是整个对数导数技巧），有 $`\nabla_\theta \pi_\theta(y\mid x) = \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x)`$，
 于是
 
-```math
-\nabla_\theta J(\theta) = \sum_y \pi_\theta(y\mid x)\, r(x,y)\, \nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[r(x,y)\,\nabla_\theta \log \pi_\theta(y\mid x)\big].
-```
+$$\nabla\_\theta J(\theta) = \sum_y \pi\_\theta(y\mid x)\\, r(x,y)\\, \nabla\_\theta \log \pi\_\theta(y\mid x) = \mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\big[r(x,y)\\,\nabla\_\theta \log \pi\_\theta(y\mid x)\big].$$
 
 逐 token 展开：由自回归分解直接得到 $\log \pi_\theta(y\mid x) = \sum_{t=1}^n \log \pi_\theta(y_t\mid x,y_{<t})$，由梯
 度的线性性，
 
-```math
-\nabla_\theta J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\Big[r(x,y)\sum_{t=1}^n \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})\Big].
-```
+$$\nabla\_\theta J(\theta) = \mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\Big[r(x,y)\sum\_{t=1}^n \nabla\_\theta \log \pi\_\theta(y_t\mid x,y\_{\<t})\Big].$$
 
 对于基线，取任意满足 $\nabla_\theta b = 0$ 且不依赖于 $y$（可以依赖于 $x$）的 $b$。由于对任意 $\theta$，概率分布求和都是 $1$，故 $\nabla_\theta \sum_y \pi_\theta(y\mid x) = \nabla_\theta 1 = 0$；
 把等式左边按上面同样的方式展开，
 
-```math
-0 = \nabla_\theta \sum_y \pi_\theta(y\mid x) = \sum_y \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[\nabla_\theta \log \pi_\theta(y\mid x)\big],
-```
+$$0 = \nabla\_\theta \sum_y \pi\_\theta(y\mid x) = \sum_y \pi\_\theta(y\mid x)\\,\nabla\_\theta \log \pi\_\theta(y\mid x) = \mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\big[\nabla\_\theta \log \pi\_\theta(y\mid x)\big],$$
 
 于是 $`b\,\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}[\nabla_\theta \log \pi_\theta(y\mid x)] = 0`$ 也成立，从奖励
 中减去 $b$ 不改变任何东西：
 
-```math
-\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[(r(x,y)-b)\,\nabla_\theta \log \pi_\theta(y\mid x)\big] = \nabla_\theta J(\theta) - 0 = \nabla_\theta J(\theta).
-```
+$$\mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\big[(r(x,y)-b)\\,\nabla\_\theta \log \pi\_\theta(y\mid x)\big] = \nabla\_\theta J(\theta) - 0 = \nabla\_\theta J(\theta).$$
 
 基线永远不会改变这个估计量收敛到的值；选取一个接近 $\mathbb E_{y\sim\pi_\theta}[r(x,y)\mid x]$ 的 $b(x)$，改变的是单个样本估计的噪声大小，而不是它收
 敛到的值：它把奖励绝对量级中的大部分从与得分函数相乘的那一项里去掉——这正是使用一个学出来的评论家（Q3），或者不训练网络、直接用采样得到的组均值（Q4）的唯一理由。
@@ -163,21 +155,15 @@ $(\rho,A)=(0.5,-2)$ 落在区间之下且 $A<0$（被裁剪）：$`\min(-1.0,\,-
 **Q3.** $V_\phi(x,y_{<t})$ 估计的是生成完前缀 $y_{<t}$ 之后、未来（经过 KL 整形的）回报的期望——也就是从第 $t$ 步到响应结束这一段所有量的总和。终局奖励挂
 在最后一个 token 上，而逐 token 的 KL 惩罚被直接并入一个每一步都要计入的量：
 
-```math
-\tilde r_t = -\beta \log\frac{\pi_\theta(y_t\mid x,y_{<t})}{\pi_{\text{ref}}(y_t\mid x,y_{<t})} + \mathbb 1[t=n]\, r(x,y),
-```
+$$\tilde r_t = -\beta \log\frac{\pi\_\theta(y_t\mid x,y\_{\<t})}{\pi\_{\text{ref}}(y_t\mid x,y\_{\<t})} + \mathbb 1[t=n]\\, r(x,y),$$
 
 于是每个 token 都要付出一份小小的 KL 代价，只有最后一个 token 还额外拿到终局奖励。记 $V_k := V_\phi(x, y_{\le k})$ 以简化记号，GAE 为
 
-```math
-A_t^{\mathrm{GAE}(\gamma,\lambda)} = \sum_{l=0}^{n-t} (\gamma\lambda)^l\, \delta_{t+l}.
-```
+$$A_t^{\mathrm{GAE}(\gamma,\lambda)} = \sum\_{l=0}^{n-t} (\gamma\lambda)^l\\, \delta\_{t+l}.$$
 
 当 $\lambda=0$ 时只剩 $l=0$ 这一项，$`A_t = \delta_t`$：单步 TD 残差，方差低，但偏差和 $V_\phi$ 的误差一样大。当 $\lambda=1$ 时，
 
-```math
-\sum_{l=0}^{n-t}\gamma^l \delta_{t+l} = \sum_{l=0}^{n-t}\gamma^l\big(\tilde r_{t+l} + \gamma V_{t+l} - V_{t+l-1}\big) = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} + \sum_{l=0}^{n-t}\big(\gamma^{l+1}V_{t+l} - \gamma^l V_{t+l-1}\big),
-```
+$$\sum\_{l=0}^{n-t}\gamma^l \delta\_{t+l} = \sum\_{l=0}^{n-t}\gamma^l\big(\tilde r\_{t+l} + \gamma V\_{t+l} - V\_{t+l-1}\big) = \sum\_{l=0}^{n-t}\gamma^l \tilde r\_{t+l} + \sum\_{l=0}^{n-t}\big(\gamma^{l+1}V\_{t+l} - \gamma^l V\_{t+l-1}\big),$$
 
 第二个和式是一个可以裂项相消的和：相邻各项两两抵消，只留下 $l=0$ 项里的 $-V_{t-1}$，以及最后一项里的 $`\gamma^{\,n-t+1}V_n = 0`$（终止值被钉在 $0$），所以
 $A_t = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} - V_{t-1}$：即（经过 KL 整形的）蒙特卡洛回报减去基线，无论 $V_\phi$ 质量好坏都是
@@ -226,18 +212,14 @@ $A_t = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} - V_{t-1}$：即（经过 KL 整�
 $k_1$ 的无偏性：按定义 $u=\pi_{\text{ref}}(y)/\pi_\theta(y)$，所以精确地有 $-\log u = \log\big(\pi_\theta(y)/\pi_{\text{ref}}(y)\big)$，
 于是
 
-```math
-\mathbb E_{y\sim\pi_\theta}[k_1] = \mathbb E_{y\sim\pi_\theta}\Big[\log\frac{\pi_\theta(y)}{\pi_{\text{ref}}(y)}\Big] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}})
-```
+$$\mathbb E\_{y\sim\pi\_\theta}[k_1] = \mathbb E\_{y\sim\pi\_\theta}\Big[\log\frac{\pi\_\theta(y)}{\pi\_{\text{ref}}(y)}\Big] = \mathrm{KL}(\pi\_\theta \\,\\|\\, \pi\_{\text{ref}})$$
 
 这就是 KL 散度的定义本身——不涉及任何近似。
 
 $k_3$ 的无偏性：首先，$`\mathbb E_{y\sim\pi_\theta}[u] = \sum_y \pi_\theta(y) \cdot \frac{\pi_{\text{ref}}(y)}{\pi_\theta(y)} = \sum_y \pi_{\text{ref}}(y) = 1`$，
 因为 $\pi_{\text{ref}}$ 本身就是同一个支撑集上的一个概率分布。所以 $\mathbb E[u]-1=0$，于是
 
-```math
-\mathbb E_{y\sim\pi_\theta}[k_3] = \mathbb E[u] - 1 - \mathbb E[\log u] = -\mathbb E[\log u] = \mathbb E[-\log u] = \mathbb E[k_1] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}}).
-```
+$$\mathbb E\_{y\sim\pi\_\theta}[k_3] = \mathbb E[u] - 1 - \mathbb E[\log u] = -\mathbb E[\log u] = \mathbb E[-\log u] = \mathbb E[k_1] = \mathrm{KL}(\pi\_\theta \\,\\|\\, \pi\_{\text{ref}}).$$
 
 非负性：对 $u>0$ 记 $f(u) = u - 1 - \log u$，则 $k_3=f(u)$。$`f'(u) = 1 - 1/u`$ 在 $u<1$ 时为负、在 $u>1$ 时为正，所以 $u=1$
 是 $f$ 唯一的全局最小点，且 $f(1)=0$；因此对每个 $u>0$ 都有 $f(u)\ge0$，即 $k_3\ge0$ 对每个样本都成立，只有在 $\pi_\theta(y)=\pi_{\text{ref}}(y)$
@@ -245,9 +227,7 @@ $k_3$ 的无偏性：首先，$`\mathbb E_{y\sim\pi_\theta}[u] = \sum_y \pi_\the
 
 为什么更偏好 $k_3$：在最要紧的情形下——策略被 KL 惩罚本身约束得接近参考策略，所以 $\varepsilon$ 通常很小——记 $u=1+\varepsilon$。由 $\log(1+\varepsilon) = \varepsilon - \varepsilon^2/2 + O(\varepsilon^3)$，
 
-```math
-k_1 = -\log u = -\varepsilon + O(\varepsilon^2), \qquad k_3 = (u-1)-\log u = \varepsilon - \big(\varepsilon - \tfrac{\varepsilon^2}{2} + O(\varepsilon^3)\big) = \tfrac{\varepsilon^2}{2} + O(\varepsilon^3),
-```
+$$k_1 = -\log u = -\varepsilon + O(\varepsilon^2), \qquad k_3 = (u-1)-\log u = \varepsilon - \big(\varepsilon - \tfrac{\varepsilon^2}{2} + O(\varepsilon^3)\big) = \tfrac{\varepsilon^2}{2} + O(\varepsilon^3),$$
 
 于是 $k_1$ 的逐样本波动是 $\varepsilon$ 的一阶量，正负都有可能；而 $k_3$ 的波动是二阶量，永远非负，且量级要小一整阶——例如在 $u=1.01$ 处，$`k_1\approx-0.00995`$，
 而 $k_3\approx4.97\times10^{-5}$，小了两个数量级。$`k_1`$ 在有限批量上取平均，读数可能是负的，尽管真实的 KL 不可能为负；$`k_3`$ 从不会这样，而且它更低的方差意
@@ -255,22 +235,16 @@ k_1 = -\log u = -\varepsilon + O(\varepsilon^2), \qquad k_3 = (u-1)-\log u = \va
 
 **Q7.** 对固定的 $x$，把 $\pi(\cdot\mid x)$ 当作响应上一个自由的概率分布，最大化
 
-```math
-J[\pi] = \sum_y \pi(y\mid x)\,r(x,y) - \beta \sum_y \pi(y\mid x) \log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}
-```
+$$J[\pi] = \sum_y \pi(y\mid x)\\,r(x,y) - \beta \sum_y \pi(y\mid x) \log\frac{\pi(y\mid x)}{\pi\_{\text{ref}}(y\mid x)}$$
 
 约束条件为 $\sum_y \pi(y\mid x)=1$。为这个约束引入 Lagrange 乘子 $\mu$，再对每个 $\pi(y\mid x)$ 分别求导，
 
-```math
-\frac{\partial}{\partial \pi(y\mid x)}\Big[J[\pi] - \mu\Big(\sum_y \pi(y\mid x)-1\Big)\Big] = r(x,y) - \beta\Big(\log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}+1\Big) - \mu = 0,
-```
+$$\frac{\partial}{\partial \pi(y\mid x)}\Big[J[\pi] - \mu\Big(\sum_y \pi(y\mid x)-1\Big)\Big] = r(x,y) - \beta\Big(\log\frac{\pi(y\mid x)}{\pi\_{\text{ref}}(y\mid x)}+1\Big) - \mu = 0,$$
 
 于是 $\log\big(\pi(y\mid x)/\pi_{\text{ref}}(y\mid x)\big) = \big(r(x,y)-\mu\big)/\beta - 1$，即 $\pi(y\mid x) = \pi_{\text{ref}}(y\mid x)\exp(r(x,y)/\beta)\exp(-\mu/\beta-1)$。
 最后这个因子不依赖于 $y$，记它为 $1/Z(x)$，由归一化约束定出：
 
-```math
-\pi^*(y\mid x) = \frac{\pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big)}{Z(x)}, \qquad Z(x) = \sum_y \pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big).
-```
+$$\pi^\*(y\mid x) = \frac{\pi\_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big)}{Z(x)}, \qquad Z(x) = \sum_y \pi\_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big).$$
 
 $J$ 关于 $\pi$ 是严格凹的（KL 项是 $\pi$ 的严格凸函数，奖励项是线性的），所以这个驻点就是唯一的全局最大值点。
 
@@ -279,16 +253,12 @@ $J$ 关于 $\pi$ 是严格凹的（KL 项是 $\pi$ 的严格凸函数，奖励�
 奖励只通过差值 $r(x,y_w)-r(x,y_l)$ 起作用，而 $\beta\log Z(x)$ 在 $r(x,y_w)$ 和 $r(x,y_l)$ 里是完全相同的加性项（它只依赖于 $x$，与 $y$
 无关），所以在相减时被消掉，根本不需要算出来：
 
-```math
-r(x,y_w)-r(x,y_l) = \beta\log\frac{\pi^*(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi^*(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}.
-```
+$$r(x,y_w)-r(x,y_l) = \beta\log\frac{\pi^\*(y_w\mid x)}{\pi\_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi^\*(y_l\mid x)}{\pi\_{\text{ref}}(y_l\mid x)}.$$
 
 把（未知的）最优解 $`\pi^*`$ 换成可训练的 $\pi_\theta$，在偏好数据集 $`\mathcal D = \{(x,y_w,y_l)\}`$ 上对这个 Bradley–Terry 模型做最大
 似然拟合，就得到 DPO 损失
 
-```math
-\mathcal L_{\text{DPO}}(\theta) = -\mathbb E_{(x,y_w,y_l)\sim\mathcal D}\left[\log\sigma\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right].
-```
+$$\mathcal L\_{\text{DPO}}(\theta) = -\mathbb E\_{(x,y_w,y_l)\sim\mathcal D}\left[\log\sigma\left(\beta\log\frac{\pi\_\theta(y_w\mid x)}{\pi\_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi\_\theta(y_l\mid x)}{\pi\_{\text{ref}}(y_l\mid x)}\right)\right].$$
 
 DPO 只需要一个静态的偏好三元组数据集 $(x,y_w,y_l)$——$`y_w,y_l`$ 可以来自任何地方，不需要在线采样，也不需要训练奖励模型——再加上一份冻结的 $\pi_{\text{ref}}$
 副本，用来计算两边的对数比率。
@@ -316,9 +286,7 @@ $\mu=\pi_{\theta_{\text{old}}}$，而在针对它做的好几次梯度更新中�
 从 $y\sim\mu$ 构造的、$`\mathbb E_{y\sim\pi}[r(y)]`$ 的重要性采样估计量 $`\hat J=(\pi(y)/\mu(y))\,r(y)`$，只要在每个
 满足 $\pi(y)r(y)\ne0$ 的 $y$ 处都有 $\mu(y)>0$，就是无偏的：
 
-```math
-\mathbb E_{y\sim\mu}\Big[\frac{\pi(y)}{\mu(y)}r(y)\Big] = \sum_{y:\mu(y)>0}\pi(y)r(y) = \mathbb E_{y\sim\pi}[r(y)],
-```
+$$\mathbb E\_{y\sim\mu}\Big[\frac{\pi(y)}{\mu(y)}r(y)\Big] = \sum\_{y:\mu(y)>0}\pi(y)r(y) = \mathbb E\_{y\sim\pi}[r(y)],$$
 
 在这一假设下，$`\mu(y)=0`$ 的那些项都恰好是 $0$。
 
@@ -327,9 +295,7 @@ E_\mu[w_t]=1`$ 在每个位置都成立，由独立性可得 $\mathbb E_\mu[W]=1
 E_\mu[W^2]=\big(\mathbb E_\mu[w_t^2]\big)^T$。直接从定义展开 $`\chi^2(\pi\,\|\,\mu)=\sum_y\pi(y)^2/\mu(y)-1`$，可知
 $`\mathbb E_\mu[w_t^2]=1+\chi^2(\pi\,\|\,\mu)`$，于是
 
-```math
-\mathbb E_\mu[W^2]=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T,\qquad \mathrm{Var}_\mu(W)=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T-1.
-```
+$$\mathbb E\_\mu[W^2]=\big(1+\chi^2(\pi\\,\\|\\,\mu)\big)^T,\qquad \mathrm{Var}\_\mu(W)=\big(1+\chi^2(\pi\\,\\|\\,\mu)\big)^T-1.$$
 
 记 $`\kappa=\chi^2(\pi\,\|\,\mu)>0`$——在单个 token 上可能很小——这是关于 $T$ 的指数函数：$`T`$ 翻倍时
 $(1+\kappa)^T$ 恰好被平方，所以单个 token 上都察觉不到的偏差，到 $T=100$ 时就可能压过所有其他噪声来源。

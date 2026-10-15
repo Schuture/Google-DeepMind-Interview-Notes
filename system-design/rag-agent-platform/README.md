@@ -104,24 +104,18 @@ previous one (the *stride*). Chunk $i$ (0-indexed) covers tokens $`[iS,\,iS+C)`$
 covered range reaches $(m-1)S+C$ tokens; the document is fully covered once $(m-1)S+C \geq N$, i.e. once
 $m \geq (N-C)/S+1=(N-C+S)/S=(N-O)/S$ (substituting $S=C-O$). The smallest such integer is
 
-```math
-m=\left\lceil\frac{N-O}{S}\right\rceil=\left\lceil\frac{5{,}000-50}{450}\right\rceil=\lceil 11.0\rceil=11\text{ chunks/document.}
-```
+$$m=\left\lceil\frac{N-O}{S}\right\rceil=\left\lceil\frac{5{,}000-50}{450}\right\rceil=\lceil 11.0\rceil=11\text{ chunks/document.}$$
 
 Across $200{,}000{,}000$ documents that is $200{,}000{,}000\times11=2.2\times10^9$ chunks.
 
 **Raw and quantised index size.** Each embedding has 768 dimensions stored as float16 (2 bytes/dimension),
 $768\times2=1{,}536$ bytes/vector, so the raw index is
 
-```math
-2.2\times10^9\times1{,}536\text{ bytes}\approx3.38\text{ TB}\approx3.4\text{ TB}.
-```
+$$2.2\times10^9\times1{,}536\text{ bytes}\approx3.38\text{ TB}\approx3.4\text{ TB}.$$
 
 Product quantisation to 64 bytes/vector — a $1{,}536/64=24\times$ compression — brings that down to
 
-```math
-2.2\times10^9\times64\text{ bytes}=140.8\text{ GB}\approx141\text{ GB},
-```
+$$2.2\times10^9\times64\text{ bytes}=140.8\text{ GB}\approx141\text{ GB},$$
 
 small enough to fit in the RAM of a handful of hosts rather than the tens of hosts the raw index would need;
 the index-layout deep dive returns to what quantising costs in recall.
@@ -145,9 +139,7 @@ the given peak of 100/s, roughly a $4.3\times$ peak-to-average ratio. A single h
 calls per question in the worst case, a question that spends every step on another search. At peak load the
 retrieval tier must therefore sustain
 
-```math
-100\text{ questions/s}\times5\text{ steps}\times2\text{ legs/step}=1{,}000\text{ retrieval sub-queries/s}
-```
+$$100\text{ questions/s}\times5\text{ steps}\times2\text{ legs/step}=1{,}000\text{ retrieval sub-queries/s}$$
 
 as an upper bound — most questions finish in fewer steps, so the typical rate is well below this, but the
 provisioned floor has to cover the worst case. Each sub-query is answered by one tenant's own shard(s) (deep

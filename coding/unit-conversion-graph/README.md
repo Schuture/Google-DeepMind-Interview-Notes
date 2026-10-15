@@ -226,9 +226,7 @@ A weighted union-find keeps every unit in a rooted tree, one tree per connected 
 a fact through the trees' shapes rather than through explicit edges. Give every unit $u$ a parent pointer
 and a weight $w(u)$ such that
 
-```math
-1\,u = w(u) \cdot \mathrm{parent}(u),
-```
+$$1\\,u = w(u) \cdot \mathrm{parent}(u),$$
 
 with a root its own parent and $w(\mathrm{root}) = 1$; composing weights while walking parent pointers up
 to the root — the same product-along-a-path rule as Part 1 — gives, for any $u$, the factor from $u$ to
@@ -256,9 +254,7 @@ so $`1\,a = w_a R_a`$ and $`1\,b = w_b R_b`$. Two cases:
   $R_b \to b \to a \to R_a$ — the first leg inverts $b \to R_b = w_b$, the middle leg is the new fact read
   backwards ($b \to a = 1 / r$), and the last leg is $a \to R_a = w_a$:
 
-  ```math
-  w(R_b) \;=\; \frac{1}{w_b} \cdot \frac{1}{r} \cdot w_a \;=\; \frac{w_a}{r\,w_b}.
-  ```
+  $$w(R_b) \\;=\\; \frac{1}{w_b} \cdot \frac{1}{r} \cdot w_a \\;=\\; \frac{w_a}{r\\,w_b}.$$
 
 `query(src, dst)` reuses exactly this $w_x / w_y$ reasoning for two units sharing a root — including when
 `src == dst`, where $w_{\mathrm{src}} = w_{\mathrm{dst}}$ makes the ratio `1.0` automatically, no special

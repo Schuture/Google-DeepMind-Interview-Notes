@@ -113,9 +113,7 @@ virtual `h[-1] = 0` so the `i == 0` case needs no separate rule. Fixing `i`, the
 holds are `h[i - 1] <= y < h[i]`, an interval of length `max(0, h[i] - h[i - 1])`; since every run-start
 belongs to exactly one plank and one row, summing that length over every plank counts every run exactly
 once:
-```math
-\sum_i \max(0,\, h_i - h_{i-1}), \qquad h_{-1} = 0.
-```
+$$\sum_i \max(0,\\, h_i - h\_{i-1}), \qquad h\_{-1} = 0.$$
 
 ```python
 def min_horizontal_strokes(h: list[int]) -> int:
@@ -203,9 +201,7 @@ strokes, since one horizontal stroke lies in a single row; so `S_low` has at lea
 stroke per plank. Either way, the size of `S` is at least one of the two constructions' costs, hence at
 least their minimum. Writing `(l_k, r_k)` for the maximal sub-ranges of `[l, r]` with `h_i > m`:
 
-```math
-T(l, r, b) = \min\left(r - l + 1,\ \ (m - b) + \sum_k T(l_k, r_k, m)\right).
-```
+$$T(l, r, b) = \min\left(r - l + 1,\ \ (m - b) + \sum_k T(l_k, r_k, m)\right).$$
 
 ```python
 def _runs_above(h: list[int], lo: int, hi: int, floor: int) -> list[tuple[int, int]]:

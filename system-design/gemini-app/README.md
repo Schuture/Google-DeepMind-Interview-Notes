@@ -80,26 +80,18 @@ revisited in the streaming deep dive, where it turns out to fall out of the desi
 
 **Turn rate.** $60{,}000{,}000$ daily actives at 12 turns/day each:
 
-```math
-60{,}000{,}000 \times 12 = 720{,}000{,}000 \text{ turns/day,}
-```
+$$60{,}000{,}000 \times 12 = 720{,}000{,}000 \text{ turns/day,}$$
 
-```math
-\text{avg turns/s} = \frac{720{,}000{,}000}{86{,}400} \approx 8{,}333.
-```
+$$\text{avg turns/s} = \frac{720{,}000{,}000}{86{,}400} \approx 8{,}333.$$
 
 At $3\times$ peak-to-average, peak throughput is about $25{,}000$ turns/s.
 
 **Prefill and decode tokens/s at peak.** Each turn sends 2,000 input tokens and generates 400 output
 tokens, so at $25{,}000$ turns/s:
 
-```math
-\text{peak prefill} = 25{,}000 \times 2{,}000 = 50{,}000{,}000 \text{ tokens/s} \approx 50\text{M/s,}
-```
+$$\text{peak prefill} = 25{,}000 \times 2{,}000 = 50{,}000{,}000 \text{ tokens/s} \approx 50\text{M/s,}$$
 
-```math
-\text{peak decode} = 25{,}000 \times 400 = 10{,}000{,}000 \text{ tokens/s} \approx 10\text{M/s.}
-```
+$$\text{peak decode} = 25{,}000 \times 400 = 10{,}000{,}000 \text{ tokens/s} \approx 10\text{M/s.}$$
 
 One default-model host sustains 50,000 prefill tokens/s or 5,000 decode tokens/s, and the two pools are
 separate, so the bare floor is $50{,}000{,}000/50{,}000=1{,}000$ prefill hosts and
@@ -309,9 +301,7 @@ built while serving turn $n-1$ is still resident on a decode host when turn $n$ 
 appended tokens need to be prefilled, not the whole context again. Using the numbers above, a cache hit
 needs the assumed 40-token new message prefilled rather than the full 2,000-token context:
 
-```math
-\text{effective tokens} = h \times 40 + (1-h) \times 2{,}000,
-```
+$$\text{effective tokens} = h \times 40 + (1-h) \times 2{,}000,$$
 
 which at an assumed 80% hit rate is $0.8\times40+0.2\times2{,}000=432$ tokens, about a 78% cut in the
 prefill load that turn would otherwise cost. This is an optimisation on top of the provisioned floor above,

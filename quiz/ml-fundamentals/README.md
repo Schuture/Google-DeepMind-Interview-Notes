@@ -95,9 +95,7 @@ Two conventions worth pinning down before answering out loud: the momentum and A
 
 **Q3.** Both derivatives reduce to a clean closed form; cross-entropy's stays large exactly where squared error's collapses. Writing $\sigma'(z) = \sigma(z)(1-\sigma(z))$ (immediate from $\sigma(z) = 1/(1+e^{-z})$ by the quotient rule) and $\partial p/\partial z = \sigma'(z) = p(1-p)$:
 
-```math
-\frac{\partial L_{\mathrm{bce}}}{\partial z} = \Bigl(-\frac{y}{p}+\frac{1-y}{1-p}\Bigr)p(1-p) = -y(1-p) + (1-y)p = p - y, \qquad \frac{\partial L_{\mathrm{se}}}{\partial z} = 2(p-y)\cdot p(1-p).
-```
+$$\frac{\partial L\_{\mathrm{bce}}}{\partial z} = \Bigl(-\frac{y}{p}+\frac{1-y}{1-p}\Bigr)p(1-p) = -y(1-p) + (1-y)p = p - y, \qquad \frac{\partial L\_{\mathrm{se}}}{\partial z} = 2(p-y)\cdot p(1-p).$$
 
 At $y=1$, $z \ll 0$ the model is confidently wrong: $p \to 0$. Cross-entropy's gradient $p - y \to -1$, a full-sized push to increase $z$. Squared error's gradient has the extra factor $p(1-p) \to 0$: the sigmoid has saturated, so even though $(p-y)$ is close to its worst possible value, $\partial p/\partial z$ is tiny, and the two nearly cancel — at $z=-20$ the two gradients differ by more than seven orders of magnitude in the checks below. Squared error only starts pushing hard once $p$ has already moved away from the saturated region, so a badly wrong, confident prediction corrects itself very slowly under squared error and quickly under cross-entropy.
 
@@ -109,9 +107,7 @@ At $y=1$, $z \ll 0$ the model is confidently wrong: $p \to 0$. Cross-entropy's g
 
 **Q6.** SGD's step is the gradient times $\eta$; momentum accumulates gradients with decay $\mu$; Adam normalises each coordinate's step by its own recent gradient scale, and its bias correction exists because the moment estimate starts at zero and is dragged toward zero early on. Unrolling $m_t$ from $m_0 = 0$: $m_t = (1-\beta_1)\sum_{k=1}^t \beta_1^{t-k}g_k$, so under $\mathbb E[g_k]=\bar g$ for every $k$,
 
-```math
-\mathbb E[m_t] = (1-\beta_1)\bar g \sum_{k=1}^t \beta_1^{t-k} = (1-\beta_1)\bar g\,\frac{1-\beta_1^t}{1-\beta_1} = (1-\beta_1^t)\,\bar g,
-```
+$$\mathbb E[m_t] = (1-\beta_1)\bar g \sum\_{k=1}^t \beta_1^{t-k} = (1-\beta_1)\bar g\\,\frac{1-\beta_1^t}{1-\beta_1} = (1-\beta_1^t)\\,\bar g,$$
 
 using the finite geometric sum $\sum_{j=0}^{t-1}\beta_1^j = (1-\beta_1^t)/(1-\beta_1)$. So $m_t$ underestimates $\bar g$ by the factor $1-\beta_1^t$, close to $0$ for small $t$ (the average has barely started) and close to $1$ for large $t$; dividing by exactly this factor, $\hat m_t = m_t/(1-\beta_1^t)$, gives $\mathbb E[\hat m_t] = \bar g$ for every $t$, removing the bias completely under this stationarity assumption — confirmed by Monte Carlo below, to within its sampling noise. At $t=1$, $m_1 = (1-\beta_1)g_1$, so $\hat m_1 = g_1$ *exactly*, whatever $\beta_1$ is (the correction factor $1-\beta_1^1=1-\beta_1$ cancels it precisely), and likewise $\hat v_1 = g_1^2$ exactly. So $\hat m_1/(\sqrt{\hat v_1}+\epsilon) = g_1/(|g_1|+\epsilon)$, which equals $\mathrm{sign}(g_1)$ up to an error that vanishes as $|g_1|/\epsilon \to \infty$: the first Adam step has size $\eta\cdot|g_1|/(|g_1|+\epsilon) \approx \eta$ in every coordinate — checked below to within $`0.01\%`$ of $\eta$ for gradients spanning six orders of magnitude — because step $1$'s bias correction is exact regardless of how large or small that coordinate's gradient happens to be.
 
@@ -119,9 +115,7 @@ using the finite geometric sum $\sum_{j=0}^{t-1}\beta_1^j = (1-\beta_1^t)/(1-\be
 
 **Q8.** Warmup protects against an unreliable $\hat v_t$ early in training; decay shrinks the noise-driven spread around the minimum that a constant learning rate leaves behind. $\hat v_1 = g_1^2$ (Q6): after a single step, Adam's estimate of a coordinate's gradient scale is built from exactly one noisy sample, so an unlucky large or small $g_1$ is taken entirely at face value, and the resulting step is still $\approx \eta$ regardless — there has been no chance yet for the exponential average to smooth out minibatch noise. With large batches this matters more because the per-step learning rate is itself usually scaled up (to compensate for fewer steps per epoch), so the same relative unreliability in early $\hat v_t$ turns into a larger absolute risk of a bad early step; ramping $\eta$ up from $0$ keeps the *actual* step size small during precisely this unreliable window, giving $\hat v_t$ time to average over enough steps to settle. For the decay half: on the quadratic $f(\theta)=\theta^2/2$ (minimum at $0$) with stochastic gradient $g_t = \theta_t + \xi_t$, $\xi_t \sim N(0,\sigma^2)$ i.i.d., SGD gives $\theta_{t+1} = (1-\eta)\theta_t - \eta\xi_t$, a linear recursion whose stationary variance solves $`\mathrm{Var}_\infty = (1-\eta)^2\mathrm{Var}_\infty + \eta^2\sigma^2`$, i.e.
 
-```math
-\mathrm{Var}_\infty = \frac{\eta^2\sigma^2}{1-(1-\eta)^2} = \frac{\eta\sigma^2}{2-\eta}.
-```
+$$\mathrm{Var}\_\infty = \frac{\eta^2\sigma^2}{1-(1-\eta)^2} = \frac{\eta\sigma^2}{2-\eta}.$$
 
 The iterates do not converge to the minimum at all: they converge in distribution to a spread of variance $`\mathrm{Var}_\infty`$ around it (confirmed by simulation below, to within the tolerance used there), a "noise ball" whose size grows with $\eta$. Decaying $\eta$ late in training shrinks this ball — continuing the same recursion at a smaller $\eta$ settles to the smaller variance the same formula predicts — trading the faster but noisier early progress of a large step size for a tighter final resting place around the optimum.
 
@@ -129,23 +123,17 @@ The iterates do not converge to the minimum at all: they converge in distributio
 
 **Q9.** Two completions of the square, using $\mathbb E[\varepsilon]=0$ once and the independence of $\varepsilon$ from $D$ once. Write $y - \hat f_D(x) = \bigl(f(x)-\hat f_D(x)\bigr) + \varepsilon$; squaring and taking $\mathbb E_{D,\varepsilon}$, and using the independence of $\varepsilon$ from $D$ to factor the cross term,
 
-```math
-\mathbb E_{D,\varepsilon}\bigl[(y-\hat f_D(x))^2\bigr] = \mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] + 2\,\mathbb E_D[f(x)-\hat f_D(x)]\cdot\mathbb E[\varepsilon] + \mathbb E[\varepsilon^2];
-```
+$$\mathbb E\_{D,\varepsilon}\bigl[(y-\hat f_D(x))^2\bigr] = \mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] + 2\\,\mathbb E_D[f(x)-\hat f_D(x)]\cdot\mathbb E[\varepsilon] + \mathbb E[\varepsilon^2];$$
 
 $\mathbb E[\varepsilon]=0$ kills the middle term outright, and $\mathbb E[\varepsilon^2]=\mathrm{Var}(\varepsilon)=\sigma^2$, leaving $\mathbb E_D[(f(x)-\hat f_D(x))^2] + \sigma^2$. Now split $f(x)-\hat f_D(x) = (f(x)-\bar f(x)) + (\bar f(x)-\hat f_D(x))$ and square again:
 
-```math
-\mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] = (f(x)-\bar f(x))^2 + 2(f(x)-\bar f(x))\underbrace{\mathbb E_D[\bar f(x)-\hat f_D(x)]}_{=\,0} + \mathbb E_D\bigl[(\hat f_D(x)-\bar f(x))^2\bigr],
-```
+$$\mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] = (f(x)-\bar f(x))^2 + 2(f(x)-\bar f(x))\underbrace{\mathbb E_D[\bar f(x)-\hat f_D(x)]}\_{=\\,0} + \mathbb E_D\bigl[(\hat f_D(x)-\bar f(x))^2\bigr],$$
 
 where the middle term vanishes because $\mathbb E_D[\hat f_D(x)] = \bar f(x)$ by definition — leaving exactly $\mathrm{bias}^2 + \mathrm{variance}$, and combined with the $\sigma^2$ above, the full decomposition. On a simulation with a badly under-fit model (a straight line fit to a curved true function) the bias² term comes out more than three times the variance term, and the three terms sum to the measured mean squared error to within the Monte Carlo tolerance used below.
 
 **Q10.** Ridge's closed form comes from setting the gradient to zero; its SVD form shows shrinkage acting independently on each principal direction; on an orthonormal design lasso's closed form is soft-thresholding, which has a flat region at exactly zero that ridge's smooth penalty does not. $\nabla_w\bigl[\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2\bigr] = -2X^\top(y-Xw) + 2\lambda w = 0 \iff (X^\top X+\lambda I)w = X^\top y$, and $X^\top X + \lambda I$ is positive definite (hence invertible) for $\lambda>0$, giving the unique minimiser $\hat w_\lambda = (X^\top X+\lambda I)^{-1}X^\top y$. With $X=U\Sigma V^\top$, $X^\top X = V\Sigma^2 V^\top$, so $X^\top X+\lambda I = V(\Sigma^2+\lambda I)V^\top$ (using $VV^\top=I$) and
 
-```math
-\hat w_\lambda = V(\Sigma^2+\lambda I)^{-1}\Sigma U^\top y = V\,\mathrm{diag}\Bigl(\frac{d_i}{d_i^2+\lambda}\Bigr)U^\top y.
-```
+$$\hat w\_\lambda = V(\Sigma^2+\lambda I)^{-1}\Sigma U^\top y = V\\,\mathrm{diag}\Bigl(\frac{d_i}{d_i^2+\lambda}\Bigr)U^\top y.$$
 
 The ordinary-least-squares solution is the $\lambda=0$ case, $`\hat w_{\mathrm{ols}} = V\,\mathrm{diag}(1/d_i)U^\top y`$; comparing the two term by term in $V$'s coordinates, ridge multiplies the $i$-th OLS coefficient by $d_i^2/(d_i^2+\lambda)$ — close to $1$ when $d_i^2 \gg \lambda$ (well-determined directions barely move) and close to $0$ when $d_i^2 \ll \lambda$ (barely-determined directions are shrunk almost to nothing). When $X^\top X=I$, writing $c = X^\top y$, the same expansion gives $\lVert y-Xw\rVert^2 = \mathrm{const} + \sum_i(w_i-c_i)^2$, so $\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2$ decouples to $(w_i-c_i)^2+\lambda w_i^2$ per coordinate; setting its derivative to zero, $2(w_i-c_i)+2\lambda w_i=0$, gives $w_i^\star = c_i/(1+\lambda)$ — ridge always returns a non-zero coefficient unless $c_i$ itself is exactly $0$. For $\arg\min_w \tfrac12\lVert y-Xw\rVert^2+\lambda\lVert w\rVert_1$ on the same design, the same completion of the square (now carrying an overall $\tfrac12$) decouples to $\tfrac12(w_i-c_i)^2+\lambda|w_i|$ per coordinate, whose minimiser is the soft threshold $w_i^\star=\mathrm{sign}(c_i)\max(|c_i|-\lambda,0)$: the subgradient of $\lambda|w_i|$ at $0$ spans the whole interval $[-\lambda,\lambda]$, so any $c_i$ with $|c_i|\le\lambda$ already satisfies the zero-subgradient optimality condition at $w_i=0$ exactly, not merely in a limit. Ridge's penalty has no such flat region — its gradient $2\lambda w_i$ is zero only exactly at $w_i=0$ — so it shrinks every coefficient continuously without ever forcing one there. In the checks below, lasso pushes at least two of six coefficients to exactly zero on one design, while every ridge coefficient computed from the closed form above stays larger than $10^{-4}$ in magnitude.
 
@@ -196,9 +184,7 @@ $a,b>0$: the derivative $a/y-b/(1-y)$ is zero at $y^\star=a/(a+b)$, and the seco
 there, confirming a maximum; with $a=p_{\mathrm{data}}(x)$, $b=p_g(x)$, this gives $D^\star$. Substituting
 back with $m=(p_{\mathrm{data}}+p_g)/2$:
 
-```math
-V(D^\star,G) = \mathrm{KL}(p_{\mathrm{data}}\Vert m) + \mathrm{KL}(p_g\Vert m) - \log4 = 2\,\mathrm{JSD}(p_{\mathrm{data}}\Vert p_g) - \log4,
-```
+$$V(D^\star,G) = \mathrm{KL}(p\_{\mathrm{data}}\Vert m) + \mathrm{KL}(p_g\Vert m) - \log4 = 2\\,\mathrm{JSD}(p\_{\mathrm{data}}\Vert p_g) - \log4,$$
 
 using $\int p_{\mathrm{data}}=\int p_g=1$ to collect the two $-\log2$ terms and the definition of JSD. Since
 JSD is an average of two non-negative KL divergences, $\mathrm{JSD}\ge0$ with equality iff

@@ -241,9 +241,7 @@ field the layers before it had already built up (a length-preserving layer only 
 sees; it never narrows what earlier layers had already brought in). Starting from a single position (before
 any layer, the receptive field is $1$) and summing the contribution of layers $\ell=0,\dots,L-1$:
 
-```math
-\text{receptive field} = 1+(k-1)\sum_{\ell=0}^{L-1}2^\ell = 1+(k-1)(2^L-1),
-```
+$$\text{receptive field} = 1+(k-1)\sum\_{\ell=0}^{L-1}2^\ell = 1+(k-1)(2^L-1),$$
 
 using the geometric sum $\sum_{\ell=0}^{L-1}2^\ell=2^L-1$. This is the standard WaveNet argument for why
 stacking layers with exponentially growing dilation reaches a receptive field that itself grows exponentially
@@ -294,9 +292,7 @@ further computation (an average of variances, a check `variance > 0`) unnoticed,
 likely to arise by accident — an empty group in a batch. Merging two chunks' triples, after Chan, Golub and
 LeVeque: with $n=n_a+n_b$ and $`\delta=\mathrm{mean}_b-\mathrm{mean}_a`$,
 
-```math
-\mathrm{mean} = \mathrm{mean}_a+\delta\,\frac{n_b}{n}, \qquad M_2 = M_{2,a}+M_{2,b}+\delta^2\,\frac{n_a n_b}{n},
-```
+$$\mathrm{mean} = \mathrm{mean}\_a+\delta\\,\frac{n_b}{n}, \qquad M_2 = M\_{2,a}+M\_{2,b}+\delta^2\\,\frac{n_a n_b}{n},$$
 
 which reduces to exactly one step of `stats`'s own update when $n_b=1$ (there, $M_{2,b}=0$) — the formula used
 to combine statistics computed independently on separate chunks of data, without ever materialising their
@@ -338,9 +334,7 @@ uniform on $`\{0,\dots,k-1\}`$). Suppose, inductively, that every one of the fir
 reservoir with probability $k/i$ (true at $i=k$, where it reads $k/k=1$); a fixed such item survives item
 $i$'s arrival with probability
 
-```math
-1-\underbrace{\frac{k}{i+1}}_{\text{item }i\text{ is placed}}\cdot\underbrace{\frac1k}_{\text{and evicts this slot}} = \frac{i}{i+1},
-```
+$$1-\underbrace{\frac{k}{i+1}}\_{\text{item }i\text{ is placed}}\cdot\underbrace{\frac1k}\_{\text{and evicts this slot}} = \frac{i}{i+1},$$
 
 so its probability of being in the reservoir becomes $\frac{k}{i}\cdot\frac{i}{i+1}=\frac{k}{i+1}$ — the
 induction hypothesis one step later, with $i$ replaced by $i+1$ — and this already matches item $i$'s own

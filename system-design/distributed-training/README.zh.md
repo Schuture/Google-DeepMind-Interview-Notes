@@ -44,15 +44,11 @@
 
 **计算量与时间。** 一个稠密 Transformer 的训练计算量可以很好地用 $C \approx 6ND$ 来近似：一次前向传播每个 token 大约花费 $2N$ 次 FLOPs（token 的激活值流经的 $N$ 个参数，每个都对应一次乘法和一次加法），一次反向传播的开销大约是前向的两倍，每个 token $4N$ 次，因为它既要对一层的输入求梯度，也要对这一层的权重求梯度。取 $N = 70 \times 10^9$、$`D = 1.4 \times 10^{12}`$：
 
-```math
-C = 6ND = 6 \times 70 \times 10^9 \times 1.4 \times 10^{12} \approx 5.88 \times 10^{23} \text{ FLOPs。}
-```
+$$C = 6ND = 6 \times 70 \times 10^9 \times 1.4 \times 10^{12} \approx 5.88 \times 10^{23} \text{ FLOPs。}$$
 
 集群的峰值吞吐量为 $2{,}048 \times 400 \times 10^{12} \approx 8.19 \times 10^{17}$ FLOP/s；在目标 40% 的 MFU 下，实际交付约 $3.28 \times 10^{17}$ FLOP/s，于是
 
-```math
-T = C / (0.40 \times 8.19 \times 10^{17}) \approx 1.79 \times 10^6 \text{ s} \approx 20.8 \text{ 天。}
-```
+$$T = C / (0.40 \times 8.19 \times 10^{17}) \approx 1.79 \times 10^6 \text{ s} \approx 20.8 \text{ 天。}$$
 
 4,000,000 token 的全局批次意味着 $D / 4 \times 10^6 = 350{,}000$ 次优化器更新（step）；每一步的计算量为 $6N \times 4 \times 10^6 \approx 1.68 \times 10^{18}$ FLOPs，按实际交付的吞吐量算，耗时约 5.13 秒——与 $T / 350{,}000$ 吻合。
 

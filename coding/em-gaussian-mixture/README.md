@@ -151,9 +151,7 @@ covariance, and an absolute tolerance on $\ell$.
 
 **(a) The responsibility.** By Bayes' rule,
 
-```math
-\gamma_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum_{j=1}^K \pi_j^{\mathrm{old}}\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},
-```
+$$\gamma\_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum\_{j=1}^K \pi_j^{\mathrm{old}}\\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},$$
 
 the denominator marginalising $z_i$ out over its $K$ values, i.e. $p(x_i)$ itself; consequently
 $\sum_k \gamma_{ik} = 1$ for every $i$, since $\gamma_{i,\cdot}$ is a probability distribution over the $K$
@@ -164,9 +162,7 @@ $\sum_i \sum_k \gamma_{ik} \log \pi_k = \sum_k N_k \log \pi_k$, writing $N_k = \
 *soft count* of component $k$ (pulling the sum over $i$ inside since $\log \pi_k$ does not depend on $i$).
 Maximise subject to $\sum_k \pi_k = 1$ with a Lagrange multiplier $\lambda$:
 
-```math
-\mathcal L(\pi, \lambda) = \sum_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.
-```
+$$\mathcal L(\pi, \lambda) = \sum\_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum\_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.$$
 
 Summing over $k$ and using $\sum_k \pi_k = 1$ and $\sum_k N_k = \sum_k \sum_i \gamma_{ik} = \sum_i 1 = n$:
 $1 = -\sum_k N_k / \lambda = -n/\lambda$, so $\lambda = -n$ and $\pi_k = N_k / n$.
@@ -176,9 +172,7 @@ $\sum_i \gamma_{ik} \log \mathcal N(x_i; \mu_k, \Sigma_k) = -\frac12 \sum_i \gam
 (the normalising constant, and every other component's terms, do not depend on $\mu_k$). Differentiate and
 set to zero:
 
-```math
-\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma_{ik}\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma_{ik}\, x_i = \Bigl(\sum_i \gamma_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma_{ik}\, x_i}{N_k},
-```
+$$\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma\_{ik}\\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma\_{ik}\\, x_i = \Bigl(\sum_i \gamma\_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma\_{ik}\\, x_i}{N_k},$$
 
 multiplying through by the invertible $\Sigma_k$.
 
@@ -187,18 +181,14 @@ using $(x_i - \mu_k)^\top \Lambda_k (x_i - \mu_k) = \mathrm{tr}\bigl(\Lambda_k (
 (a scalar equals its own $1 \times 1$ trace) and linearity of the trace to pull the sum over $i$ inside, the
 terms of $Q$ depending on $\Lambda_k$ are
 
-```math
-\sum_i \gamma_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \mathrm{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.
-```
+$$\sum_i \gamma\_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \mathrm{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma\_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.$$
 
 Two standard matrix-derivative identities close this out: for symmetric $\Lambda$,
 $\partial \log |\Lambda| / \partial \Lambda = \Lambda^{-1}$ (Jacobi's formula, $d|\Lambda| = |\Lambda| \mathrm{tr}(\Lambda^{-1} d\Lambda)$,
 read off entrywise), and $\partial \mathrm{tr}(\Lambda S) / \partial \Lambda = S$ for symmetric $S$
 (linear in every entry of $\Lambda$). So
 
-```math
-\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,
-```
+$$\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma\_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,$$
 
 since $\Lambda_k^{-1} = \Sigma_k$ by definition.
 
@@ -206,9 +196,7 @@ since $\Lambda_k^{-1} = \Sigma_k$ by definition.
 $i$-th summand of $\ell(\theta)$ as an expectation under $q_i$ and apply Jensen's inequality to the concave
 $\log$:
 
-```math
-\log p(x_i) = \log \sum_{k=1}^K q_i(k)\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum_{k=1}^K q_i(k)\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},
-```
+$$\log p(x_i) = \log \sum\_{k=1}^K q_i(k)\\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum\_{k=1}^K q_i(k)\\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},$$
 
 for every $\theta$ and every $q_i$ with $q_i(k) > 0$ wherever $\pi_k \mathcal N(x_i; \mu_k, \Sigma_k) > 0$.
 Summing over $i$ gives $\ell(\theta) \ge F(\theta, q)$ for every $\theta$ and every $q = (q_1, \dots, q_n)$,
@@ -229,9 +217,7 @@ $\theta$ is exactly maximising $Q(\cdot; \theta^{\mathrm{old}})$ over $\theta$ â
 Jensen's inequality (holds at $\theta^{\mathrm{new}}$ too), the M-step's maximising property, and equality at
 $\theta^{\mathrm{old}}$:
 
-```math
-\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),
-```
+$$\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),$$
 
 proves $\ell(\theta^{\mathrm{new}}) \ge \ell(\theta^{\mathrm{old}})$ for every $\theta^{\mathrm{old}}$: one EM
 iteration never decreases the log-likelihood.
@@ -241,9 +227,7 @@ iteration never decreases the log-likelihood.
 Combining the $K$ components in log space uses the same identity as a numerically stable softmax: for any
 constant $m$ not depending on the index summed over,
 
-```math
-\log \sum_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},
-```
+$$\log \sum\_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},$$
 
 since $e^{a_k} = e^m e^{a_k - m}$ for every $k$, so $e^m$ factors out of the sum and cancels against the
 outer $\log(e^m \cdot (\cdot)) = m + \log(\cdot)$. Taking $m = \max_k a_k$ keeps every exponent $\le 0$, so
@@ -369,17 +353,13 @@ reports the *mean* log-likelihood per sample (its `lower_bound_`), where `log_li
 $\log \mathcal N(x; \mu_k, \sigma^2 I_d) = -\frac{d}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \lVert x - \mu_k \rVert^2$,
 so component $k$'s responsibility at a point $x$ is
 
-```math
-\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},
-```
+$$\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},$$
 
 the $-\frac{d}{2}\log(2\pi\sigma^2)$ term cancelling between numerator and denominator (the same for every
 $k$). Let $k^\ast = \arg\min_k \lVert x - \mu_k \rVert^2$ (unique by assumption) and divide every term by
 $\exp\bigl(-\lVert x - \mu_{k^\ast} \rVert^2 / 2\sigma^2\bigr)$:
 
-```math
-\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.
-```
+$$\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu\_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu\_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.$$
 
 For $k \ne k^\ast$, $\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 > 0$ strictly (uniqueness of
 $k^\ast$), so that term's exponent $\to -\infty$ as $\sigma \to 0^+$ and the term $\to 0$; the $k = k^\ast$

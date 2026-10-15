@@ -116,9 +116,7 @@ back to $1$ for every $d_h$.
 Write $q^\top k = \sum_{i=1}^{d_h} q_ik_i$. Since $\mathrm{E}[q_i] = \mathrm{E}[k_i] = 0$ and $q_i \perp
 k_i$, $\mathrm{E}[q_ik_i] = 0$, so $\mathrm{E}[q^\top k] = 0$ and
 
-```math
-\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum_{i=1}^{d_h}\sum_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].
-```
+$$\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum\_{i=1}^{d_h}\sum\_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].$$
 
 For $i \ne j$, $q_i, k_i, q_j, k_j$ are four mutually independent, zero-mean variables, so
 $`\mathrm{E}[q_ik_iq_jk_j] = \mathrm{E}[q_i]\,\mathrm{E}[k_i]\,\mathrm{E}[q_j]\,\mathrm{E}[k_j] = 0`$; for
@@ -163,9 +161,7 @@ at a time. Merging a new block's local statistics $`(m_2, \ell_2, \mathrm{acc}_2
 $`(m_1, \ell_1, \mathrm{acc}_1)`$ uses $`e^{s - m} = e^{s - m_i}\,e^{m_i - m}`$ for either block $i$, so with
 $m = \max(m_1, m_2)$,
 
-```math
-\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}_1e^{m_1 - m} + \mathrm{acc}_2e^{m_2 - m},
-```
+$$\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}\_1e^{m_1 - m} + \mathrm{acc}\_2e^{m_2 - m},$$
 
 and the final output is $\mathrm{acc}/\ell$ — exactly the softmax-weighted sum over every key seen,
 computed while holding only one block's score matrix ($`O(\text{block}\times d)`$) at a time. Peak memory
@@ -202,18 +198,14 @@ $(m-n)\omega$.
 
 In one 2-D pair, write the rotation matrix
 
-```math
-R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},
-```
+$`\displaystyle R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},`$
 
 which is orthogonal with $R(\theta)^\top = R(-\theta)$ and $R(\theta_1)R(\theta_2) = R(\theta_1+\theta_2)$
 (composing two rotations adds their angles). RoPE rotates
 the query at position $m$ by angle $m\omega$ and the key at position $n$ by angle $n\omega$, for a fixed
 frequency $\omega$: $`q_m = R(m\omega)\,q`$, $`k_n = R(n\omega)\,k`$. Then
 
-```math
-q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\,k = q^\top R(n\omega - m\omega)\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,
-```
+$$q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\\,k = q^\top R(n\omega - m\omega)\\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,$$
 
 using $R(m\omega)^\top = R(-m\omega)$ and then $R(-m\omega)R(n\omega) = R(n\omega - m\omega)$. The
 right-hand side is a fixed function of $q$, $k$, $\omega$ and the single scalar $m-n$: any two pairs
@@ -230,9 +222,7 @@ Contrast: a learned or sinusoidal absolute position embedding $p_m$ is *added* t
 before the $Q,K$ projections, so $q_m = W_q(x_m + p_m) = q + W_qp_m$ (writing $q = W_qx_m$), and likewise
 $k_n = k + W_kp_n$. Then
 
-```math
-q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,
-```
+$$q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,$$
 
 and three of the four terms involve $p_m$ or $p_n$ directly rather than a difference — nothing in the
 parameterisation forces the sum to collapse to a function of $m-n$ alone. Any relative-position behaviour
@@ -287,9 +277,7 @@ $L$ terms, which vanishes or explodes exponentially in $L$ unless every $a_l$ si
 This is exactly why deep post-norm transformers historically needed careful learning-rate warm-up to
 survive early training, while pre-norm trains stably out of the box at much greater depth.
 
-```math
-\mathrm{LN}(v)_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)_i = \frac{v_i}{\mathrm{RMS}(v)}\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.
-```
+$$\mathrm{LN}(v)\_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)\_i = \frac{v_i}{\mathrm{RMS}(v)}\\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.$$
 
 RMSNorm drops the mean subtraction $\mu$ (no re-centring, only rescaling) and drops the additive bias
 $\beta$, keeping only the learned per-feature scale $\gamma$. When $v$ already has zero mean,
@@ -341,9 +329,7 @@ out-of-vocabulary spellings.
 
 Substituting the rule of thumb $D \approx 20N$ into $C \approx 6ND$: $C \approx 6N(20N) = 120N^2$, so
 
-```math
-N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.
-```
+$$N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.$$
 
 For $C = 10^{23}$: $N \approx \sqrt{10^{23}/120} \approx 2.9\times10^{10}$, and
 $D \approx 20 \times 2.9\times10^{10} \approx 5.8\times10^{11}$.
@@ -375,30 +361,22 @@ gradient signal imitating prompt phrasing rather than improving response quality
 
 For DPO, the KL-regularised objective is
 
-```math
-\max_\theta\ \mathbb{E}_{x\sim\mathcal D,\ y\sim\pi_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\,\mathrm{KL}\bigl(\pi_\theta(\cdot|x)\,\|\,\pi_{\mathrm{ref}}(\cdot|x)\bigr).
-```
+$$\max\_\theta\ \mathbb{E}\_{x\sim\mathcal D,\ y\sim\pi\_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\\,\mathrm{KL}\bigl(\pi\_\theta(\cdot|x)\\,\\|\\,\pi\_{\mathrm{ref}}(\cdot|x)\bigr).$$
 
 For fixed $x$, maximising $\sum_y \pi(y)r(y) - \beta\sum_y\pi(y)\ln\frac{\pi(y)}{\pi_{\mathrm{ref}}(y)}$
 over distributions $\pi(\cdot|x)$ subject to $\sum_y \pi(y) = 1$ has the closed-form optimum
 
-```math
-\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\mathrm{ref}}(y\mid x)\,\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi_{\mathrm{ref}}(y\mid x)\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).
-```
+$$\pi^\*(y\mid x) = \frac{1}{Z(x)}\\,\pi\_{\mathrm{ref}}(y\mid x)\\,\exp\\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi\_{\mathrm{ref}}(y\mid x)\exp\\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).$$
 
 Solving for the reward:
 
-```math
-r(x,y) = \beta\ln\frac{\pi^*(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).
-```
+$$r(x,y) = \beta\ln\frac{\pi^\*(y\mid x)}{\pi\_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).$$
 
 Substituting into the Bradley–Terry preference model $P(y_w \succ y_l \mid x) = \sigma\bigl(r(x,y_w) -
 r(x,y_l)\bigr)$, the $\beta\ln Z(x)$ term is common to $y_w$ and $y_l$ (it depends only on $x$) and cancels
 in the difference:
 
-```math
-P(y_w \succ y_l \mid x) = \sigma\!\left(\beta\ln\frac{\pi^*(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^*(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right).
-```
+$$P(y_w \succ y_l \mid x) = \sigma\\!\left(\beta\ln\frac{\pi^\*(y_w\mid x)}{\pi\_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^\*(y_l\mid x)}{\pi\_{\mathrm{ref}}(y_l\mid x)}\right).$$
 
 Fitting $\pi_\theta$ by maximum likelihood to observed preference pairs under this model is exactly the DPO
 loss, $`\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)} -

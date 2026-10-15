@@ -89,16 +89,12 @@ of the $N$ parameters a token's activations pass through), and a backward pass c
 that, $4N$ per token, since it computes a gradient with respect to both a layer's input and its
 weights. With $N = 70 \times 10^9$ and $D = 1.4 \times 10^{12}$:
 
-```math
-C = 6ND = 6 \times 70 \times 10^9 \times 1.4 \times 10^{12} \approx 5.88 \times 10^{23} \text{ FLOPs.}
-```
+$$C = 6ND = 6 \times 70 \times 10^9 \times 1.4 \times 10^{12} \approx 5.88 \times 10^{23} \text{ FLOPs.}$$
 
 The cluster's peak throughput is $2{,}048 \times 400 \times 10^{12} \approx 8.19 \times 10^{17}$
 FLOP/s; at the target 40% MFU it delivers about $3.28 \times 10^{17}$ FLOP/s, so
 
-```math
-T = C / (0.40 \times 8.19 \times 10^{17}) \approx 1.79 \times 10^6 \text{ s} \approx 20.8 \text{ days.}
-```
+$$T = C / (0.40 \times 8.19 \times 10^{17}) \approx 1.79 \times 10^6 \text{ s} \approx 20.8 \text{ days.}$$
 
 A global batch of 4,000,000 tokens means $D / 4 \times 10^6 = 350{,}000$ optimiser steps, each costing
 $6N \times 4 \times 10^6 \approx 1.68 \times 10^{18}$ FLOPs and, at the achieved throughput, about

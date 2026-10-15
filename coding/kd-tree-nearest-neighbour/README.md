@@ -189,9 +189,7 @@ and every point in the right subtree has coordinate $\ge s$ (both sides are sort
 position). So if `q`'s own coordinate $q_a$ is on the left ($q_a \le s$), every point $p$ on the right
 satisfies $p_a - q_a \ge s - q_a \ge 0$, hence
 
-```math
-\lVert p-q \rVert_2^2 = \sum_i (p_i-q_i)^2 \ge (p_a-q_a)^2 \ge (s-q_a)^2,
-```
+$$\lVert p-q \rVert_2^2 = \sum_i (p_i-q_i)^2 \ge (p_a-q_a)^2 \ge (s-q_a)^2,$$
 
 since every summand is non-negative and $(s-q_a)^2$ is one of them (the symmetric argument bounds the left
 side when $q_a \ge s$). Write $d_{\text{best}}^2$ for the best squared distance found anywhere in the search
@@ -201,9 +199,7 @@ far side that only *ties* $d_{\text{best}}$ still wins if its index is smaller, 
 visited whenever it could tie, not only when it could strictly improve — exactly the boundary case
 $(q_a-s)^2 = d_{\text{best}}^2$. So the pruning test is `<=`, not `<`:
 
-```math
-\text{visit the far side} \iff (q_a-s)^2 \le d_{\text{best}}^2.
-```
+$$\text{visit the far side} \iff (q_a-s)^2 \le d\_{\text{best}}^2.$$
 
 Comparing squared distances throughout avoids a `sqrt` on every node visited, since it changes no
 comparison's outcome (every quantity compared above is non-negative).

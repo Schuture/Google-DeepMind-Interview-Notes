@@ -90,15 +90,11 @@ fleet with no per-robot branching; a fleet of different robot types is a follow-
 
 **Camera data.** Each robot's three cameras together produce
 
-```math
-3 \times 15 \times 40\text{ KB} = 1{,}800\text{ KB/s} = 1.8\text{ MB/s.}
-```
+$$3 \times 15 \times 40\text{ KB} = 1{,}800\text{ KB/s} = 1.8\text{ MB/s.}$$
 
 Over an 8-hour operating day ($8\times3{,}600=28{,}800$ s):
 
-```math
-1.8\text{ MB/s} \times 28{,}800\text{ s} = 51{,}840\text{ MB} \approx 51.84\text{ GB/robot-day,}
-```
+$$1.8\text{ MB/s} \times 28{,}800\text{ s} = 51{,}840\text{ MB} \approx 51.84\text{ GB/robot-day,}$$
 
 and across the fleet, $51.84\times200=10{,}368$ GB, about **10.4 TB/fleet-day**.
 
@@ -113,9 +109,7 @@ into $28{,}800$ teleoperated demonstrations and $67{,}200$ autonomous rollouts.
 
 **A year of storage.** Fleet-day total is $10{,}368+5.76=10{,}373.76$ GB; over 365 days,
 
-```math
-10{,}373.76\text{ GB}\times365=3{,}786{,}422.4\text{ GB}\approx3.79\text{ PB/year,}
-```
+$$10{,}373.76\text{ GB}\times365=3{,}786{,}422.4\text{ GB}\approx3.79\text{ PB/year,}$$
 
 camera frames accounting for essentially all of it. That figure is raw sensor data kept forever, which is not
 actually the right default: curation (below) keeps every episode's metadata and the outcome of every labelling
@@ -270,9 +264,7 @@ unknown $p$ inside the variance of a normal approximation to $\hat p$; the Wilso
 inverts the test statistic $(\hat p-p)/\sqrt{p(1-p)/n}$ directly, without that substitution, by solving
 $`(\hat p-p)^2=z^2\,p(1-p)/n`$ for $p$ — a quadratic in $p$ whose roots are
 
-```math
-p_{\pm}=\frac{\hat p+\dfrac{z^2}{2n}\pm z\sqrt{\dfrac{\hat p(1-\hat p)}{n}+\dfrac{z^2}{4n^2}}}{1+\dfrac{z^2}{n}}.
-```
+$$p\_{\pm}=\frac{\hat p+\dfrac{z^2}{2n}\pm z\sqrt{\dfrac{\hat p(1-\hat p)}{n}+\dfrac{z^2}{4n^2}}}{1+\dfrac{z^2}{n}}.$$
 
 For $n=60$ trials with $k=42$ successes ($\hat p=0.700$) at 95% confidence ($z\approx1.960$), this gives
 $[0.575,\ 0.801]$ (checked below), centred at $0.688$ — shrunk toward $0.5$ relative to $\hat p$ itself, which
@@ -289,9 +281,7 @@ the true rates $p_1,p_2$ apart, the same statistic has a different variance, bui
 Setting $P(\text{reject}\mid H_1)=\text{power}$ and solving for the common per-arm size $n$ gives the standard
 two-proportion sample-size formula:
 
-```math
-n=\frac{\left(z_{\alpha/2}\sqrt{2\bar p(1-\bar p)}+z_{\text{power}}\sqrt{p_1(1-p_1)+p_2(1-p_2)}\right)^2}{(p_1-p_2)^2}.
-```
+$$n=\frac{\left(z\_{\alpha/2}\sqrt{2\bar p(1-\bar p)}+z\_{\text{power}}\sqrt{p_1(1-p_1)+p_2(1-p_2)}\right)^2}{(p_1-p_2)^2}.$$
 
 At $\alpha=0.05$ two-sided ($z_{\alpha/2}\approx1.960$) and 80% power ($z_{\text{power}}\approx0.842$),
 $p_1=0.60$, $p_2=0.70$: $n\approx355.9$, so **356 trials per arm** — 712 real episodes at about 60 s each, just

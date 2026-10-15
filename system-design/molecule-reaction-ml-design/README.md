@@ -103,9 +103,7 @@ given).
 **Coverage of pair-space.** The number of distinct unordered pairs of $20{,}000$ molecules is
 $\binom{20{,}000}{2} = 199{,}990{,}000$, so the $200{,}000$ measured rows cover about
 
-```math
-\frac{200{,}000}{199{,}990{,}000} \approx 0.1\%
-```
+$$\frac{200{,}000}{199{,}990{,}000} \approx 0.1\\%$$
 
 of every possible pair — the measured data is an extremely sparse sample of pair-space, and almost
 everything the model will ever be asked about (in particular, every candidate the active-learning loop

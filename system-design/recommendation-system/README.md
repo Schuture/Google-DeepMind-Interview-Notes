@@ -96,10 +96,7 @@ a given input, not something it decides).
 
 **Feed-request rate.** $200{,}000{,}000$ daily active users each open the feed $10$ times a day:
 
-```math
-200{,}000{,}000 \times 10 = 2{,}000{,}000{,}000 \text{ requests/day,} \qquad
-\frac{2{,}000{,}000{,}000}{86{,}400} \approx 23{,}148 \text{ requests/s average.}
-```
+$$200{,}000{,}000 \times 10 = 2{,}000{,}000{,}000 \text{ requests/day,} \qquad \frac{2{,}000{,}000{,}000}{86{,}400} \approx 23{,}148 \text{ requests/s average.}$$
 
 At $3\times$ the daily average, peak throughput is about $69{,}444$ requests/s.
 
@@ -272,10 +269,7 @@ item) row with $`P(\text{watch} \ge 50\%)=1`$, and its negatives are drawn *in-b
 item in the same training batch serves as a negative for this row's user, at no extra data-loading
 cost, using the loss
 
-```math
-\mathcal{L} = -\frac{1}{B}\sum_{i=1}^{B} \log
-\frac{\exp(u_i \cdot v_i / \tau)}{\sum_{j=1}^{B} \exp(u_i \cdot v_j / \tau)},
-```
+$$\mathcal{L} = -\frac{1}{B}\sum\_{i=1}^{B} \log \frac{\exp(u_i \cdot v_i / \tau)}{\sum\_{j=1}^{B} \exp(u_i \cdot v_j / \tau)},$$
 
 for a batch of $B$ (user, positive item) pairs with user embeddings $u_i$ and item embeddings $v_i$ and
 a temperature $\tau$ (the estimate check below computes this loss on a toy batch and checks it against
@@ -312,10 +306,7 @@ rows (Training, above), which lets the rarer labels (like, share) benefit from r
 mostly from the much more common watch-time label, rather than each being trained from a separate,
 smaller model. Combining the four predictions into the one score re-ranking consumes is a weighted sum,
 
-```math
-\text{score} = w_1 P(\text{watch} \ge 50\%) + w_2 P(\text{like}) + w_3 P(\text{share})
-- w_4 P(\text{skip within 2 s}),
-```
+$$\text{score} = w_1 P(\text{watch} \ge 50\\%) + w_2 P(\text{like}) + w_3 P(\text{share}) - w_4 P(\text{skip within 2 s}),$$
 
 with weights set by experimentation against the online guardrails and primary metric in the evaluation
 deep dive below, not learned end-to-end inside the model itself — chosen over training a single model
@@ -387,10 +378,7 @@ relevance label per candidate — for example $0$ for a skip, $1$ for a partial 
 watch, $3$ for a like, $4$ for a share. Writing $`\mathrm{rel}_i`$ for the true relevance of the item the
 model placed at rank $i$ (rank $1$ first):
 
-```math
-\mathrm{DCG@}k = \sum_{i=1}^{k} \frac{2^{\mathrm{rel}_i} - 1}{\log_2(i+1)}, \qquad
-\mathrm{NDCG@}k = \frac{\mathrm{DCG@}k}{\mathrm{IDCG@}k},
-```
+$$\mathrm{DCG@}k = \sum\_{i=1}^{k} \frac{2^{\mathrm{rel}\_i} - 1}{\log_2(i+1)}, \qquad \mathrm{NDCG@}k = \frac{\mathrm{DCG@}k}{\mathrm{IDCG@}k},$$
 
 where $\mathrm{IDCG@}k$ is the same sum computed on the ideal ordering — the candidates sorted by true
 relevance, descending — so a perfect ranking scores $1$, and $\mathrm{NDCG@}k$ is defined as $0$ when
