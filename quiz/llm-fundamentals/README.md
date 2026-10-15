@@ -401,8 +401,8 @@ P(y_w \succ y_l \mid x) = \sigma\!\left(\beta\ln\frac{\pi^*(y_w\mid x)}{\pi_{\ma
 ```
 
 Fitting $\pi_\theta$ by maximum likelihood to observed preference pairs under this model is exactly the DPO
-loss, $`\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)}
-- \beta\ln\frac{\pi_\theta(y_l|x)}{\pi_{\mathrm{ref}}(y_l|x)}\Bigr)`$: no reward model or RL rollout is
+loss, $`\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)} -
+\beta\ln\frac{\pi_\theta(y_l|x)}{\pi_{\mathrm{ref}}(y_l|x)}\Bigr)`$: no reward model or RL rollout is
 needed, because the closed form relating $`\pi^*`$ and $r$ substitutes the reward straight into a supervised
 classification loss on $\pi_\theta$ itself.
 

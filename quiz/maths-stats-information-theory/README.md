@@ -262,7 +262,7 @@ $\sigma^2$ and pairwise correlation $\rho > 0$,
 ```
 
 so the sample mean never concentrates at $\mu$ — its variance stays above $\rho\sigma^2$ however large $n$ is —
-because the shared component of the $X_i$ never averages out; (c) *heavy skew at a moderate $`n`$* — the Berry–Esseen theorem bounds how far the
+because the shared component of the $X_i$ never averages out; (c) *heavy skew* at a moderate $n$ — the Berry–Esseen theorem bounds how far the
 standardised sum's distribution function can be from $\Phi$ by $C\rho/(\sigma^3\sqrt n)$, so the bound is
 large whenever $\rho/\sigma^3$ (closely related to the skewness) is large, and a strongly skewed distribution
 needs a substantially bigger $n$ before its standardised sum looks Gaussian than a symmetric one does;
