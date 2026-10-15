@@ -331,7 +331,7 @@ class SpaceSaving:
 
 Every `add` does a handful of dict operations plus, on the eviction path, one `next(iter(...))`
 pulling an arbitrary element out of the minimum bucket — $O(1)$ amortised, exactly as in Part 2, and
-for the same reason. `top(m)` sorts the at-most-$k$ monitored messages, $O(k \log k)$, independent
+for the same reason. `top(m)` sorts the at-most-$`k`$ monitored messages, $O(k \log k)$, independent
 of how long the stream has been running.
 
 A heap of `(count, message)` pairs with lazy deletion — push a fresh pair on every change, skip
@@ -349,7 +349,7 @@ counters, matching the statement's bounded memory exactly.
 - **Count-Min sketch.** Dropping message identities from the sketch entirely — $d$ independent hash
   functions each map every message into one of $w$ counters, incremented on every occurrence, and
   the estimate for a message is the minimum of its $d$ counters, since a hash collision can only
-  inflate a count, never deflate it — trades the exact top-$k$ list for a point-query estimator:
+  inflate a count, never deflate it — trades the exact top-$`k`$ list for a point-query estimator:
   with $w = \lceil e / \varepsilon \rceil$ and $d = \lceil \ln(1 / \delta) \rceil$, the estimate
   exceeds the truth by more than $\varepsilon N$ with probability at most $\delta$. Recovering
   *which* messages are frequent needs a separate structure, such as Space-Saving, fed by the same

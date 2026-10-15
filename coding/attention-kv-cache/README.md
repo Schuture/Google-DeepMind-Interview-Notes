@@ -22,12 +22,14 @@ features into $h$ contiguous blocks of $d_h = d/h$ features each: head $i$ owns 
 $i\cdot d_h,\dots,(i+1)\cdot d_h - 1$ of $Q = xW_Q$, $K = xW_K$, $V = xW_V$. Writing
 $Q_i, K_i, V_i \in \mathbb{R}^{T\times d_h}$ for head $i$'s slice, head $i$ computes
 
-$$\mathrm{head}_i = \mathrm{softmax}\!\left(\frac{Q_iK_i^\top}{\sqrt{d_h}} + M\right)V_i, \qquad
-M_{ts} = \begin{cases}0 & s \le t\\ -\infty & s > t\end{cases},$$
+```math
+\mathrm{head}_i = \mathrm{softmax}\!\left(\frac{Q_iK_i^\top}{\sqrt{d_h}} + M\right)V_i, \qquad
+M_{ts} = \begin{cases}0 & s \le t\\ -\infty & s > t\end{cases},
+```
 
 the softmax taken over the key axis $s$, so that row $t$ of $M$ hides every key after position $t$
 (*causal masking*), and computed in a numerically stable way (subtract the row maximum before
-exponentiating). Concatenating $\mathrm{head}_0,\dots,\mathrm{head}_{h-1}$ along the feature axis and
+exponentiating). Concatenating $`\mathrm{head}_0,\dots,\mathrm{head}_{h-1}`$ along the feature axis and
 multiplying by $W_O$ gives the final output, shape $(T, d)$.
 
 ### Part 1 — Causal multi-head attention
@@ -286,7 +288,7 @@ tokens.
 **The byte formula.** Each of the $L=$ `n_layers` transformer layers keeps its own cache. Each layer
 stores, per cached position, one key vector and one value vector per KV head, each $d_h$ elements long,
 over $h_{kv}=$ `n_kv_heads` heads, `seq_len` positions and `batch` sequences kept side by side. The
-element count is therefore $L\cdot 2\cdot h_{kv}\cdot d_h\cdot\mathrm{seq\_len}\cdot\mathrm{batch}$ (the
+element count is therefore $`L\cdot 2\cdot h_{kv}\cdot d_h\cdot\mathrm{seq\_len}\cdot\mathrm{batch}`$ (the
 factor $2$ for keys and values counted separately), and multiplying by `bytes_per_elem` gives the byte
 count. At $L=32$, $h_{kv}=8$, $d_h=128$, $T=32{,}768$, batch $1$, $2$ bytes:
 $32\cdot2\cdot8\cdot128\cdot32{,}768\cdot1\cdot2 = 2^5\cdot2\cdot2^3\cdot2^7\cdot2^{15}\cdot2 = 2^{32}$
@@ -302,27 +304,33 @@ without changing how many query heads attend (Follow-ups).
 
 ### Part 3
 
-For one query row, write $s_j=(QK^\top)_j/\sqrt{d_h}$ for the raw score against key $j$, and, after
-visiting blocks $B_1,\dots,B_n$ (a prefix of the partition of $\{0,\dots,T_k-1\}$ into consecutive
+For one query row, write $`s_j=(QK^\top)_j/\sqrt{d_h}`$ for the raw score against key $j$, and, after
+visiting blocks $B_1,\dots,B_n$ (a prefix of the partition of $`\{0,\dots,T_k-1\}`$ into consecutive
 blocks), maintain the invariant
 
-$$m_n=\max_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad
+```math
+m_n=\max_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad
 \ell_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n},\qquad
-o_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,$$
+o_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,
+```
 
 so that $o_n/\ell_n$ is exactly the softmax-weighted sum over the keys visited so far ($m_n$ plays the
 same role as Part 1's row maximum, just restricted to a prefix of the keys). The base case $n=0$ (no
 blocks visited) holds by the stated initial values: an empty maximum is $-\infty$ and an empty sum is $0$.
 
 **Inductive step.** Suppose the invariant holds after $n$ blocks; visit block $B_{n+1}$, with raw scores
-$\{s_j : j\in B_{n+1}\}$. A maximum over a union of two sets is the maximum of their two maxima, so
+$`\{s_j : j\in B_{n+1}\}`$. A maximum over a union of two sets is the maximum of their two maxima, so
 
-$$m_{n+1}=\max\Bigl(m_n,\ \max_{j\in B_{n+1}}s_j\Bigr)$$
+```math
+m_{n+1}=\max\Bigl(m_n,\ \max_{j\in B_{n+1}}s_j\Bigr)
+```
 
 already equals $\max_{j\in B_1\cup\cdots\cup B_{n+1}}s_j$, matching the invariant's definition of
 $m_{n+1}$. Split $\ell_{n+1}$'s defining sum over the two parts of $B_1\cup\cdots\cup B_{n+1}$:
 
-$$\ell_{n+1}=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_{n+1}}+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}.$$
+```math
+\ell_{n+1}=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_{n+1}}+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}.
+```
 
 In the first sum, $e^{s_j-m_{n+1}}=e^{s_j-m_n}\cdot e^{m_n-m_{n+1}}$ for every $j$, and $e^{m_n-m_{n+1}}$
 does not depend on $j$, so it factors out of the sum, leaving
@@ -333,17 +341,21 @@ gives $o_{n+1}=e^{m_n-m_{n+1}}o_n+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}v_j$. By ind
 after every block, in particular the last one, $N$, where $m_N=\max_js_j$ over every key and
 $\ell_N=\sum_je^{s_j-m_N}$, so
 
-$$\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)_j\,v_j,$$
+```math
+\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)_j\,v_j,
+```
 
 the same max-subtraction identity used in Part 1, applied here to the whole row of scores rather than to
 one block at a time. Writing the one-step update compactly, with $m,\ell,o$ the accumulators before a
 block and $m',\ell',o'$ after it, and $s_j$ ranging over that block:
 
-$$m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad
-o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.$$
+```math
+m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad
+o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.
+```
 
-Every exponent above is $s_j-m'\le0$ (by definition of $m'$) or $m-m'\le0$ (since $m'=\max(m,\dots)\ge
-m$), so no exponential in this recurrence ever overflows, for scores of any magnitude. The only way
+Every exponent above is $s_j-m'\le0$ (by definition of $m'$) or $m-m'\le0$ (since $`m'=\max(m,\dots)\ge
+m`$), so no exponential in this recurrence ever overflows, for scores of any magnitude. The only way
 $-\infty$ could cause trouble is $-\infty-(-\infty)$, which is `nan`, and that needs *both* sides of the
 subtraction to be $-\infty$ at once. Here $m$ starts at $-\infty$, but $m'=\max(m,\max_js_j)$ is already
 finite at the first block, since a block is never empty and its scores are finite; so $m-m'$ is only ever

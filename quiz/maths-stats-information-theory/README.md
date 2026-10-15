@@ -11,12 +11,12 @@
 ## Problem
 
 Throughout, $\log$ is the natural logarithm, and $\log_2$ is written explicitly wherever a quantity is in
-bits. $\|\cdot\|$ is the Euclidean norm of a vector and $\|\cdot\|_F$ the Frobenius norm of a matrix (the
+bits. $`\|\cdot\|`$ is the Euclidean norm of a vector and $`\|\cdot\|_F`$ the Frobenius norm of a matrix (the
 square root of the sum of its squared entries). For $A \in \mathbb{R}^{m \times n}$, its singular value
 decomposition is $A = U\Sigma V^\top$ for orthogonal
 $U \in \mathbb{R}^{m \times m}$, $V \in \mathbb{R}^{n \times n}$ and rectangular-diagonal $\Sigma$ with entries
 $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_{\min(m,n)} \ge 0$, the square roots of the eigenvalues of
-$A^\top A$. $I_n$ is the $n \times n$ identity matrix. $\mathrm{KL}(p \,\|\, q)$ is the Kullback–Leibler
+$A^\top A$. $I_n$ is the $n \times n$ identity matrix. $`\mathrm{KL}(p \,\|\, q)`$ is the Kullback–Leibler
 divergence between two distributions on the same space; its definition, non-negativity and asymmetry are
 given in [Maths Quiz: Probability, Statistics and Linear Algebra](../maths-probability-linear-algebra/README.md)
 and are used here without re-derivation.
@@ -35,7 +35,7 @@ and are used here without re-derivation.
   $\mathrm{rank}(AB)$ relates to $\mathrm{rank}(A)$ and $\mathrm{rank}(B)$, and show that a nonzero outer
   product $uv^\top$ (for nonzero $u \in \mathbb{R}^m$, $v \in \mathbb{R}^n$) has rank 1. List conditions on a
   square matrix $A \in \mathbb{R}^{n \times n}$ that are each equivalent to $A$ being invertible. Explain why
-  testing $\det(A) \ne 0$ is a poor numerical test for invertibility — illustrate with $A = 0.1\, I_{100}$,
+  testing $\det(A) \ne 0$ is a poor numerical test for invertibility — illustrate with $`A = 0.1\, I_{100}`$,
   whose determinant is $10^{-100}$ although $A$ is perfectly conditioned — and give a test that does not have
   this problem. Say how this bears on (a) when $X^\top X$ is invertible for a data matrix $X$, and (b) the
   rank of a LoRA update $BA$.
@@ -47,7 +47,7 @@ and are used here without re-derivation.
   this means for (a) solving the normal equations of linear regression, (b) computing a Gaussian-process
   posterior, and (c) taking a Newton step $Hd = -g$.
 - **Q4.** Define the Moore–Penrose pseudo-inverse $A^+$ of $A \in \mathbb{R}^{m \times n}$ from its singular
-  value decomposition. Show that $x = A^+b$ is the solution of $\min_x \|Ax - b\|$ of smallest Euclidean norm,
+  value decomposition. Show that $x = A^+b$ is the solution of $`\min_x \|Ax - b\|`$ of smallest Euclidean norm,
   among all $x$ attaining that minimum. Give the closed form of $A^+$ when $A$ has full column rank, and
   express $A^+$ as a limit of ridge-regularised normal equations as the ridge parameter goes to zero. Say how
   this bears on (a) linear regression with more parameters than examples, and (b) what gradient descent
@@ -101,7 +101,7 @@ and are used here without re-derivation.
 
 - **Q10.** For a distribution $p$ over a finite set of size $K$, define the entropy $H(p)$, and, for a second
   distribution $q$ over the same set, the cross-entropy $H(p, q)$. Derive the identity relating $H(p, q)$ to
-  $H(p)$ and $\mathrm{KL}(p \,\|\, q)$, and say what it implies about minimising cross-entropy over $q$ for a
+  $H(p)$ and $`\mathrm{KL}(p \,\|\, q)`$, and say what it implies about minimising cross-entropy over $q$ for a
   fixed $p$, and about the relationship between minimising cross-entropy and maximum likelihood estimation.
   Prove that $H(p) \le \log K$ for every $p$, with equality iff $p$ is uniform. State the relationship between
   entropy measured with $\log$ and with $\log_2$. Define perplexity as a transform of cross-entropy, and
@@ -118,9 +118,9 @@ and are used here without re-derivation.
 
 ### Calculus
 
-- **Q12.** Compute each of the following by hand, stating the method used: $\int x e^x\,dx$;
-  $\int \ln x\,dx$ for $x > 0$; $\int dx / (1 + x^2)$, and hence
-  $\int_{-\infty}^{\infty} dx / (\pi(1 + x^2))$; $\int_{-\infty}^{\infty} e^{-x^2/2}\,dx$; and $E[X]$ for
+- **Q12.** Compute each of the following by hand, stating the method used: $`\int x e^x\,dx`$;
+  $`\int \ln x\,dx`$ for $x > 0$; $\int dx / (1 + x^2)$, and hence
+  $\int_{-\infty}^{\infty} dx / (\pi(1 + x^2))$; $`\int_{-\infty}^{\infty} e^{-x^2/2}\,dx`$; and $E[X]$ for
   $X \sim \mathrm{Exp}(\lambda)$, directly from its definition as an integral. Give one use, in machine
   learning, for this kind of integral.
 
@@ -160,15 +160,15 @@ multiple of $u$ (its $j$-th column is $v_j u$), so its column space is the line 
 $u, v$ both nonzero. For square $A$, each of the following is equivalent to $A$ being invertible: $\det(A)
 \ne 0$; $A$ has full rank $n$; $Ax = 0$ only for $x = 0$; the columns (or rows) of $A$ are linearly
 independent; $0$ is not an eigenvalue of $A$; every singular value of $A$ is nonzero. The determinant is a
-poor numerical test because it conflates scale with conditioning: $\det(0.1\, I_{100}) = 0.1^{100} =
-10^{-100}$, which any fixed threshold would call zero (it underflows to exactly $0$ in single precision, and
-$\det(0.1\, I_{400}) = 10^{-400}$ does so even in double precision), even though $0.1\, I_{100}$ has every
+poor numerical test because it conflates scale with conditioning: $`\det(0.1\, I_{100}) = 0.1^{100} =
+10^{-100}`$, which any fixed threshold would call zero (it underflows to exactly $0$ in single precision, and
+$`\det(0.1\, I_{400}) = 10^{-400}`$ does so even in double precision), even though $`0.1\, I_{100}`$ has every
 singular value equal to $0.1$ and is as well conditioned as a matrix can be. A test that keeps the two apart
 is the smallest singular value $\sigma_{\min}$ (zero, or numerically negligible next to $\sigma_{\max}$,
 exactly when $A$ is singular or effectively so), or equivalently the condition number
 $\kappa(A) = \sigma_{\max}/\sigma_{\min}$, which is scale-invariant and large exactly when $A$ is
 ill-conditioned, regardless of $\det(A)$. ML: for a data matrix $X \in \mathbb R^{n \times d}$, $X^\top X$ is
-singular iff there is a nonzero $v$ with $v^\top X^\top X v = \|Xv\|^2 = 0$, i.e. $Xv = 0$, i.e. $X$ does not
+singular iff there is a nonzero $v$ with $`v^\top X^\top X v = \|Xv\|^2 = 0`$, i.e. $Xv = 0$, i.e. $X$ does not
 have full column rank — which happens with collinear features, or with more features than examples
 ($d > n$); ridge regression adds $\lambda I$ to guarantee invertibility. A LoRA update $BA$, with
 $B \in \mathbb R^{d \times r}$ and $A \in \mathbb R^{r \times d}$, has rank at most $r$ by the bound above,
@@ -176,15 +176,15 @@ since $\mathrm{rank}(B) \le r$.
 
 **Q3.** Factorise $A$ once — by Gaussian elimination with partial pivoting, i.e. an $LU$ decomposition
 $PA = LU$ for a permutation $P$ and triangular $L, U$ — in $O(n^3)$ time (about $\tfrac23 n^3$ flops), then
-solve $Ax = b$ with one forward and one backward triangular solve (each $O(n^2)$). Forming $A^{-1}$
+solve $Ax = b$ with one forward and one backward triangular solve (each $`O(n^2)`$). Forming $A^{-1}$
 explicitly costs about $2n^3$ flops (the same LU factorisation, followed by $n$ triangular solves, one for
 each column of the identity) — roughly three times the factorisation alone — and then $A^{-1}b$ costs a
 further $O(n^2)$ per right-hand side, the same order as an extra triangular solve; so there is no saving from
 having pre-computed $A^{-1}$, only the much larger upfront cost. Beyond flop count, factor-and-solve is also
-more accurate: it is backward stable, so its residual $\|A\hat x - b\|$ stays at the level of machine
+more accurate: it is backward stable, so its residual $`\|A\hat x - b\|`$ stays at the level of machine
 precision regardless of how well conditioned $A$ is, whereas the residual after explicitly forming and
-applying $A^{-1}$ grows with the condition number of $A$. The forward error $\|\hat x - x\|/\|x\|$ is governed
-by the condition number on both routes — below roughly $n\,\kappa(A)$ times machine precision — so there the
+applying $A^{-1}$ grows with the condition number of $A$. The forward error $`\|\hat x - x\|/\|x\|`$ is governed
+by the condition number on both routes — below roughly $`n\,\kappa(A)`$ times machine precision — so there the
 inverse route is no better, and which route comes out ahead in a given run depends on rounding details. The
 two routes agree closely on a well-conditioned matrix, but on an ill-conditioned one (checked below on Hilbert
 matrices) explicit inversion brings the extra cost and a residual at least a thousand times larger for nothing
@@ -201,13 +201,13 @@ $Hd = -g$ is taken by factorising $H$ and solving, never by forming $H^{-1}$.
 **Q4.** Write $A = U\Sigma V^\top$; the pseudo-inverse is $A^+ = V\Sigma^+U^\top$, where $\Sigma^+$ transposes
 the shape of $\Sigma$ and replaces every nonzero singular value $\sigma_i$ by $1/\sigma_i$, leaving zero
 entries at zero. For any $x \in \mathbb R^n$, write $x = Vc$ (since $V$ is an orthogonal basis), so that
-$Ax = U\Sigma V^\top Vc = U\Sigma c$ and, since $U$ is orthogonal, $\|Ax - b\|^2 = \|\Sigma c - U^\top
-b\|^2$ — separable across the coordinates of $c$. For a coordinate $i$ with $\sigma_i > 0$, the term
-$(\sigma_i c_i - (U^\top b)_i)^2$ is minimised uniquely at $c_i = (U^\top b)_i / \sigma_i$; for a coordinate
+$Ax = U\Sigma V^\top Vc = U\Sigma c$ and, since $U$ is orthogonal, $`\|Ax - b\|^2 = \|\Sigma c - U^\top
+b\|^2`$ — separable across the coordinates of $c$. For a coordinate $i$ with $\sigma_i > 0$, the term
+$`(\sigma_i c_i - (U^\top b)_i)^2`$ is minimised uniquely at $`c_i = (U^\top b)_i / \sigma_i`$; for a coordinate
 with $\sigma_i = 0$, the term does not depend on $c_i$ at all, so every value of $c_i$ minimises
-$\|Ax - b\|$ equally, and since $\|x\|^2 = \|Vc\|^2 = \|c\|^2$ (again because $V$ is orthogonal), the value of
+$`\|Ax - b\|`$ equally, and since $`\|x\|^2 = \|Vc\|^2 = \|c\|^2`$ (again because $V$ is orthogonal), the value of
 smallest norm is $c_i = 0$. Collecting both cases gives $c = \Sigma^+U^\top b$, i.e.
-$x = V\Sigma^+U^\top b = A^+b$: simultaneously a minimiser of $\|Ax - b\|$ and, among all minimisers, the one
+$x = V\Sigma^+U^\top b = A^+b$: simultaneously a minimiser of $`\|Ax - b\|`$ and, among all minimisers, the one
 of smallest norm. When $A$ has full column rank, every singular value is nonzero and
 $A^\top A = V\Sigma^\top\Sigma V^\top$ is invertible with inverse $V(\Sigma^\top\Sigma)^{-1}V^\top$, so
 $(A^\top A)^{-1}A^\top = V(\Sigma^\top\Sigma)^{-1}\Sigma^\top U^\top = V\Sigma^+U^\top = A^+$. For the ridge
@@ -225,12 +225,14 @@ small weights from the optimisation itself, with no explicit regulariser.
 
 **Q5.** For $X \sim \mathrm{Exp}(\lambda)$, $E[X^k] = k!/\lambda^k$ for every positive integer $k$; its
 skewness is $2$ and its excess kurtosis is $6$ (both independent of $\lambda$). The moment-generating
-function is $M_X(t) = E[e^{tX}] = \int_0^\infty e^{tx}\lambda e^{-\lambda x}\,dx = \lambda/(\lambda - t)$ for
+function is $`M_X(t) = E[e^{tX}] = \int_0^\infty e^{tx}\lambda e^{-\lambda x}\,dx = \lambda/(\lambda - t)`$ for
 $t < \lambda$, and expanding $e^{tX} = \sum_k (tX)^k/k!$ termwise under the expectation gives
-$M_X(t) = \sum_k E[X^k]\,t^k/k!$, so $E[X^k] = M_X^{(k)}(0)$, the $k$-th derivative of $M_X$ at $t = 0$
+$`M_X(t) = \sum_k E[X^k]\,t^k/k!`$, so $E[X^k] = M_X^{(k)}(0)$, the $k$-th derivative of $M_X$ at $t = 0$
 (matching the definition of a Taylor coefficient). Directly, substituting $u = \lambda x$,
 
-$$E[X^k] = \int_0^\infty x^k \lambda e^{-\lambda x}\,dx = \frac{1}{\lambda^k}\int_0^\infty u^k e^{-u}\,du = \frac{k!}{\lambda^k},$$
+```math
+E[X^k] = \int_0^\infty x^k \lambda e^{-\lambda x}\,dx = \frac{1}{\lambda^k}\int_0^\infty u^k e^{-u}\,du = \frac{k!}{\lambda^k},
+```
 
 using $\Gamma(k + 1) = k!$ for integer $k$. From the raw moments, $\mu = 1/\lambda$ and
 $\sigma^2 = E[X^2] - \mu^2 = 2/\lambda^2 - 1/\lambda^2 = 1/\lambda^2$; expanding the central moments in raw ones,
@@ -238,8 +240,8 @@ $E[(X - \mu)^3] = E[X^3] - 3\mu E[X^2] + 2\mu^3 = (6 - 6 + 2)/\lambda^3 = 2/\lam
 $E[(X - \mu)^4] = E[X^4] - 4\mu E[X^3] + 6\mu^2 E[X^2] - 3\mu^4 = (24 - 24 + 12 - 3)/\lambda^4 = 9/\lambda^4$,
 so dividing by $\sigma^3$ and $\sigma^4$ gives skewness $2$ and kurtosis $9$, i.e. excess kurtosis $6$. Some
 distributions have no moments at all: the standard Cauchy density $1/(\pi(1 + x^2))$ has $E|X| = \infty$ (the
-tail integral $\int^M x/(\pi(1+x^2))\,dx$ grows like $\log M$), so it has no mean, and hence no higher moments
-either. Others have moments only up to a finite order: the Student-$t$ distribution with $\nu$ degrees of
+tail integral $`\int^M x/(\pi(1+x^2))\,dx`$ grows like $\log M$), so it has no mean, and hence no higher moments
+either. Others have moments only up to a finite order: the Student-$`t`$ distribution with $\nu$ degrees of
 freedom has tails decaying like $|x|^{-\nu - 1}$, so $E[|X|^k]$ is finite exactly for $k < \nu$ — for
 instance, $t_3$ has a finite mean and variance but no finite skewness or kurtosis. ML: Adam keeps $m_t$ and
 $v_t$ as exponential moving averages of the gradient and of its elementwise square, i.e. running estimates of
@@ -255,10 +257,12 @@ by its interquartile range, which stays at $2$ instead of shrinking), since neit
 exists for the LLN or the CLT to act on; (b) *dependence* — for equicorrelated $X_i$ with common variance
 $\sigma^2$ and pairwise correlation $\rho > 0$,
 
-$$\mathrm{Var}(\bar X_n) = \frac1{n^2}\Bigl(\sum_i \mathrm{Var}(X_i) + \sum_{i \ne j}\mathrm{Cov}(X_i, X_j)\Bigr) = \frac1{n^2}\bigl(n\sigma^2 + n(n-1)\rho\sigma^2\bigr) = \frac{\sigma^2}{n}\bigl(1 + (n-1)\rho\bigr) \xrightarrow{n \to \infty} \rho\sigma^2 \ne 0,$$
+```math
+\mathrm{Var}(\bar X_n) = \frac1{n^2}\Bigl(\sum_i \mathrm{Var}(X_i) + \sum_{i \ne j}\mathrm{Cov}(X_i, X_j)\Bigr) = \frac1{n^2}\bigl(n\sigma^2 + n(n-1)\rho\sigma^2\bigr) = \frac{\sigma^2}{n}\bigl(1 + (n-1)\rho\bigr) \xrightarrow{n \to \infty} \rho\sigma^2 \ne 0,
+```
 
 so the sample mean never concentrates at $\mu$ — its variance stays above $\rho\sigma^2$ however large $n$ is —
-because the shared component of the $X_i$ never averages out; (c) *heavy skew at a moderate $n$* — the Berry–Esseen theorem bounds how far the
+because the shared component of the $X_i$ never averages out; (c) *heavy skew* at a moderate $n$ — the Berry–Esseen theorem bounds how far the
 standardised sum's distribution function can be from $\Phi$ by $C\rho/(\sigma^3\sqrt n)$, so the bound is
 large whenever $\rho/\sigma^3$ (closely related to the skewness) is large, and a strongly skewed distribution
 needs a substantially bigger $n$ before its standardised sum looks Gaussian than a symmetric one does;
@@ -278,13 +282,15 @@ prior). The significance level $\alpha$ is the type I error rate the test is cal
 rejecting when $p<\alpha$. The type II error rate $\beta$ is the probability of failing to reject $H_0$ when
 a specific $H_1$ holds, and the power $1-\beta$ is the probability of correctly rejecting it then.
 
-Let $C_i^{(1)}, C_i^{(2)}\in\{0,1\}$ record correctness of the two models on example $i$, and
+Let $`C_i^{(1)}, C_i^{(2)}\in\{0,1\}`$ record correctness of the two models on example $i$, and
 $D_i=C_i^{(1)}-C_i^{(2)}$. The point estimate $\bar D$ is the same either way, but its variance is not:
 pairing uses
 
-$$\mathrm{Var}(\bar D) = \tfrac1n\bigl(\mathrm{Var}(C^{(1)}_i)+\mathrm{Var}(C^{(2)}_i)-2\,\mathrm{Cov}(C^{(1)}_i,C^{(2)}_i)\bigr),$$
+```math
+\mathrm{Var}(\bar D) = \tfrac1n\bigl(\mathrm{Var}(C^{(1)}_i)+\mathrm{Var}(C^{(2)}_i)-2\,\mathrm{Cov}(C^{(1)}_i,C^{(2)}_i)\bigr),
+```
 
-while treating the two accuracies as independent omits the $-2\,\mathrm{Cov}/n$ term. Two models tend to
+while treating the two accuracies as independent omits the $`-2\,\mathrm{Cov}/n`$ term. Two models tend to
 agree, beyond chance, on which examples are easy or hard, so $\mathrm{Cov}>0$ in practice; the
 independent-sample variance then overstates the true variance, giving less power than the correctly paired
 test (McNemar's test on the discordant counts $n_{10},n_{01}$, statistic $(n_{10}-n_{01})^2/(n_{10}+n_{01})$,
@@ -303,15 +309,17 @@ are false — at $\alpha$, rather than the probability of any false positive.
 
 **Q8.** With $600$ rolls and a fair die, the expected count per face is $E_i = 100$; the statistic is
 
-$$\chi^2 = \sum_{i=1}^6 \frac{(O_i - E_i)^2}{E_i} = \frac{10^2 + 10^2 + 5^2 + 5^2 + 20^2 + 20^2}{100} = \frac{100 + 100 + 25 + 25 + 400 + 400}{100} = 10.5.$$
+```math
+\chi^2 = \sum_{i=1}^6 \frac{(O_i - E_i)^2}{E_i} = \frac{10^2 + 10^2 + 5^2 + 5^2 + 20^2 + 20^2}{100} = \frac{100 + 100 + 25 + 25 + 400 + 400}{100} = 10.5.
+```
 
 The degrees of freedom are $6 - 1 = 5$, not $6$, because the six observed counts are not free to vary
 independently: they must sum to the number of rolls, so the six deviations satisfy one linear constraint,
 $\sum_i (O_i - E_i) = 600 - 600 = 0$ (and no parameter of the null distribution is estimated from the data,
-which would remove one more degree of freedom per parameter). At the $5\%$ level, the critical value is
+which would remove one more degree of freedom per parameter). At the $`5\%`$ level, the critical value is
 $\chi^2_{0.95, 5} \approx 11.07$, and the p-value is $P(\chi^2_5 \ge 10.5) \approx 0.062$. Since
-$10.5 < 11.07$ (equivalently, $0.062 > 0.05$), the test does not reject the fair-die hypothesis at the $5\%$
-level, though the result is close to the boundary and would be judged differently at, say, the $10\%$ level.
+$10.5 < 11.07$ (equivalently, $0.062 > 0.05$), the test does not reject the fair-die hypothesis at the $`5\%`$
+level, though the result is close to the boundary and would be judged differently at, say, the $`10\%`$ level.
 The chi-square approximation relies on each expected count being reasonably large (a common rule of thumb: at
 least $5$, and violated in at most about a fifth of the cells); with small expected counts, the true sampling
 distribution of the statistic departs from the $\chi^2_5$ curve, and an exact multinomial test or a simulated
@@ -319,13 +327,15 @@ null distribution should be used instead. ML: the same statistic tests whether s
 generative or sampling procedure match a known target distribution over a discrete set of outcomes, by
 binning the samples and comparing observed to expected counts.
 
-**Q9.** Treat the array of origin as a latent class $C\in\{a,b\}$ with prior $\pi_a,\pi_b$ (the relative
+**Q9.** Treat the array of origin as a latent class $`C\in\{a,b\}`$ with prior $\pi_a,\pi_b$ (the relative
 array sizes, unless told otherwise) and class-conditional densities $p_a,p_b$ estimated from each array — by
 fitting a parametric family (e.g. Gaussian, from each array's sample mean and variance), by kernel density
 estimation, or via a nearest-neighbour rule; the Bayes-optimal rule assigns $x$ to the class of larger
 posterior $P(C\mid x)\propto\pi_C p_C(x)$, and the posterior itself,
 
-$$P(a\mid x) = \frac{\pi_a p_a(x)}{\pi_a p_a(x) + \pi_b p_b(x)},$$
+```math
+P(a\mid x) = \frac{\pi_a p_a(x)}{\pi_a p_a(x) + \pi_b p_b(x)},
+```
 
 should be reported rather than only the arg-max label. With a Gaussian fit and unequal variances, the
 boundary $\pi_a p_a(x)=\pi_b p_b(x)$ is quadratic in $x$ after taking logs, so it generally has two roots
@@ -353,15 +363,17 @@ compute from class-conditional densities fitted per class.
 second distribution $q$ over the same set, $H(p, q) = -\sum_x p(x)\log q(x) = E_p[-\log q(X)]$. Splitting
 $\log q(x) = \log p(x) - \log\frac{p(x)}{q(x)}$ inside the sum,
 
-$$H(p, q) = -\sum_x p(x)\log p(x) - \sum_x p(x)\log\frac{q(x)}{p(x)} = H(p) + \sum_x p(x)\log\frac{p(x)}{q(x)} = H(p) + \mathrm{KL}(p \,\|\, q).$$
+```math
+H(p, q) = -\sum_x p(x)\log p(x) - \sum_x p(x)\log\frac{q(x)}{p(x)} = H(p) + \sum_x p(x)\log\frac{p(x)}{q(x)} = H(p) + \mathrm{KL}(p \,\|\, q).
+```
 
 Since $H(p)$ does not depend on $q$, minimising $H(p, q)$ over $q$ for a fixed $p$ is exactly minimising
-$\mathrm{KL}(p \,\|\, q)$; and when $p$ is the true (or empirical) data distribution and $q_\theta$ is a
+$`\mathrm{KL}(p \,\|\, q)`$; and when $p$ is the true (or empirical) data distribution and $q_\theta$ is a
 model, the law of large numbers gives $-\frac1n\sum_i\log q_\theta(x_i) \to H(p, q_\theta)$ over training
 examples $x_i \sim p$, so minimising the average negative log-likelihood — empirical cross-entropy — over
 $\theta$ is minimising cross-entropy, which is maximum likelihood estimation. For the maximum,
-$\mathrm{KL}(p \,\|\, \mathrm{uniform}) = \sum_x p(x)\log\bigl(p(x)K\bigr) = -H(p) + \log K$ (using
-$\sum_xp(x)=1$), and this is $\ge 0$ by non-negativity of KL, so $H(p) \le \log K$, with equality iff $p$ is
+$`\mathrm{KL}(p \,\|\, \mathrm{uniform}) = \sum_x p(x)\log\bigl(p(x)K\bigr) = -H(p) + \log K`$ (using
+$`\sum_xp(x)=1`$), and this is $\ge 0$ by non-negativity of KL, so $H(p) \le \log K$, with equality iff $p$ is
 uniform (the equality case of KL). Entropy measured with $\log_2$ (bits) is entropy measured with $\log$
 (nats) divided by $\log 2$, since $\log_2 x = \log x/\log 2$. Perplexity is $\mathrm{PPL} = \exp\bigl(H(p,
 q)\bigr)$ when the cross-entropy is in nats: a model scoring $2.0$ nats of cross-entropy loss per token has
@@ -371,16 +383,20 @@ regardless of the true distribution over tokens. ML: cross-entropy is exactly th
 training a classifier or a language model by maximum likelihood, and perplexity is the number practitioners
 report instead of the raw loss, precisely because of this direct reading as an effective vocabulary size.
 
-**Q11.** $I(X; Y) = \mathrm{KL}\bigl(p(x,y) \,\|\, p(x)p(y)\bigr) = \sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)p(y)}$.
+**Q11.** $`I(X; Y) = \mathrm{KL}\bigl(p(x,y) \,\|\, p(x)p(y)\bigr) = \sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)p(y)}`$.
 Writing $\frac{p(x,y)}{p(x)p(y)} = \frac{p(x \mid y)}{p(x)}$,
 
-$$I(X; Y) = \sum_{x,y} p(x,y)\log\frac{p(x \mid y)}{p(x)} = -\sum_{x,y} p(x,y)\log p(x) + \sum_{x,y} p(x,y)\log p(x \mid y) = H(X) - H(X \mid Y),$$
+```math
+I(X; Y) = \sum_{x,y} p(x,y)\log\frac{p(x \mid y)}{p(x)} = -\sum_{x,y} p(x,y)\log p(x) + \sum_{x,y} p(x,y)\log p(x \mid y) = H(X) - H(X \mid Y),
+```
 
 where $H(X \mid Y) = -\sum_{x,y}p(x,y)\log p(x\mid y) = E_Y[H(X \mid Y = y)]$ is the conditional entropy. The
 chain rule $H(X, Y) = H(Y) + H(X \mid Y)$ follows from $p(x,y) = p(y)p(x\mid y)$ by taking $-\log$ and an
 expectation over $p(x,y)$; substituting $H(X\mid Y) = H(X,Y) - H(Y)$ gives the third form,
 
-$$I(X; Y) = H(X) - \bigl(H(X,Y) - H(Y)\bigr) = H(X) + H(Y) - H(X, Y),$$
+```math
+I(X; Y) = H(X) - \bigl(H(X,Y) - H(Y)\bigr) = H(X) + H(Y) - H(X, Y),
+```
 
 manifestly symmetric in $X, Y$, so $I(X; Y) = I(Y; X)$. Non-negativity, $I(X; Y) \ge 0$ with equality iff
 $p(x,y) = p(x)p(y)$ almost everywhere (i.e. $X \perp Y$), follows directly from the non-negativity of KL
@@ -389,7 +405,9 @@ $Y = X \oplus N$ with $N \sim \mathrm{Bernoulli}(0.1)$ independent of $X$: since
 channel is symmetric, $Y$ is uniform too, so $H(Y) = 1$ bit; and for either value of $X$, $Y = X \oplus N$
 has exactly the entropy of $N$, so $H(Y \mid X) = H_b(0.1)$, the binary entropy of $0.1$ in bits. Hence
 
-$$I(X; Y) = H(Y) - H(Y \mid X) = 1 - H_b(0.1) \approx 1 - 0.469 = 0.531 \text{ bits}.$$
+```math
+I(X; Y) = H(Y) - H(Y \mid X) = 1 - H_b(0.1) \approx 1 - 0.469 = 0.531 \text{ bits}.
+```
 
 ML: the information gain used to pick a split in a decision tree is exactly the mutual information between
 the split variable and the label, $I(\text{split}; Y) = H(Y) - H(Y \mid \text{split})$; and the InfoNCE
@@ -399,24 +417,30 @@ the two views.
 
 ### Calculus
 
-**Q12.** $\int xe^x\,dx = (x - 1)e^x + C$: integrate by parts with $u = x$, $dv = e^x\,dx$ (so $du = dx$,
-$v = e^x$), giving $\int xe^x\,dx = xe^x - \int e^x\,dx = xe^x - e^x + C = (x-1)e^x + C$. $\int\ln x\,dx =
-x\ln x - x + C$ for $x > 0$: by parts with $u = \ln x$, $dv = dx$ ($du = dx/x$, $v = x$),
-$\int \ln x\,dx = x\ln x - \int x \cdot \tfrac1x\,dx = x\ln x - x + C$. $\int\frac{dx}{1 + x^2} = \arctan x +
+**Q12.** $`\int xe^x\,dx = (x - 1)e^x + C`$: integrate by parts with $u = x$, $`dv = e^x\,dx`$ (so $du = dx$,
+$v = e^x$), giving $`\int xe^x\,dx = xe^x - \int e^x\,dx = xe^x - e^x + C = (x-1)e^x + C`$. $`\int\ln x\,dx =
+x\ln x - x + C`$ for $x > 0$: by parts with $u = \ln x$, $dv = dx$ ($du = dx/x$, $v = x$),
+$`\int \ln x\,dx = x\ln x - \int x \cdot \tfrac1x\,dx = x\ln x - x + C`$. $\int\frac{dx}{1 + x^2} = \arctan x +
 C$, since $\frac{d}{dx}\arctan x = \frac1{1+x^2}$; hence the Cauchy density integrates to $1$,
 
-$$\int_{-\infty}^{\infty} \frac{dx}{\pi(1 + x^2)} = \frac1\pi\Bigl[\arctan x\Bigr]_{-\infty}^{\infty} = \frac1\pi\Bigl(\frac\pi2 - \bigl(-\frac\pi2\bigr)\Bigr) = 1.$$
+```math
+\int_{-\infty}^{\infty} \frac{dx}{\pi(1 + x^2)} = \frac1\pi\Bigl[\arctan x\Bigr]_{-\infty}^{\infty} = \frac1\pi\Bigl(\frac\pi2 - \bigl(-\frac\pi2\bigr)\Bigr) = 1.
+```
 
-$\int_{-\infty}^{\infty} e^{-x^2/2}\,dx = \sqrt{2\pi}$: writing $I$ for this integral and squaring it,
+$`\int_{-\infty}^{\infty} e^{-x^2/2}\,dx = \sqrt{2\pi}`$: writing $I$ for this integral and squaring it,
 
-$$I^2 = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2 + y^2)/2}\,dx\,dy = \int_0^{2\pi}\int_0^\infty e^{-r^2/2}\,r\,dr\,d\theta = 2\pi\Bigl[-e^{-r^2/2}\Bigr]_0^\infty = 2\pi,$$
+```math
+I^2 = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2 + y^2)/2}\,dx\,dy = \int_0^{2\pi}\int_0^\infty e^{-r^2/2}\,r\,dr\,d\theta = 2\pi\Bigl[-e^{-r^2/2}\Bigr]_0^\infty = 2\pi,
+```
 
-switching to polar coordinates ($x = r\cos\theta$, $y = r\sin\theta$, area element $r\,dr\,d\theta$), so
+switching to polar coordinates ($x = r\cos\theta$, $y = r\sin\theta$, area element $`r\,dr\,d\theta`$), so
 $I = \sqrt{2\pi}$, the positive root, since the integrand is everywhere positive. $E[X] = 1/\lambda$ for
-$X \sim \mathrm{Exp}(\lambda)$: by parts with $u = x$, $dv = \lambda e^{-\lambda x}\,dx$ ($v = -e^{-\lambda
+$X \sim \mathrm{Exp}(\lambda)$: by parts with $u = x$, $`dv = \lambda e^{-\lambda x}\,dx`$ ($v = -e^{-\lambda
 x}$),
 
-$$E[X] = \int_0^\infty x\lambda e^{-\lambda x}\,dx = \Bigl[-xe^{-\lambda x}\Bigr]_0^\infty + \int_0^\infty e^{-\lambda x}\,dx = 0 + \frac1\lambda = \frac1\lambda,$$
+```math
+E[X] = \int_0^\infty x\lambda e^{-\lambda x}\,dx = \Bigl[-xe^{-\lambda x}\Bigr]_0^\infty + \int_0^\infty e^{-\lambda x}\,dx = 0 + \frac1\lambda = \frac1\lambda,
+```
 
 consistent with the $k = 1$ case of Q5's $E[X^k] = k!/\lambda^k$. ML: integrals of exactly this kind normalise
 densities (checking or deriving that a density integrates to $1$, as for the Cauchy and Gaussian above), and

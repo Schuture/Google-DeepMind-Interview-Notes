@@ -12,11 +12,15 @@
 
 两层网络把一批输入映射为类别得分。给定一批 $X \in \mathbb{R}^{B\times d}$，即 $B$ 个 $\mathbb{R}^d$ 中的样本，一个有 $m$ 个单元的隐藏层，以及 $C$ 个输出类别：
 
-$$Z_1 = XW_1 + b_1, \qquad H = \mathrm{ReLU}(Z_1), \qquad S = HW_2 + b_2,$$
+```math
+Z_1 = XW_1 + b_1, \qquad H = \mathrm{ReLU}(Z_1), \qquad S = HW_2 + b_2,
+```
 
-其中 $\mathrm{ReLU}(z) = \max(z, 0)$ 逐元素作用，$W_1 \in \mathbb{R}^{d\times m}$，$b_1 \in \mathbb{R}^m$，$W_2 \in \mathbb{R}^{m\times C}$，$b_2 \in \mathbb{R}^C$，$S \in \mathbb{R}^{B\times C}$ 的每一行是一个样本的*得分*（scores，也叫 *logits*）。参数收集在一个 `dict` 里，`{"W1": W1, "b1": b1, "W2": W2, "b2": b2}`，每个值都是形状如上的 `np.ndarray`。预测的类别概率是 $S$ 逐行做 *softmax*：$\mathrm{probs}_{i,c} = e^{S_{i,c}} / \sum_{c'=0}^{C-1} e^{S_{i,c'}}$；给定整数标签 $y \in \{0,\dots,C-1\}^B$，批次上的损失是平均*softmax 交叉熵*（cross-entropy）：
+其中 $\mathrm{ReLU}(z) = \max(z, 0)$ 逐元素作用，$`W_1 \in \mathbb{R}^{d\times m}`$，$`b_1 \in \mathbb{R}^m`$，$`W_2 \in \mathbb{R}^{m\times C}`$，$`b_2 \in \mathbb{R}^C`$，$`S \in \mathbb{R}^{B\times C}`$ 的每一行是一个样本的*得分*（scores，也叫 *logits*）。参数收集在一个 `dict` 里，`{"W1": W1, "b1": b1, "W2": W2, "b2": b2}`，每个值都是形状如上的 `np.ndarray`。预测的类别概率是 $S$ 逐行做 *softmax*：$`\mathrm{probs}_{i,c} = e^{S_{i,c}} / \sum_{c'=0}^{C-1} e^{S_{i,c'}}`$；给定整数标签 $`y \in \{0,\dots,C-1\}^B`$，批次上的损失是平均*softmax 交叉熵*（cross-entropy）：
 
-$$L = \frac{1}{B}\sum_{i=0}^{B-1} -\log \mathrm{probs}_{i,y_i}.$$
+```math
+L = \frac{1}{B}\sum_{i=0}^{B-1} -\log \mathrm{probs}_{i,y_i}.
+```
 
 ### Part 1 —— 前向和反向
 
@@ -29,11 +33,13 @@ def forward_backward(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray
 
 在写代码之前，先按下面的顺序把每一个梯度都用矩阵形式推导出来：先是 $\partial L/\partial S$，它有一个封闭形式
 
-$$\frac{\partial L}{\partial S} = \frac{\mathrm{softmax}(S) - Y}{B}, \qquad Y \in \{0,1\}^{B\times C},\ \ Y_{i,c} = \mathbb{1}[c=y_i]$$
+```math
+\frac{\partial L}{\partial S} = \frac{\mathrm{softmax}(S) - Y}{B}, \qquad Y \in \{0,1\}^{B\times C},\ \ Y_{i,c} = \mathbb{1}[c=y_i]
+```
 
-（$Y$ 是标签的独热（one-hot）矩阵）——然后按链式法则（chain rule）逐层往回推，依次是 $\partial L/\partial W_2$、$\partial L/\partial b_2$、$\partial L/\partial H$、$\partial L/\partial Z_1$、$\partial L/\partial W_1$、$\partial L/\partial b_1$。
+（$`Y`$ 是标签的独热（one-hot）矩阵）——然后按链式法则（chain rule）逐层往回推，依次是 $\partial L/\partial W_2$、$`\partial L/\partial b_2`$、$`\partial L/\partial H`$、$`\partial L/\partial Z_1`$、$`\partial L/\partial W_1`$、$`\partial L/\partial b_1`$。
 
-举例，$B=2$、$d=2$、$m=2$、$C=2$：
+举例，$`B=2`$、$`d=2`$、$`m=2`$、$`C=2`$：
 
 ```text
 X = [[ 1.0, -1.0],       y = [0, 1]
@@ -64,13 +70,17 @@ def grad_check(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, eps:
 
 对某一个标量参数项 $\theta$，固定 `params` 里的其它每一项不变，*中心差分*（central finite difference）是
 
-$$g_n[\theta] = \frac{L(\theta+\epsilon) - L(\theta-\epsilon)}{2\epsilon},$$
+```math
+g_n[\theta] = \frac{L(\theta+\epsilon) - L(\theta-\epsilon)}{2\epsilon},
+```
 
 其中 $L(\theta')$ 是把这一项设为 $\theta'$ 时 `forward_backward` 报告的损失。记 $g_a[\theta]$ 为 `forward_backward` 解析梯度里对应的那一项，这一项的*相对误差*（relative error）是
 
-$$\mathrm{rel\_err}[\theta] = \frac{|g_a[\theta] - g_n[\theta]|}{\max\bigl(|g_a[\theta]| + |g_n[\theta]|,\ 10^{-12}\bigr)},$$
+```math
+\mathrm{rel\_err}[\theta] = \frac{|g_a[\theta] - g_n[\theta]|}{\max\bigl(|g_a[\theta]| + |g_n[\theta]|,\ 10^{-12}\bigr)},
+```
 
-`grad_check` 返回 $\mathrm{rel\_err}[\theta]$ 在 `W1`、`b1`、`W2`、`b2` 每一项 $\theta$ 上的最大值。下面会用到一条经验法则：最大值在 $10^{-7}$ 以下算通过，在 $10^{-4}$ 以上就有理由怀疑代码有 bug。解释默认 `eps` 的选取（为什么不用 $10^{-8}$，或者 $10^{-2}$？）；解释为什么 `grad_check` 需要 `float64` 的参数和数据，而不是模型平时训练可能用的 `float32`；以及如何防范某个隐藏单元的预激活值恰好落在 $\mathrm{ReLU}$ 拐点 $Z_1=0$ 的 `eps` 范围之内——此时差分横跨了拐点两侧，不论 `forward_backward` 的代码对不对，这个差分本身都不可信。
+`grad_check` 返回 $`\mathrm{rel\_err}[\theta]`$ 在 `W1`、`b1`、`W2`、`b2` 每一项 $\theta$ 上的最大值。下面会用到一条经验法则：最大值在 $10^{-7}$ 以下算通过，在 $10^{-4}$ 以上就有理由怀疑代码有 bug。解释默认 `eps` 的选取（为什么不用 $10^{-8}$，或者 $10^{-2}$？）；解释为什么 `grad_check` 需要 `float64` 的参数和数据，而不是模型平时训练可能用的 `float32`；以及如何防范某个隐藏单元的预激活值恰好落在 $\mathrm{ReLU}$ 拐点 $Z_1=0$ 的 `eps` 范围之内——此时差分横跨了拐点两侧，不论 `forward_backward` 的代码对不对，这个差分本身都不可信。
 
 ### Part 3 —— 训练它，以及初始化为什么重要
 
@@ -98,9 +108,9 @@ def train(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, *, steps:
     theta <- theta + v for every parameter array (v starts at all zeros). Returns the final params."""
 ```
 
-`make_spirals` 生成的两条臂不是线性可分的：不存在一条直线能把所有类别 $0$ 的点分到一侧、所有类别 $1$ 的点分到另一侧——下面的验证代码会用一个线性分类器（逻辑回归）独立确认这一点：它在这份数据上的准确率远远够不到下面的目标，比随机猜好不了多少。用 `he_init` 把**训练**准确率（$S$ 的 argmax 与 $y$ 在训练所用的同一份 `X`、`y` 上对比）训练到至少 $95\%$，全程使用固定的随机种子。
+`make_spirals` 生成的两条臂不是线性可分的：不存在一条直线能把所有类别 $0$ 的点分到一侧、所有类别 $1$ 的点分到另一侧——下面的验证代码会用一个线性分类器（逻辑回归）独立确认这一点：它在这份数据上的准确率远远够不到下面的目标，比随机猜好不了多少。用 `he_init` 把**训练**准确率（$`S`$ 的 argmax 与 $y$ 在训练所用的同一份 `X`、`y` 上对比）训练到至少 $`95\%`$，全程使用固定的随机种子。
 
-论证 `he_init` 的方差 $\mathrm{Var}(W) = 2/\mathrm{fan\_in}$（$\mathrm{fan\_in}$ 指每个输出单元读取多少个输入：`W1` 是 $d$，因为 $m$ 个隐藏单元里的每一个都读取全部 $d$ 个输入特征；`W2` 是 $m$，因为 $C$ 个输出单元里的每一个都读取全部 $m$ 个隐藏特征），做法是推导它对一层激活的*二阶矩*（second moment）产生了什么影响，也就是 $\mathrm{E}[h^2]$，即使 $\mathrm{E}[h]\ne0$ 时依然有意义，这一点方差 $\mathrm E[(h-\mathrm E[h])^2]$ 做不到。对单独一层 ReLU，$h=\mathrm{ReLU}(xW)$（$x$ 的各分量有共同的二阶矩 $s$；$W$ 的 $\mathrm{fan\_in}\times\mathrm{fan\_out}$ 个分量独立同分布，均值 $0$，方差 $\sigma^2$，与 $x$ 独立），求 $\mathrm E[h^2]$ 关于 $s$、$\sigma^2$、$\mathrm{fan\_in}$ 的表达式，以及能让它重新等于 $s$ 的那个 $\sigma^2$，再用蒙特卡洛（Monte Carlo）确认：堆叠 $10$ 层这样的层，用这个 $\sigma^2$ 能让 $\mathrm E[h^2]$ 大致保持不变，而换成 $\sigma^2=1/\mathrm{fan\_in}$ 又会发生什么。
+论证 `he_init` 的方差 $`\mathrm{Var}(W) = 2/\mathrm{fan\_in}`$（$`\mathrm{fan\_in}`$ 指每个输出单元读取多少个输入：`W1` 是 $d$，因为 $m$ 个隐藏单元里的每一个都读取全部 $d$ 个输入特征；`W2` 是 $m$，因为 $C$ 个输出单元里的每一个都读取全部 $m$ 个隐藏特征），做法是推导它对一层激活的*二阶矩*（second moment）产生了什么影响，也就是 $\mathrm{E}[h^2]$，即使 $\mathrm{E}[h]\ne0$ 时依然有意义，这一点方差 $\mathrm E[(h-\mathrm E[h])^2]$ 做不到。对单独一层 ReLU，$`h=\mathrm{ReLU}(xW)`$（$`x`$ 的各分量有共同的二阶矩 $s$；$`W`$ 的 $`\mathrm{fan\_in}\times\mathrm{fan\_out}`$ 个分量独立同分布，均值 $0$，方差 $\sigma^2$，与 $x$ 独立），求 $\mathrm E[h^2]$ 关于 $s$、$`\sigma^2`$、$`\mathrm{fan\_in}`$ 的表达式，以及能让它重新等于 $s$ 的那个 $\sigma^2$，再用蒙特卡洛（Monte Carlo）确认：堆叠 $10$ 层这样的层，用这个 $\sigma^2$ 能让 $\mathrm E[h^2]$ 大致保持不变，而换成 $`\sigma^2=1/\mathrm{fan\_in}`$ 又会发生什么。
 
 另外，把 `he_init` 换成 `zero_init`：从 Part 1 的梯度公式出发，推导在 $W_1=b_1=W_2=b_2=0$ 处 `forward_backward` 恰好会返回什么，以及此后 `train` 的每一步会对这四个参数数组各自做了什么。
 
@@ -113,21 +123,27 @@ def train(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, *, steps:
 
 ### Part 1
 
-记 $S$ 的第 $(i,c)$ 项为 $s_{i,c}$，$p_{i,c}=\mathrm{probs}_{i,c}$。单个样本的损失是 $\ell_i = -\log p_{i,y_i} = -s_{i,y_i} + \log\sum_{c'} e^{s_{i,c'}}$（代入 $p_{i,y_i}$ 的定义再取对数）。对同一个样本的某个得分求导，
+记 $S$ 的第 $(i,c)$ 项为 $s_{i,c}$，$`p_{i,c}=\mathrm{probs}_{i,c}`$。单个样本的损失是 $\ell_i = -\log p_{i,y_i} = -s_{i,y_i} + \log\sum_{c'} e^{s_{i,c'}}$（代入 $p_{i,y_i}$ 的定义再取对数）。对同一个样本的某个得分求导，
 
-$$\frac{\partial \ell_i}{\partial s_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s_{i,c}}}{\sum_{c'}e^{s_{i,c'}}} = p_{i,c} - \mathbb{1}[c=y_i],$$
+```math
+\frac{\partial \ell_i}{\partial s_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s_{i,c}}}{\sum_{c'}e^{s_{i,c'}}} = p_{i,c} - \mathbb{1}[c=y_i],
+```
 
-而 $\ell_i$ 不依赖任何其它样本的得分，所以 $i'\ne i$ 时 $\partial \ell_i/\partial s_{i',c}=0$。在批次上取平均，$\partial L/\partial s_{i,c} = \frac{1}{B}(p_{i,c}-\mathbb 1[c=y_i])$，写成矩阵形式，记 $Y$ 为独热标签矩阵，就是 $\partial L/\partial S = (P-Y)/B$，正是题目给出的公式。把这个矩阵记作 $dS$。
+而 $\ell_i$ 不依赖任何其它样本的得分，所以 $i'\ne i$ 时 $\partial \ell_i/\partial s_{i',c}=0$。在批次上取平均，$`\partial L/\partial s_{i,c} = \frac{1}{B}(p_{i,c}-\mathbb 1[c=y_i])`$，写成矩阵形式，记 $Y$ 为独热标签矩阵，就是 $\partial L/\partial S = (P-Y)/B$，正是题目给出的公式。把这个矩阵记作 $dS$。
 
-剩下的每一个梯度都可以从 $dS$ 出发，一层一层地用链式法则推出来。$S=HW_2+b_2$ 意味着 $s_{i,c}=\sum_j h_{i,j}w2_{j,c}+b2_c$，于是 $\partial s_{i,c}/\partial w2_{j,c'}$ 在 $c=c'$ 时等于 $h_{i,j}$，否则为 $0$（$w2_{j,c'}$ 只出现在 $S$ 的第 $c'$ 列里）：
+剩下的每一个梯度都可以从 $dS$ 出发，一层一层地用链式法则推出来。$`S=HW_2+b_2`$ 意味着 $s_{i,c}=\sum_j h_{i,j}w2_{j,c}+b2_c$，于是 $\partial s_{i,c}/\partial w2_{j,c'}$ 在 $c=c'$ 时等于 $h_{i,j}$，否则为 $0$（$`w2_{j,c'}`$ 只出现在 $S$ 的第 $c'$ 列里）：
 
-$$\frac{\partial L}{\partial w2_{j,c}} = \sum_{i,c'} \frac{\partial L}{\partial s_{i,c'}}\frac{\partial s_{i,c'}}{\partial w2_{j,c}} = \sum_i (dS)_{i,c}\, h_{i,j} = (H^\top dS)_{j,c}, \qquad\text{所以}\quad \frac{\partial L}{\partial W_2} = H^\top dS.$$
+```math
+\frac{\partial L}{\partial w2_{j,c}} = \sum_{i,c'} \frac{\partial L}{\partial s_{i,c'}}\frac{\partial s_{i,c'}}{\partial w2_{j,c}} = \sum_i (dS)_{i,c}\, h_{i,j} = (H^\top dS)_{j,c}, \qquad\text{所以}\quad \frac{\partial L}{\partial W_2} = H^\top dS.
+```
 
-同样的求和，把 $\partial s_{i,c}/\partial b2_c = 1$ 代进去，得到 $\partial L/\partial b_2 = \sum_i (dS)_{i,:}$，也就是 $dS$ 按列求和，即 `dS.sum(axis=0)`。对 $H$，$\partial s_{i,c}/\partial h_{i,j}=w2_{j,c}$（$H$ 的第 $i$ 行只会喂给 $S$ 的第 $i$ 行）：
+同样的求和，把 $\partial s_{i,c}/\partial b2_c = 1$ 代进去，得到 $`\partial L/\partial b_2 = \sum_i (dS)_{i,:}`$，也就是 $dS$ 按列求和，即 `dS.sum(axis=0)`。对 $H$，$`\partial s_{i,c}/\partial h_{i,j}=w2_{j,c}`$（$`H`$ 的第 $i$ 行只会喂给 $S$ 的第 $i$ 行）：
 
-$$\frac{\partial L}{\partial h_{i,j}} = \sum_c \frac{\partial L}{\partial s_{i,c}}\, w2_{j,c} = (dS\, W_2^\top)_{i,j}, \qquad\text{所以}\quad dH := \frac{\partial L}{\partial H} = dS\, W_2^\top.$$
+```math
+\frac{\partial L}{\partial h_{i,j}} = \sum_c \frac{\partial L}{\partial s_{i,c}}\, w2_{j,c} = (dS\, W_2^\top)_{i,j}, \qquad\text{所以}\quad dH := \frac{\partial L}{\partial H} = dS\, W_2^\top.
+```
 
-$H=\mathrm{ReLU}(Z_1)$ 是逐元素的，$h_{i,j}=\max(z1_{i,j},0)$，导数是 $\partial h_{i,j}/\partial z1_{i,j}=\mathbb 1[z1_{i,j}>0]$（在拐点本身 $z1_{i,j}=0$ 处取次梯度 $0$——Part 2 会讲到为什么这一个点对梯度*检查*（checking）来说是个麻烦，但对反向传播（backpropagation）本身却不是），于是 $dZ_1 := \partial L/\partial Z_1 = dH \odot \mathbb 1[Z_1>0]$，一次逐元素乘法。最后，$Z_1=XW_1+b_1$ 与 $S=HW_2+b_2$ 形状完全一样，只是用 $(X,W_1,b_1,dZ_1)$ 替换了 $(H,W_2,b_2,dS)$，所以同样的两步推导给出 $\partial L/\partial W_1 = X^\top dZ_1$ 和 $\partial L/\partial b_1 = \sum_i (dZ_1)_{i,:}$。
+$H=\mathrm{ReLU}(Z_1)$ 是逐元素的，$`h_{i,j}=\max(z1_{i,j},0)`$，导数是 $\partial h_{i,j}/\partial z1_{i,j}=\mathbb 1[z1_{i,j}>0]$（在拐点本身 $z1_{i,j}=0$ 处取次梯度 $0$——Part 2 会讲到为什么这一个点对梯度*检查*（checking）来说是个麻烦，但对反向传播（backpropagation）本身却不是），于是 $dZ_1 := \partial L/\partial Z_1 = dH \odot \mathbb 1[Z_1>0]$，一次逐元素乘法。最后，$`Z_1=XW_1+b_1`$ 与 $S=HW_2+b_2$ 形状完全一样，只是用 $(X,W_1,b_1,dZ_1)$ 替换了 $(H,W_2,b_2,dS)$，所以同样的两步推导给出 $\partial L/\partial W_1 = X^\top dZ_1$ 和 $`\partial L/\partial b_1 = \sum_i (dZ_1)_{i,:}`$。
 
 ```python
 import numpy as np
@@ -164,23 +180,27 @@ def forward_backward(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray
     return loss, {"W1": dW1, "b1": db1, "W2": dW2, "b2": db2}
 ```
 
-在上面这个例子上，它返回 `loss ~= 0.0354`，$dS \approx \begin{pmatrix}-0.0315 & 0.0315\\ 0.0029 & -0.0029\end{pmatrix}$：第 $0$ 行把类别 $0$ 的得分往上拉、类别 $1$ 的得分往下压，因为真实标签是 $0$，而 $\mathrm{probs}_{0,0}=0.9370$ 还稍微低估了它；第 $1$ 行的拉力小得多，因为 $\mathrm{probs}_{1,1}=0.9942$ 已经很接近标签了。验证代码会用一个独立的有限差分循环，核对这个例子上 `W1`、`b1`、`W2`、`b2` 返回的每一个梯度。
+在上面这个例子上，它返回 `loss ~= 0.0354`，$`dS \approx \begin{pmatrix}-0.0315 & 0.0315\\ 0.0029 & -0.0029\end{pmatrix}`$：第 $0$ 行把类别 $0$ 的得分往上拉、类别 $1$ 的得分往下压，因为真实标签是 $0$，而 $`\mathrm{probs}_{0,0}=0.9370`$ 还稍微低估了它；第 $1$ 行的拉力小得多，因为 $`\mathrm{probs}_{1,1}=0.9942`$ 已经很接近标签了。验证代码会用一个独立的有限差分循环，核对这个例子上 `W1`、`b1`、`W2`、`b2` 返回的每一个梯度。
 
-前向传播花费 $O(Bdm)$ 算 $XW_1$，$O(BmC)$ 算 $HW_2$；反向传播把同样两个乘积转置后各算一遍——$H^\top dS$ 和 $dS\,W_2^\top$ 各是 $O(BmC)$，$X^\top dZ_1$ 是 $O(Bdm)$——所以 `forward_backward` 总共花费 $O(B(dm+mC))$ 时间，和前向传播本身同一个量级（这是反向传播的一条一般规律，追问里还会再提到）。内存是 $O(B(d+m+C))$，用来缓存 $X$、$Z_1$、$H$（反向传播这三个都要读），再加上参数本身占用的 $O(dm+mC)$。
+前向传播花费 $O(Bdm)$ 算 $XW_1$，$`O(BmC)`$ 算 $HW_2$；反向传播把同样两个乘积转置后各算一遍——$`H^\top dS`$ 和 $`dS\,W_2^\top`$ 各是 $O(BmC)$，$`X^\top dZ_1`$ 是 $O(Bdm)$——所以 `forward_backward` 总共花费 $O(B(dm+mC))$ 时间，和前向传播本身同一个量级（这是反向传播的一条一般规律，追问里还会再提到）。内存是 $O(B(d+m+C))$，用来缓存 $X$、$`Z_1`$、$`H`$（反向传播这三个都要读），再加上参数本身占用的 $O(dm+mC)$。
 
 ### Part 2
 
 $g_n$ 逼近 $g_a$ 时会带上两种误差：把 $L$ 的泰勒展开截断在有限阶产生的*截断误差*（truncation error），以及在有限精度算术里计算 $L$ 产生的*舍入误差*（rounding error）；`eps` 的选取就是在这两者之间取舍。把 $L$ 在 $\theta$ 附近展开，
 
-$$L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),$$
+```math
+L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),
+```
 
 所以 $L(\theta+\epsilon)-L(\theta-\epsilon) = 2\epsilon L'(\theta) + \frac{\epsilon^3}{3}L'''(\theta) + O(\epsilon^5)$，再除以 $2\epsilon$，
 
-$$g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4)：$$
+```math
+g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4)：
+```
 
-截断误差是 $O(\epsilon^2)$，单看这一项，`eps` 越小越好，这一项也正是为什么这里用中心差分、而不是单侧差分 $(L(\theta+\epsilon)-L(\theta))/\epsilon$ 的原因：单侧差分的截断误差只有 $O(\epsilon)$（展开式里的奇数阶项在那里不会相互抵消）。但 `float64` 算术表示 $L(\theta)$ 时带有大约*机器精度*（machine epsilon）$u\approx2.22\times10^{-16}$ 的相对误差，所以每次求值都带着大约 $u|L|$ 的绝对误差；用两个只相差 $O(\epsilon)$ 的值相减，会以大约 $u|L|/\epsilon$ 的速度把精度亏给这个误差——把 `eps` 减半大致会把截断项缩小到四分之一，却把这一项放大到两倍，所以总误差 $\frac{\epsilon^2}{6}|L'''| + \frac{u|L|}{\epsilon}$ 在两项相当时最小，即 $\epsilon^2 \sim u/\epsilon$，也就是 `float64` 下 $\epsilon \sim u^{1/3} \approx 6\times10^{-6}$，与默认值 $10^{-5}$ 同一个数量级。`float32` 的机器精度大约是 $1.19\times10^{-7}$，比 `float64` 大了九个数量级，最优的 $\epsilon$ 变成 $\epsilon \sim (1.19\times10^{-7})^{1/3}\approx4.9\times10^{-3}$：在那里用 $10^{-5}$ 就深深落进了舍入误差主导的区间，$u|L|/\epsilon$ 会把 `grad_check` 想要测的信号完全淹没。下面的验证代码会直接演示这一点，所以 `grad_check` 要求 `float64` 的参数和数据，对 `float32` 的输入宁可报错，也不悄悄返回一个会误导人的数字。
+截断误差是 $O(\epsilon^2)$，单看这一项，`eps` 越小越好，这一项也正是为什么这里用中心差分、而不是单侧差分 $(L(\theta+\epsilon)-L(\theta))/\epsilon$ 的原因：单侧差分的截断误差只有 $O(\epsilon)$（展开式里的奇数阶项在那里不会相互抵消）。但 `float64` 算术表示 $L(\theta)$ 时带有大约*机器精度*（machine epsilon）$`u\approx2.22\times10^{-16}`$ 的相对误差，所以每次求值都带着大约 $u|L|$ 的绝对误差；用两个只相差 $O(\epsilon)$ 的值相减，会以大约 $u|L|/\epsilon$ 的速度把精度亏给这个误差——把 `eps` 减半大致会把截断项缩小到四分之一，却把这一项放大到两倍，所以总误差 $\frac{\epsilon^2}{6}|L'''| + \frac{u|L|}{\epsilon}$ 在两项相当时最小，即 $\epsilon^2 \sim u/\epsilon$，也就是 `float64` 下 $\epsilon \sim u^{1/3} \approx 6\times10^{-6}$，与默认值 $10^{-5}$ 同一个数量级。`float32` 的机器精度大约是 $1.19\times10^{-7}$，比 `float64` 大了九个数量级，最优的 $\epsilon$ 变成 $\epsilon \sim (1.19\times10^{-7})^{1/3}\approx4.9\times10^{-3}$：在那里用 $10^{-5}$ 就深深落进了舍入误差主导的区间，$`u|L|/\epsilon`$ 会把 `grad_check` 想要测的信号完全淹没。下面的验证代码会直接演示这一点，所以 `grad_check` 要求 `float64` 的参数和数据，对 `float32` 的输入宁可报错，也不悄悄返回一个会误导人的数字。
 
-拐点是和精度无关的另一个问题。$Z_1=XW_1+b_1$ 本身就是 $W_1$、$b_1$ 的函数，所以扰动它们某一项 $\pm\epsilon$，会让 $Z_1$ 的某些项跟着偏移大约 $\epsilon$ 的量；如果某个隐藏单元的预激活值本来就在某个样本上落在 `eps` 以内挨着 $0$，这个偏移就可能让 $\mathrm{ReLU}$ 在 $L(\theta+\epsilon)$ 和 $L(\theta-\epsilon)$ 这两次求值之间从激活翻转到不激活（或者反过来），于是 $g_n$ 就不再逼近拐点两侧任何一段线性分支自己的导数，这是中心差分这个*方法*本身在那一点上的真实局限，不论 `forward_backward` 的代码写得对不对都存在。`grad_check` 直接用 Part 1 已经算出的那些预激活值检查这件事，一旦发生就报错，而不是返回一个可能被误认成 bug 证据的数字。
+拐点是和精度无关的另一个问题。$`Z_1=XW_1+b_1`$ 本身就是 $W_1$、$`b_1`$ 的函数，所以扰动它们某一项 $\pm\epsilon$，会让 $Z_1$ 的某些项跟着偏移大约 $\epsilon$ 的量；如果某个隐藏单元的预激活值本来就在某个样本上落在 `eps` 以内挨着 $0$，这个偏移就可能让 $\mathrm{ReLU}$ 在 $L(\theta+\epsilon)$ 和 $L(\theta-\epsilon)$ 这两次求值之间从激活翻转到不激活（或者反过来），于是 $g_n$ 就不再逼近拐点两侧任何一段线性分支自己的导数，这是中心差分这个*方法*本身在那一点上的真实局限，不论 `forward_backward` 的代码写得对不对都存在。`grad_check` 直接用 Part 1 已经算出的那些预激活值检查这件事，一旦发生就报错，而不是返回一个可能被误认成 bug 证据的数字。
 
 ```python
 def grad_check(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, eps: float = 1e-5) -> float:
@@ -212,17 +232,21 @@ def grad_check(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, eps:
 
 ### Part 3
 
-**He 初始化。** 单独考虑一层 ReLU，$h=\mathrm{ReLU}(z)$，$z=xW$（偏置只会平移预激活值的分布，这里推导全程和 `he_init` 里都把它设为 $0$，所以先不管它），其中 $x\in\mathbb R^{\mathrm{fan\_in}}$ 的各分量共有一个二阶矩 $s=\mathrm E[x_j^2]$，$W$ 的 $\mathrm{fan\_in}\times\mathrm{fan\_out}$ 个分量独立同分布、取自一个关于 $0$ 对称的分布（`he_init` 用高斯分布）、方差为 $\sigma^2$，且与 $x$ 独立。对某个输出特征 $z_k=\sum_{j=1}^{\mathrm{fan\_in}} x_jW_{jk}$：因为 $\mathrm E[W_{jk}]=0$ 且 $W_{jk}$ 与 $x_j$ 独立，$\mathrm E[z_k]=\sum_j\mathrm E[x_j]\mathrm E[W_{jk}]=0$，不论 $x$ 自己的均值是多少，所以 $\mathrm{Var}(z_k)=\mathrm E[z_k^2]$。展开平方，
+**He 初始化。** 单独考虑一层 ReLU，$`h=\mathrm{ReLU}(z)`$，$`z=xW`$（偏置只会平移预激活值的分布，这里推导全程和 `he_init` 里都把它设为 $0$，所以先不管它），其中 $`x\in\mathbb R^{\mathrm{fan\_in}}`$ 的各分量共有一个二阶矩 $s=\mathrm E[x_j^2]$，$`W`$ 的 $`\mathrm{fan\_in}\times\mathrm{fan\_out}`$ 个分量独立同分布、取自一个关于 $0$ 对称的分布（`he_init` 用高斯分布）、方差为 $\sigma^2$，且与 $x$ 独立。对某个输出特征 $`z_k=\sum_{j=1}^{\mathrm{fan\_in}} x_jW_{jk}`$：因为 $\mathrm E[W_{jk}]=0$ 且 $W_{jk}$ 与 $x_j$ 独立，$`\mathrm E[z_k]=\sum_j\mathrm E[x_j]\mathrm E[W_{jk}]=0`$，不论 $x$ 自己的均值是多少，所以 $\mathrm{Var}(z_k)=\mathrm E[z_k^2]$。展开平方，
 
-$$\mathrm E[z_k^2] = \sum_{j,j'}\mathrm E[x_jx_{j'}W_{jk}W_{j'k}];$$
+```math
+\mathrm E[z_k^2] = \sum_{j,j'}\mathrm E[x_jx_{j'}W_{jk}W_{j'k}];
+```
 
-当 $j\ne j'$ 时，$W_{jk}$ 与 $W_{j'k}$ 互相独立，也都与 $x_j,x_{j'}$ 独立，且 $\mathrm E[W_{jk}]=\mathrm E[W_{j'k}]=0$，所以这一项是 $\mathrm E[x_jx_{j'}]\,\mathrm E[W_{jk}]\,\mathrm E[W_{j'k}]=0$；当 $j=j'$ 时，$W_{jk}$ 与 $x_j$ 的独立性给出 $\mathrm E[x_j^2W_{jk}^2]=\mathrm E[x_j^2]\,\mathrm E[W_{jk}^2]=s\sigma^2$。于是 $\mathrm E[z_k^2]=\mathrm{fan\_in}\cdot s\sigma^2$，一个干净的、关于二阶矩的递推式，与 $x$ 具体的分布无关。
+当 $j\ne j'$ 时，$`W_{jk}`$ 与 $W_{j'k}$ 互相独立，也都与 $x_j,x_{j'}$ 独立，且 $\mathrm E[W_{jk}]=\mathrm E[W_{j'k}]=0$，所以这一项是 $`\mathrm E[x_jx_{j'}]\,\mathrm E[W_{jk}]\,\mathrm E[W_{j'k}]=0`$；当 $j=j'$ 时，$`W_{jk}`$ 与 $x_j$ 的独立性给出 $`\mathrm E[x_j^2W_{jk}^2]=\mathrm E[x_j^2]\,\mathrm E[W_{jk}^2]=s\sigma^2`$。于是 $`\mathrm E[z_k^2]=\mathrm{fan\_in}\cdot s\sigma^2`$，一个干净的、关于二阶矩的递推式，与 $x$ 具体的分布无关。
 
-因为 $W_{jk}$ 的分布关于 $0$ 对称，且与 $x_j$ 独立，乘积 $x_jW_{jk}$ 也关于 $0$ 对称（它与 $x_j(-W_{jk})=-(x_jW_{jk})$ 同分布，因为 $-W_{jk}$ 与 $W_{jk}$ 同分布），而若干个各自关于 $0$ 对称的独立变量之和，本身也关于 $0$ 对称，所以 $z_k$ 恰好关于 $0$ 对称，不只是近似。对一个关于 $0$ 对称的分布，$\mathrm E[z^2\mathbb 1[z>0]]=\mathrm E[z^2\mathbb 1[z<0]]$（在期望里代入 $z\to-z$：$z^2$ 不变，$\mathbb 1[z>0]$ 变成 $\mathbb 1[z<0]$），两者相加等于 $\mathrm E[z^2]$（几乎必然不会恰好等于 $0$），所以各自都恰好是它的一半：
+因为 $W_{jk}$ 的分布关于 $0$ 对称，且与 $x_j$ 独立，乘积 $x_jW_{jk}$ 也关于 $0$ 对称（它与 $x_j(-W_{jk})=-(x_jW_{jk})$ 同分布，因为 $-W_{jk}$ 与 $W_{jk}$ 同分布），而若干个各自关于 $0$ 对称的独立变量之和，本身也关于 $0$ 对称，所以 $z_k$ 恰好关于 $0$ 对称，不只是近似。对一个关于 $0$ 对称的分布，$`\mathrm E[z^2\mathbb 1[z>0]]=\mathrm E[z^2\mathbb 1[z<0]]`$（在期望里代入 $z\to-z$：$`z^2`$ 不变，$`\mathbb 1[z>0]`$ 变成 $\mathbb 1[z<0]$），两者相加等于 $\mathrm E[z^2]$（几乎必然不会恰好等于 $0$），所以各自都恰好是它的一半：
 
-$$\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\,\mathrm{fan\_in}\cdot s\sigma^2.$$
+```math
+\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\,\mathrm{fan\_in}\cdot s\sigma^2.
+```
 
-令 $\mathrm E[h^2]=s$，也就是这一层保住了激活的二阶矩，解出 $\sigma^2=2/\mathrm{fan\_in}$：这正是 He 初始化。换成 $\sigma^2=1/\mathrm{fan\_in}$（这是能保住*线性*层输出方差的方差，忽略了 $\mathrm{ReLU}$ 带来的那个 $\tfrac12$ 因子），会得到 $\mathrm E[h^2]=s/2$：二阶矩在每一层都被砍掉一半，堆叠 $10$ 层之后大约只剩最初的 $2^{-10}\approx0.001$，下面用蒙特卡洛确认这一点。
+令 $\mathrm E[h^2]=s$，也就是这一层保住了激活的二阶矩，解出 $`\sigma^2=2/\mathrm{fan\_in}`$：这正是 He 初始化。换成 $`\sigma^2=1/\mathrm{fan\_in}`$（这是能保住*线性*层输出方差的方差，忽略了 $\mathrm{ReLU}$ 带来的那个 $\tfrac12$ 因子），会得到 $\mathrm E[h^2]=s/2$：二阶矩在每一层都被砍掉一半，堆叠 $10$ 层之后大约只剩最初的 $2^{-10}\approx0.001$，下面用蒙特卡洛确认这一点。
 
 ```python
 def he_init(d: int, m: int, C: int, seed: int) -> dict[str, np.ndarray]:
@@ -239,13 +263,15 @@ def zero_init(d: int, m: int, C: int) -> dict[str, np.ndarray]:
     return {"W1": np.zeros((d, m)), "b1": np.zeros(m), "W2": np.zeros((m, C)), "b2": np.zeros(C)}
 ```
 
-**全零初始化。** 把 Part 1 的梯度公式代入 $W_1=b_1=W_2=b_2=0$ 这一点。$Z_1=XW_1+b_1=0$ 对每一行都成立，不论 $X$ 是什么，于是 $H=\mathrm{ReLU}(0)=0$ 也对每个隐藏单元、每个样本都成立，每个隐藏单元算的都是输入的同一个（恒为零的）函数，这正是“隐藏单元保持一致”最字面的意思。这个结论会一路传回 `forward_backward` 的每一步：$dW_2=H^\top dS=0$（零矩阵乘任何东西都是零，不论 $dS$ 算出来是什么），$dH=dS\,W_2^\top=0$（因为 $W_2=0$），$dZ_1=dH\odot\mathbb 1[Z_1>0]=0$（$\mathbb 1[0>0]$ 是 `False`），$dW_1=X^\top dZ_1=0$，$db_1=\sum_i(dZ_1)_{i,:}=0$。只有 $db_2=\sum_i(dS)_{i,:}$ 可能不为零，因为它从来不乘 $H$ 或 $W_2$。
+**全零初始化。** 把 Part 1 的梯度公式代入 $W_1=b_1=W_2=b_2=0$ 这一点。$`Z_1=XW_1+b_1=0`$ 对每一行都成立，不论 $X$ 是什么，于是 $H=\mathrm{ReLU}(0)=0$ 也对每个隐藏单元、每个样本都成立，每个隐藏单元算的都是输入的同一个（恒为零的）函数，这正是“隐藏单元保持一致”最字面的意思。这个结论会一路传回 `forward_backward` 的每一步：$`dW_2=H^\top dS=0`$（零矩阵乘任何东西都是零，不论 $dS$ 算出来是什么），$`dH=dS\,W_2^\top=0`$（因为 $W_2=0$），$`dZ_1=dH\odot\mathbb 1[Z_1>0]=0`$（$`\mathbb 1[0>0]`$ 是 `False`），$`dW_1=X^\top dZ_1=0`$，$`db_1=\sum_i(dZ_1)_{i,:}=0`$。只有 $`db_2=\sum_i(dS)_{i,:}`$ 可能不为零，因为它从来不乘 $H$ 或 $W_2$。
 
-用归纳法可以证明这在*每一步*训练里都成立，不只是第一步：如果第 $t$ 步有 $W_1^{(t)}=b_1^{(t)}=0$（在 $t=0$ 时由构造成立），上一段的结论就给出 $dW_1^{(t)}=db_1^{(t)}=dW_2^{(t)}=0$，不论 $W_2^{(t)}$、$b_2^{(t)}$ 是什么；于是动量自己的递推
+用归纳法可以证明这在*每一步*训练里都成立，不只是第一步：如果第 $t$ 步有 $W_1^{(t)}=b_1^{(t)}=0$（在 $t=0$ 时由构造成立），上一段的结论就给出 $dW_1^{(t)}=db_1^{(t)}=dW_2^{(t)}=0$，不论 $W_2^{(t)}$、$`b_2^{(t)}`$ 是什么；于是动量自己的递推
 
-$$v^{(t+1)}=\mathrm{momentum}\cdot v^{(t)}-\mathrm{lr}\cdot0=\mathrm{momentum}\cdot v^{(t)}$$
+```math
+v^{(t+1)}=\mathrm{momentum}\cdot v^{(t)}-\mathrm{lr}\cdot0=\mathrm{momentum}\cdot v^{(t)}
+```
 
-让 $v_{W_1},v_{b_1},v_{W_2}$ 一直停在它们的初始值 $\mathbf0$ 上，从而 $W_1^{(t+1)}=W_1^{(t)}+0=0$，$b_1$、$W_2$ 同理，这正是下一步的归纳假设。所以 `zero_init` 会让 `W1`、`b1`、`W2` 在整个训练过程中都精确地停在 $\mathbf0$，唯一还能动的参数是 `b2`，它会去拟合标签的边际分布：因为 $H\equiv0$，$S=HW_2+b_2=b_2$ 对每个样本都是同一组得分，与 $X$ 无关，所以 `b2` 得到的梯度只来自 $y$ 的类别频率，别无其它。不论架构、学习率、动量还是训练多少步，都打不破这种对称性，因为它是*梯度公式本身*在这一点上的性质，只有初始值本身能打破它。
+让 $v_{W_1},v_{b_1},v_{W_2}$ 一直停在它们的初始值 $\mathbf0$ 上，从而 $W_1^{(t+1)}=W_1^{(t)}+0=0$，$`b_1`$、$`W_2`$ 同理，这正是下一步的归纳假设。所以 `zero_init` 会让 `W1`、`b1`、`W2` 在整个训练过程中都精确地停在 $\mathbf0$，唯一还能动的参数是 `b2`，它会去拟合标签的边际分布：因为 $H\equiv0$，$`S=HW_2+b_2=b_2`$ 对每个样本都是同一组得分，与 $X$ 无关，所以 `b2` 得到的梯度只来自 $y$ 的类别频率，别无其它。不论架构、学习率、动量还是训练多少步，都打不破这种对称性，因为它是*梯度公式本身*在这一点上的性质，只有初始值本身能打破它。
 
 ```python
 def make_spirals(n_per_class: int, n_turns: float, noise: float, seed: int) -> tuple[np.ndarray, np.ndarray]:
@@ -283,17 +309,17 @@ def accuracy(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray) -> flo
 $v^{(t+1)}=\mathrm{momentum}\cdot v^{(t)}-\mathrm{lr}\cdot g$ 会收敛到不动点
 $v_\infty=-\mathrm{lr}\cdot g/(1-\mathrm{momentum})$（解 $v_\infty=\mathrm{momentum}\cdot
 v_\infty-\mathrm{lr}\cdot g$ 中的 $v_\infty$ 即得），所以在 $\mathrm{momentum}=0.9$ 时，真正起作用的有效步长是原始
-`lr` 的十倍；`lr`$=0.15$（有效步长 $1.5$）是凭经验选出的，稳稳落在仍然收敛、而非开始震荡的范围之内。
+`lr` 的十倍；`lr`$`=0.15`$（有效步长 $1.5$）是凭经验选出的，稳稳落在仍然收敛、而非开始震荡的范围之内。
 
-用 `he_init(2, 64, 2, seed=1)`、`make_spirals(150, n_turns=1.5, noise=0.08, seed=0)`、`train(..., steps=4000, batch_size=32, lr=0.15, momentum=0.9, seed=2)`，训练准确率能到 $99\%$，比 $95\%$ 的目标高出不少；把 `he_init` 换成 `zero_init(2, 64, 2)`，其它都不变，`W1`、`b1`、`W2` 逐位精确等于它们初始的零，准确率恰好是 $50\%$，在这个类别完全均衡的数据集上，这就是随机水平，因为这个被冻结的网络对每一个输入都预测同一个类别。
+用 `he_init(2, 64, 2, seed=1)`、`make_spirals(150, n_turns=1.5, noise=0.08, seed=0)`、`train(..., steps=4000, batch_size=32, lr=0.15, momentum=0.9, seed=2)`，训练准确率能到 $`99\%`$，比 $`95\%`$ 的目标高出不少；把 `he_init` 换成 `zero_init(2, 64, 2)`，其它都不变，`W1`、`b1`、`W2` 逐位精确等于它们初始的零，准确率恰好是 $`50\%`$，在这个类别完全均衡的数据集上，这就是随机水平，因为这个被冻结的网络对每一个输入都预测同一个类别。
 
 ### 追问
 
-- **反向模式与前向模式的自动微分。** 对一个标量损失和 $P$ 个参数，反向模式（`forward_backward` 采用的方式）用一次反向传播就能算出完整的梯度，代价和前向传播本身差不多——$O(1)$ 次遍历，与 $P$ 无关——做法是把链式法则从输出往输入方向应用，从唯一一个标量 $\partial L/\partial L=1$ 开始累积。前向模式则相反，让一个方向导数跟着每一个中间值从输入往输出方向传播，每个参数（或者每个输入方向）都要单独跑一次完整的遍历，$O(P)$ 次；参数多、输出少时反向模式占优，正是这道题的场景，输入少、输出多时则是前向模式占优，比如沿着少数几个方向求雅可比向量积（Jacobian-vector product）。
+- **反向模式与前向模式的自动微分。** 对一个标量损失和 $P$ 个参数，反向模式（`forward_backward` 采用的方式）用一次反向传播就能算出完整的梯度，代价和前向传播本身差不多——$`O(1)`$ 次遍历，与 $P$ 无关——做法是把链式法则从输出往输入方向应用，从唯一一个标量 $\partial L/\partial L=1$ 开始累积。前向模式则相反，让一个方向导数跟着每一个中间值从输入往输出方向传播，每个参数（或者每个输入方向）都要单独跑一次完整的遍历，$`O(P)`$ 次；参数多、输出少时反向模式占优，正是这道题的场景，输入少、输出多时则是前向模式占优，比如沿着少数几个方向求雅可比向量积（Jacobian-vector product）。
 - **内存与激活重计算（activation checkpointing）。** 反向传播需要前向传播产生的每一个中间激活——`_forward` 缓存了 `Z1`、`H`、`X`，正是因为 `forward_backward` 的梯度都要读它们，所以内存开销是网络深度乘以激活大小，还要加上参数本身。激活重计算用算力换内存：只保留一部分激活（比如每隔几层留一个），反向传播时从最近保留的那个重新算出中间缺的那些，把 $O(\text{depth})$ 的内存换成大约 $O(\sqrt{\text{depth}})$，代价是多跑一次局部的前向传播。
-- **梯度随深度的消失与爆炸。** 反向传播穿过 $L$ 层堆叠的层时，大致是把 $L$ 个雅可比矩阵连乘起来；如果它们典型的尺度是 $\rho\ne1$，这个乘积就会按 $\rho^L$ 变化，$\rho$ 哪怕只比 $1$ 偏离一点点，$L$ 一大就会指数级地趋于 $0$ 或者爆炸。这和上面 He 初始化背后保二阶矩的论证是同一套道理，只是这里用在*反向*传播上，而不是蒙特卡洛验证的前向传播上：前向的二阶矩保住了，并不自动意味着反向梯度的量级也保住了，这也是为什么有些初始化方案是按反向传播来定的，或者取前向、反向两者的一个折中。
-- **权重衰减（weight decay）。** 在损失里加上 $\frac{\lambda}{2}\lVert\theta\rVert^2$，会给每个参数的梯度都加上 $\lambda\theta$，逐元素、与数据无关，只需要在交给优化器之前多写一行，`dW1 = dW1 + lambda_ * W1`，`dW2` 同理。对普通 SGD 来说，这等价于直接收缩参数，$\theta\leftarrow(1-\eta\lambda)\theta-\eta\nabla_\theta L_{\text{data}}$；一旦用上动量或者 Adam，这两种写法就不再等价，而这正是*解耦*（decoupled）权重衰减（AdamW）要保住的区别。
-- **批归一化（batch normalisation）的反向传播。** BatchNorm 在*整个批次*上对每个特征做居中和缩放，$\hat z_j=(z_j-\mu_j)/\sqrt{\sigma_j^2+\epsilon}$，其中 $\mu_j,\sigma_j^2$ 是用共享这个批次的每一个样本算出来的，和上面 $\mathrm{ReLU}$ 那种对每个样本各自独立作用的门不同，局部雅可比 $\partial\hat z_{i,j}/\partial z_{i',j}$ 对任意一对样本 $i,i'$ 都不为零（通过 $\mu_j$ 和 $\sigma_j^2$），所以某个样本在这一层的梯度，真的依赖于当前和它共享同一批次的其它每一个样本。
+- **梯度随深度的消失与爆炸。** 反向传播穿过 $L$ 层堆叠的层时，大致是把 $L$ 个雅可比矩阵连乘起来；如果它们典型的尺度是 $\rho\ne1$，这个乘积就会按 $\rho^L$ 变化，$`\rho`$ 哪怕只比 $1$ 偏离一点点，$`L`$ 一大就会指数级地趋于 $0$ 或者爆炸。这和上面 He 初始化背后保二阶矩的论证是同一套道理，只是这里用在*反向*传播上，而不是蒙特卡洛验证的前向传播上：前向的二阶矩保住了，并不自动意味着反向梯度的量级也保住了，这也是为什么有些初始化方案是按反向传播来定的，或者取前向、反向两者的一个折中。
+- **权重衰减（weight decay）。** 在损失里加上 $\frac{\lambda}{2}\lVert\theta\rVert^2$，会给每个参数的梯度都加上 $\lambda\theta$，逐元素、与数据无关，只需要在交给优化器之前多写一行，`dW1 = dW1 + lambda_ * W1`，`dW2` 同理。对普通 SGD 来说，这等价于直接收缩参数，$`\theta\leftarrow(1-\eta\lambda)\theta-\eta\nabla_\theta L_{\text{data}}`$；一旦用上动量或者 Adam，这两种写法就不再等价，而这正是*解耦*（decoupled）权重衰减（AdamW）要保住的区别。
+- **批归一化（batch normalisation）的反向传播。** BatchNorm 在*整个批次*上对每个特征做居中和缩放，$`\hat z_j=(z_j-\mu_j)/\sqrt{\sigma_j^2+\epsilon}`$，其中 $\mu_j,\sigma_j^2$ 是用共享这个批次的每一个样本算出来的，和上面 $\mathrm{ReLU}$ 那种对每个样本各自独立作用的门不同，局部雅可比 $\partial\hat z_{i,j}/\partial z_{i',j}$ 对任意一对样本 $i,i'$ 都不为零（通过 $\mu_j$ 和 $\sigma_j^2$），所以某个样本在这一层的梯度，真的依赖于当前和它共享同一批次的其它每一个样本。
 
 <details>
 <summary>验证代码（可运行）</summary>

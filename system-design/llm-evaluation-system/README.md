@@ -88,12 +88,14 @@ needs to hold.
 contributing $0$, $0.5$, or $1$ to that domain's win rate, and test whether the true win probability differs
 from $p_0=0.5$ (no real difference from production) by the target 2 percentage points, i.e. $p_1=0.52$ (by
 symmetry, the same derivation covers $p_1=0.48$). Under $H_0$, the normal approximation to the binomial gives
-$\hat p \sim \mathcal N(p_0, p_0(1-p_0)/n)$, so a two-sided level-$\alpha$ test rejects when $|\hat
+$\hat p \sim \mathcal N(p_0, p_0(1-p_0)/n)$, so a two-sided level-$`\alpha`$ test rejects when $|\hat
 p-p_0|>z_{\alpha/2}\sqrt{p_0(1-p_0)/n}$. Under $H_1$, $\hat p\sim\mathcal N(p_1,p_1(1-p_1)/n)$, and a test
 with power $1-\beta$ needs the rejection boundary to sit $z_\beta$ standard deviations, measured under $H_1$,
 below $p_1$. Equating that boundary with the one $H_0$ already fixes and solving for $n$ gives
 
-$$n = \left(\frac{z_{\alpha/2}\sqrt{p_0(1-p_0)} + z_\beta\sqrt{p_1(1-p_1)}}{p_1-p_0}\right)^2.$$
+```math
+n = \left(\frac{z_{\alpha/2}\sqrt{p_0(1-p_0)} + z_\beta\sqrt{p_1(1-p_1)}}{p_1-p_0}\right)^2.
+```
 
 At $\alpha=0.05$ two-sided ($z_{\alpha/2}\approx1.960$) and power $0.80$ ($z_\beta\approx0.842$), this comes
 to $n\approx4{,}903$ comparisons, rounded up to $4{,}904$ (computed exactly below).
@@ -265,7 +267,9 @@ common, two judges that both lean toward "tie" most of the time agree often by c
 corrects for this by comparing the observed agreement rate $p_o$ against the rate two independent judges
 with the same marginal distributions would produce by chance, $p_e$:
 
-$$\kappa = \frac{p_o - p_e}{1 - p_e}.$$
+```math
+\kappa = \frac{p_o - p_e}{1 - p_e}.
+```
 
 On the 200-comparison calibration confusion matrix checked below, $p_o=0.80$ but $p_e\approx0.34$, giving
 $\kappa\approx0.70$ — conventionally "substantial" agreement, not "almost perfect": enough to trust the
@@ -282,7 +286,9 @@ showing the candidate first adds a bias $b$ to its apparent score and showing it
 $b$ (production now occupies the position the bias favours), then averaging the two orders' scores for one
 prompt cancels $b$ exactly, leaving only the two judgments' independent noise:
 
-$$\mathbb E\left[\frac{s_{\text{first}}+s_{\text{second}}}{2}\right] = \frac{(\text{true}+b) + (\text{true}-b)}{2} = \text{true}.$$
+```math
+\mathbb E\left[\frac{s_{\text{first}}+s_{\text{second}}}{2}\right] = \frac{(\text{true}+b) + (\text{true}-b)}{2} = \text{true}.
+```
 
 A single order, or an order picked at random per item, only cancels $b$ in aggregate over many prompts, not
 on any one comparison, so it has the same expectation as the doubled design but a noisier estimate at the
@@ -299,7 +305,9 @@ might never have been run directly. The Bradley–Terry model turns a set of pai
 one ranking by giving every model $i$ a latent strength $\pi_i>0$ (equivalently $\theta_i=\log\pi_i$) and
 modelling
 
-$$P(i \text{ beats } j) = \frac{\pi_i}{\pi_i+\pi_j} = \frac{1}{1+e^{-(\theta_i-\theta_j)}},$$
+```math
+P(i \text{ beats } j) = \frac{\pi_i}{\pi_i+\pi_j} = \frac{1}{1+e^{-(\theta_i-\theta_j)}},
+```
 
 a logistic function of the strength gap, ties handled by counting as half a win to each side, exactly as
 the win rate elsewhere on this page already does. Maximising the resulting log-likelihood over all observed
@@ -307,7 +315,9 @@ comparisons has no closed form, but setting its derivative with respect to each 
 simple fixed-point characterisation — the Zermelo/Hunter minorisation–maximisation update — that converges
 monotonically from any positive starting point:
 
-$$\pi_i \leftarrow \frac{W_i}{\displaystyle\sum_{j\neq i} \dfrac{n_{ij}}{\pi_i+\pi_j}},$$
+```math
+\pi_i \leftarrow \frac{W_i}{\displaystyle\sum_{j\neq i} \dfrac{n_{ij}}{\pi_i+\pi_j}},
+```
 
 where $W_i$ is model $i$'s total win count across all opponents and $n_{ij}$ the number of times $i$ and
 $j$ were compared. Iterating this update for every model and renormalising — the strengths are identified
@@ -327,7 +337,9 @@ keep the release process's overall false-positive rate at 5%. If a candidate is 
 production in every domain, the chance that at least one of the 12 independent tests rejects its null
 anyway is
 
-$$1-(1-\alpha)^{12} \approx 0.46$$
+```math
+1-(1-\alpha)^{12} \approx 0.46
+```
 
 — not a 5% chance of a wrong call, but closer to a coin flip (checked below). The standard fix is to test
 each domain at a stricter level. Bonferroni's is the simplest: test every domain at $\alpha/12$, which

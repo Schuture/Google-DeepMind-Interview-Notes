@@ -299,7 +299,7 @@ def weighted_sampler(values: Sequence[int], weights: Sequence[float], rng: rando
 
 Building `cumulative` costs $O(n)$, done once per call to `weighted_sampler`; each draw afterwards does one
 `bisect_right` over it, $O(\log n)$, plus $O(1)$ other work. For `bisect_right(cumulative, u)` to return index
-$i$, $u$ must fall in $[\,\mathrm{cumulative}[i-1],\ \mathrm{cumulative}[i])$, where for $i = 0$ the lower end
+$i$, $u$ must fall in $`[\,\mathrm{cumulative}[i-1],\ \mathrm{cumulative}[i])`$, where for $i = 0$ the lower end
 is $0$, which `u >= 0` satisfies. When $\mathrm{weights}[i] = 0$, that interval is empty because
 $\mathrm{cumulative}[i] = \mathrm{cumulative}[i - 1]$, so a zero-weight index can never be `bisect_right`'s
 answer — including index $0$, which needs $u < \mathrm{cumulative}[0]$, impossible once
@@ -500,10 +500,10 @@ starts at $n \cdot w_v / \mathrm{total}$, loses exactly what $v$ donates to othe
 becomes $\mathrm{prob}[v]$ when $v$'s own column is finalised ($1$ for a leftover column, which donates
 nothing more). Summing over all columns, $v$ therefore receives exactly
 
-$$
+```math
 \frac{1}{n}\Bigl(\mathrm{prob}[v] + \sum_{s:\ \mathrm{alias}[s] = v} \bigl(1 - \mathrm{prob}[s]\bigr)\Bigr)
 = \frac{1}{n} \cdot \frac{n \, w_v}{\mathrm{total}} = \frac{w_v}{\mathrm{total}},
-$$
+```
 
 the exact distribution the checks below verify directly from `prob` and `alias`, with no sampling
 involved.
@@ -524,12 +524,12 @@ independent of $n$.
   item $i$ a key $u_i^{1/w_i}$ for $u_i$ drawn uniformly from $(0, 1)$, and keeps the $k$ items with the
   largest keys, in one pass, with one key per item and no removal-and-renormalise step. Since
   $P(u_i^{1/w_i} \leq t) = t^{w_i}$, item $i$ holds the largest key with probability
-  $\int_0^1 w_i t^{w_i - 1} \prod_{j \neq i} t^{w_j}\,dt = w_i / \sum_j w_j$ (one draw of Parts 2 and 3),
+  $`\int_0^1 w_i t^{w_i - 1} \prod_{j \neq i} t^{w_j}\,dt = w_i / \sum_j w_j`$ (one draw of Parts 2 and 3),
   and the remaining keys divided by the largest are again keys of the same form; so the $k$ items, in
   decreasing key order, are distributed exactly as $k$ successive draws that each pick one of the items
   not yet chosen with probability proportional to its weight.
 - **Weighted reservoir sampling over a stream too long to store.** Pairing the same keys with a
-  size-$k$ min-heap gives a streaming version: keep the $k$ largest keys seen so far, replacing the
+  size-$`k`$ min-heap gives a streaming version: keep the $k$ largest keys seen so far, replacing the
   smallest whenever a new key beats it, and whatever remains once the stream ends is a valid weighted
   sample without replacement, having stored at most $k$ items and one key per item at any time.
 - **A continuous distribution.** The discrete idea generalises directly: for a continuous distribution

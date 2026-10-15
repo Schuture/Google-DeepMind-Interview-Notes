@@ -10,21 +10,25 @@
 
 ## 题目
 
-数据 $X = \{x_1, \dots, x_n\} \subset \mathbb{R}^d$（等价于一个形状为 $(n, d)$ 的数组）被建模为独立同分布地采自
-$K$ 个多元高斯分布组成的混合。分量 $k$（$1 \le k \le K$）有一个*权重*（weight）$\pi_k \ge 0$，满足
-$\sum_{k=1}^K \pi_k = 1$；一个*均值*（mean）$\mu_k \in \mathbb{R}^d$；以及一个*协方差*（covariance）
+数据 $`X = \{x_1, \dots, x_n\} \subset \mathbb{R}^d`$（等价于一个形状为 $(n, d)$ 的数组）被建模为独立同分布地采自
+$K$ 个多元高斯分布组成的混合。分量 $k$（$`1 \le k \le K`$）有一个*权重*（weight）$`\pi_k \ge 0`$，满足
+$\sum_{k=1}^K \pi_k = 1$；一个*均值*（mean）$`\mu_k \in \mathbb{R}^d`$；以及一个*协方差*（covariance）
 $\Sigma_k \in \mathbb{R}^{d \times d}$——对称且正定（对任意 $v \ne 0$ 都有 $v^\top \Sigma_k v > 0$），因此
-$\Sigma_k$ 可逆，$|\Sigma_k| > 0$——由此给出密度
+$\Sigma_k$ 可逆，$`|\Sigma_k| > 0`$——由此给出密度
 
-$$\mathcal N(x; \mu, \Sigma) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left(-\frac12 (x - \mu)^\top \Sigma^{-1} (x - \mu)\right), \qquad p(x) = \sum_{k=1}^K \pi_k\, \mathcal N(x; \mu_k, \Sigma_k).$$
+```math
+\mathcal N(x; \mu, \Sigma) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \exp\left(-\frac12 (x - \mu)^\top \Sigma^{-1} (x - \mu)\right), \qquad p(x) = \sum_{k=1}^K \pi_k\, \mathcal N(x; \mu_k, \Sigma_k).
+```
 
-记 $\theta = (\pi_{1:K}, \mu_{1:K}, \Sigma_{1:K})$ 为全部参数的集合。$X$ 在 $\theta$ 下的*对数似然*
+记 $\theta = (\pi_{1:K}, \mu_{1:K}, \Sigma_{1:K})$ 为全部参数的集合。$`X`$ 在 $\theta$ 下的*对数似然*
 （log-likelihood）是
 
-$$\ell(\theta) = \sum_{i=1}^n \log \sum_{k=1}^K \pi_k\, \mathcal N(x_i; \mu_k, \Sigma_k).$$
+```math
+\ell(\theta) = \sum_{i=1}^n \log \sum_{k=1}^K \pi_k\, \mathcal N(x_i; \mu_k, \Sigma_k).
+```
 
-举例，$K = 2$、$d = 1$（于是每个 $\Sigma_k$ 都是 $1 \times 1$ 矩阵 $[\sigma_k^2]$）、
-$\pi = (0.5, 0.5)$、$\mu = (-1, 1)$、$\sigma_1^2 = \sigma_2^2 = 1$，$X = (-2, 0, 3)$：
+举例，$`K = 2`$、$`d = 1`$（于是每个 $\Sigma_k$ 都是 $1 \times 1$ 矩阵 $[\sigma_k^2]$）、
+$\pi = (0.5, 0.5)$、$`\mu = (-1, 1)`$、$`\sigma_1^2 = \sigma_2^2 = 1`$，$`X = (-2, 0, 3)`$：
 
 ```text
 N(x; mu_k, sigma_k^2)，每列对应一个分量：
@@ -43,7 +47,7 @@ ell(theta) = log(0.1232) + log(0.2420) + log(0.0271) ~= -7.1225
 
 ### Part 1 —— 推导 EM
 
-为每个点引入一个隐变量（latent variable）$z_i \in \{1, \dots, K\}$，满足 $p(z_i = k) = \pi_k$ 和
+为每个点引入一个隐变量（latent variable）$`z_i \in \{1, \dots, K\}`$，满足 $p(z_i = k) = \pi_k$ 和
 $p(x_i \mid z_i = k) = \mathcal N(x_i; \mu_k, \Sigma_k)$，这样把 $z_i$ 边缘化掉就得到
 $p(x_i) = \sum_k \pi_k \mathcal N(x_i; \mu_k, \Sigma_k)$，也就是上面的 $\ell(\theta) = \sum_i \log p(x_i)$。
 固定一组当前估计 $\theta^{\mathrm{old}} = (\pi^{\mathrm{old}}, \mu^{\mathrm{old}}, \Sigma^{\mathrm{old}})$。
@@ -54,7 +58,9 @@ $k$ 生成的后验概率。
 
 **(b)** *完全数据对数似然的期望*（expected complete-data log-likelihood）定义为
 
-$$Q(\theta; \theta^{\mathrm{old}}) = \mathbb E_{z \mid X, \theta^{\mathrm{old}}}\bigl[\log p(X, Z \mid \theta)\bigr] = \sum_{i=1}^n \sum_{k=1}^K \gamma_{ik} \bigl[\log \pi_k + \log \mathcal N(x_i; \mu_k, \Sigma_k)\bigr],$$
+```math
+Q(\theta; \theta^{\mathrm{old}}) = \mathbb E_{z \mid X, \theta^{\mathrm{old}}}\bigl[\log p(X, Z \mid \theta)\bigr] = \sum_{i=1}^n \sum_{k=1}^K \gamma_{ik} \bigl[\log \pi_k + \log \mathcal N(x_i; \mu_k, \Sigma_k)\bigr],
+```
 
 其中 (a) 里的 $\gamma_{ik}$ 保持固定。用一个拉格朗日乘子（Lagrange multiplier）处理约束
 $\sum_k \pi_k = 1$，推导 $\arg\max_\pi Q$；再通过令相应梯度为零，分别推导 $\arg\max_{\mu_k} Q$ 和
@@ -63,10 +69,10 @@ $\arg\max_{\Sigma_k} Q$（每个 $k$ 各自独立求解）。
 **(c)** 一次 *EM 迭代*取 $\theta^{\mathrm{old}}$，先用 (a) 算出 $\gamma$——这是 *E 步*（E-step）——再把
 $\theta^{\mathrm{new}}$ 设为 (b) 求出的极大值点——这是 *M 步*（M-step）。证明对任意
 $\theta^{\mathrm{old}}$ 都有 $\ell(\theta^{\mathrm{new}}) \ge \ell(\theta^{\mathrm{old}})$：对每个点上
-$\{1, \dots, K\}$ 上的任意一个分布 $q_i$（$q_i(k) \ge 0$，$\sum_k q_i(k) = 1$），用 *Jensen 不等式*
+$`\{1, \dots, K\}`$ 上的任意一个分布 $q_i$（$`q_i(k) \ge 0`$，$`\sum_k q_i(k) = 1`$），用 *Jensen 不等式*
 （Jensen's inequality，对凹函数 $\varphi$ 和随机变量 $Y$ 有 $\varphi(\mathbb E[Y]) \ge \mathbb E[\varphi(Y)]$）
 构造一个下界 $F(\theta, q) \le \ell(\theta)$，它对任意 $\theta$ 和任意 $q$ 都成立；证明当
-$\theta = \theta^{\mathrm{old}}$、$q_i(k) = \gamma_{ik}$ 时这个下界恰好取等；并证明 M 步求出的 $Q$ 的极大值点，
+$\theta = \theta^{\mathrm{old}}$、$`q_i(k) = \gamma_{ik}`$ 时这个下界恰好取等；并证明 M 步求出的 $Q$ 的极大值点，
 同时也是 $F(\cdot, \gamma)$ 的极大值点。
 
 ### Part 2 —— 实现
@@ -80,10 +86,10 @@ def fit_gmm(X: np.ndarray, K: int, n_iter: int = 200, tol: float = 1e-8, reg: fl
     ell at the returned weights/means/covs)."""
 ```
 
-初始化时，所有随机性都用 `np.random.default_rng(seed)`：$K$ 个均值取 $X$ 的 $K$ 行不同的数据点，用
+初始化时，所有随机性都用 `np.random.default_rng(seed)`：$`K`$ 个均值取 $X$ 的 $K$ 行不同的数据点，用
 *k-means++* 选出——先从 $n$ 行里均匀随机抽出第一个，然后对 $k = 2, \dots, K$，从剩下的行里按“到已选出的最近均值的欧氏距离平方”成比例地抽出下一个；每个协方差都取
 $\hat\Sigma + \mathrm{reg} \cdot I_d$，其中 $\hat\Sigma = \frac1n \sum_i (x_i - \bar x)(x_i - \bar x)^\top$ 是
-$X$ 自己的协方差、$\bar x$ 是它的均值；每个权重都取 $1/K$。
+$X$ 自己的协方差、$`\bar x`$ 是它的均值；每个权重都取 $1/K$。
 
 每个 E 步都要在对数空间里计算：先对每个 $(i, k)$ 算出 $\log \pi_k + \log \mathcal N(x_i; \mu_k, \Sigma_k)$，
 再用 *log-sum-exp* 恒等式——在做指数运算之前先减去每行的最大值——合并这 $K$ 个分量，而不是直接对每个
@@ -92,7 +98,7 @@ $\mathrm{reg} \cdot I_d$。依次跑 E 步、M 步、E 步……把每个 E 步�
 `log_likelihoods`；一旦 $\ell$ 相对上一个 E 步的提升小于 `tol`（绝对值），或者已经跑了 `n_iter` 个 E 步——两者以先到的为准——就停止，且不再执行这一轮的
 M 步。
 
-接着上面的例子（$\theta^{\mathrm{old}}$ 就是那里给出的 $\pi, \mu, \Sigma$），Part 1(a) 的响应度和 Part
+接着上面的例子（$`\theta^{\mathrm{old}}`$ 就是那里给出的 $\pi, \mu, \Sigma$），Part 1(a) 的响应度和 Part
 1(b) 更新后的参数是：
 
 ```text
@@ -106,15 +112,15 @@ ell(theta_old) ~= -7.1225，ell(theta_new) ~= -6.0408   # 确实提升了，正�
 ### Part 3 —— 两个联系
 
 **(a)** 固定每个 $k$ 都共用同一个球形协方差 $\Sigma_k = \sigma^2 I_d$（各分量相等，且不被 M 步更新），并固定各个正的权重
-$\pi_k$。对一个到最近均值*唯一*的点 $x$（$\mu_{k^\ast} = \arg\min_k \lVert x - \mu_k \rVert_2$，假设不存在恰好打平的情形），证明当
+$\pi_k$。对一个到最近均值*唯一*的点 $x$（$`\mu_{k^\ast} = \arg\min_k \lVert x - \mu_k \rVert_2`$，假设不存在恰好打平的情形），证明当
 $\sigma \to 0^+$ 时 E 步的响应度 $\gamma_k(x) \to \mathbb 1[k = k^\ast]$，并且此时 M 步的均值更新收敛到
-$\mu_k \to \frac{1}{|C_k|} \sum_{i \in C_k} x_i$，其中 $C_k = \{i : k^\ast(x_i) = k\}$——这正是
+$\mu_k \to \frac{1}{|C_k|} \sum_{i \in C_k} x_i$，其中 $`C_k = \{i : k^\ast(x_i) = k\}`$——这正是
 *k-means* 算法的质心更新：k-means 交替把每个点分配给离它最近的 $K$ 个质心之一、再把每个质心移到分配给它的那些点的均值处。
 
-**(b)** 用*贝叶斯信息准则*（Bayesian information criterion）$\mathrm{BIC} = -2\ell + p \log n$ 实现模型选择，其中
+**(b)** 用*贝叶斯信息准则*（Bayesian information criterion）$`\mathrm{BIC} = -2\ell + p \log n`$ 实现模型选择，其中
 $\ell$ 取一个已拟合模型最终的 `model["log_likelihoods"][-1]`，
-$p = (K - 1) + Kd + Kd(d+1)/2$ 是自由参数的个数：权重占 $K - 1$ 个（$\sum_k \pi_k = 1$ 去掉一个自由度）、均值占
-$Kd$ 个、$K$ 个对称的 $d \times d$ 协方差各有 $d(d+1)/2$ 个自由项，合计占 $Kd(d+1)/2$ 个。BIC
+$p = (K - 1) + Kd + Kd(d+1)/2$ 是自由参数的个数：权重占 $K - 1$ 个（$`\sum_k \pi_k = 1`$ 去掉一个自由度）、均值占
+$Kd$ 个、$`K`$ 个对称的 $d \times d$ 协方差各有 $d(d+1)/2$ 个自由项，合计占 $Kd(d+1)/2$ 个。BIC
 越低越好。
 
 ```py
@@ -122,7 +128,7 @@ def bic(X: np.ndarray, model: dict) -> float:
     """model: a dict as returned by fit_gmm, fitted on this same X. Returns the BIC score."""
 ```
 
-举例，一个 $K = 2$、$d = 1$、$n = 100$、$\ell = -140.0$ 的模型，$p = 1 + 2 + 2 \cdot 1 \cdot 2 / 2 = 5$，
+举例，一个 $K = 2$、$`d = 1`$、$`n = 100`$、$`\ell = -140.0`$ 的模型，$`p = 1 + 2 + 2 \cdot 1 \cdot 2 / 2 = 5`$，
 $\mathrm{BIC} = -2 \cdot (-140.0) + 5 \log(100) \approx 280 + 23.03 = 303.03$。
 
 ## 参考解答
@@ -130,7 +136,7 @@ $\mathrm{BIC} = -2 \cdot (-140.0) + 5 \log(100) \approx 280 + 23.03 = 303.03$。
 <details>
 <summary>展开参考解答</summary>
 
-值得先和面试官确认两点：$\Sigma_k$ 是完整的协方差矩阵，而不是限制成对角矩阵——正如签名里
+值得先和面试官确认两点：$`\Sigma_k`$ 是完整的协方差矩阵，而不是限制成对角矩阵——正如签名里
 `covs: (K, d, d)` 所暗示的；以及要用哪种初始化和停止规则，这里固定为 k-means++ 均值、基于数据协方差的初始协方差，以及对
 $\ell$ 的绝对容差。
 
@@ -138,7 +144,9 @@ $\ell$ 的绝对容差。
 
 **(a) 响应度。** 由贝叶斯公式，
 
-$$\gamma_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum_{j=1}^K \pi_j^{\mathrm{old}}\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},$$
+```math
+\gamma_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum_{j=1}^K \pi_j^{\mathrm{old}}\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},
+```
 
 分母把 $z_i$ 的 $K$ 个取值边缘化掉，也就是 $p(x_i)$ 本身；因此对每个 $i$ 都有
 $\sum_k \gamma_{ik} = 1$，因为 $\gamma_{i,\cdot}$ 是 $z_i$ 的 $K$ 个取值上的一个概率分布。
@@ -147,38 +155,48 @@ $\sum_k \gamma_{ik} = 1$，因为 $\gamma_{i,\cdot}$ 是 $z_i$ 的 $K$ 个取值
 $N_k = \sum_i \gamma_{ik}$ 是分量 $k$ 的*软计数*（soft count）（因为 $\log \pi_k$ 不依赖 $i$，可以把对 $i$
 的求和挪到里面）。在约束 $\sum_k \pi_k = 1$ 下，用拉格朗日乘子 $\lambda$ 求极大：
 
-$$\mathcal L(\pi, \lambda) = \sum_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.$$
+```math
+\mathcal L(\pi, \lambda) = \sum_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.
+```
 
 对 $k$ 求和，用 $\sum_k \pi_k = 1$ 以及 $\sum_k N_k = \sum_k \sum_i \gamma_{ik} = \sum_i 1 = n$：
-$1 = -\sum_k N_k / \lambda = -n/\lambda$，于是 $\lambda = -n$，$\pi_k = N_k / n$。
+$1 = -\sum_k N_k / \lambda = -n/\lambda$，于是 $\lambda = -n$，$`\pi_k = N_k / n`$。
 
 **(b) 均值。** $Q$ 里依赖 $\mu_k$ 的项是
 $\sum_i \gamma_{ik} \log \mathcal N(x_i; \mu_k, \Sigma_k) = -\frac12 \sum_i \gamma_{ik} (x_i - \mu_k)^\top \Sigma_k^{-1} (x_i - \mu_k) + \text{常数}$
 （归一化常数以及其它分量的项都不依赖 $\mu_k$）。求导并令其为零：
 
-$$\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma_{ik}\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma_{ik}\, x_i = \Bigl(\sum_i \gamma_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma_{ik}\, x_i}{N_k},$$
+```math
+\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma_{ik}\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma_{ik}\, x_i = \Bigl(\sum_i \gamma_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma_{ik}\, x_i}{N_k},
+```
 
 两边同乘可逆的 $\Sigma_k$ 即得。
 
 **(b) 协方差。** 改用精度矩阵 $\Lambda_k = \Sigma_k^{-1}$、而不是直接用 $\Sigma_k$ 来求导：用
-$(x_i - \mu_k)^\top \Lambda_k (x_i - \mu_k) = \operatorname{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)$
-（一个标量等于它自己的 $1 \times 1$ 迹）以及迹的线性性，把对 $i$ 的求和挪到里面，$Q$ 里依赖
+$(x_i - \mu_k)^\top \Lambda_k (x_i - \mu_k) = \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)$
+（一个标量等于它自己的 $1 \times 1$ 迹）以及迹的线性性，把对 $i$ 的求和挪到里面，$`Q`$ 里依赖
 $\Lambda_k$ 的项就是
 
-$$\sum_i \gamma_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \operatorname{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \operatorname{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.$$
+```math
+\sum_i \gamma_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \mathrm{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.
+```
 
-用两个标准的矩阵求导恒等式即可收尾：对对称的 $\Lambda$，$\partial \log |\Lambda| / \partial \Lambda = \Lambda^{-1}$
-（Jacobi 公式，$d|\Lambda| = |\Lambda| \operatorname{tr}(\Lambda^{-1} d\Lambda)$，逐项读出即得）；对对称的
-$S$，$\partial \operatorname{tr}(\Lambda S) / \partial \Lambda = S$（$\Lambda$ 每一项都是线性的）。于是
+用两个标准的矩阵求导恒等式即可收尾：对对称的 $\Lambda$，$`\partial \log |\Lambda| / \partial \Lambda = \Lambda^{-1}`$
+（Jacobi 公式，$`d|\Lambda| = |\Lambda| \mathrm{tr}(\Lambda^{-1} d\Lambda)`$，逐项读出即得）；对对称的
+$S$，$`\partial \mathrm{tr}(\Lambda S) / \partial \Lambda = S`$（$`\Lambda`$ 每一项都是线性的）。于是
 
-$$\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,$$
+```math
+\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,
+```
 
 因为按定义 $\Lambda_k^{-1} = \Sigma_k$。
 
-**(c) 单调性。** 对每个点上 $\{1, \dots, K\}$ 上的任意一个分布 $q_i$，把 $\ell(\theta)$ 的第 $i$ 项写成
+**(c) 单调性。** 对每个点上 $`\{1, \dots, K\}`$ 上的任意一个分布 $q_i$，把 $\ell(\theta)$ 的第 $i$ 项写成
 $q_i$ 下的期望，再对凹函数 $\log$ 用 Jensen 不等式：
 
-$$\log p(x_i) = \log \sum_{k=1}^K q_i(k)\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum_{k=1}^K q_i(k)\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},$$
+```math
+\log p(x_i) = \log \sum_{k=1}^K q_i(k)\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum_{k=1}^K q_i(k)\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},
+```
 
 对任意 $\theta$ 和任意满足“只要 $\pi_k \mathcal N(x_i; \mu_k, \Sigma_k) > 0$ 就有 $q_i(k) > 0$”的 $q_i$
 都成立。对 $i$ 求和，就得到对任意 $\theta$ 和任意 $q = (q_1, \dots, q_n)$ 都有
@@ -189,7 +207,7 @@ Jensen 不等式取等，当且仅当被平均的量 $\pi_k \mathcal N(x_i; \mu_
 $q_i(k) > 0$ 的 $k$ 都相同（一个凹函数作用在只取一个值的随机变量上，“凹性损失”为零）。记这个公共值为
 $c_i$，则 $q_i(k) = \pi_k \mathcal N(x_i; \mu_k, \Sigma_k) / c_i$，再由 $\sum_k q_i(k) = 1$ 得
 $c_i = p(x_i)$，即 $q_i(k) = \gamma_{ik}$（正是 (a) 里的响应度）。于是在
-$\theta = \theta^{\mathrm{old}}$、$q = \gamma^{\mathrm{old}}$ 处，
+$\theta = \theta^{\mathrm{old}}$、$`q = \gamma^{\mathrm{old}}`$ 处，
 $F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) = \ell(\theta^{\mathrm{old}})$ 恰好取等。
 
 固定 $q = \gamma^{\mathrm{old}}$，
@@ -198,7 +216,9 @@ $\theta$；所以对 $\theta$ 极大化 $F(\cdot, \gamma^{\mathrm{old}})$，正�
 $Q(\cdot; \theta^{\mathrm{old}})$——也就是 (b) 里的 M 步。把三件事串起来：Jensen 不等式（在
 $\theta^{\mathrm{new}}$ 处同样成立）、M 步求的是极大值点、以及在 $\theta^{\mathrm{old}}$ 处取等：
 
-$$\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),$$
+```math
+\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),
+```
 
 就证明了对任意 $\theta^{\mathrm{old}}$ 都有 $\ell(\theta^{\mathrm{new}}) \ge \ell(\theta^{\mathrm{old}})$：一次
 EM 迭代永远不会让对数似然变小。
@@ -207,7 +227,9 @@ EM 迭代永远不会让对数似然变小。
 
 在对数空间里合并 $K$ 个分量，用的是和数值稳定 softmax 相同的恒等式：对任意不依赖被求和下标的常数 $m$，
 
-$$\log \sum_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},$$
+```math
+\log \sum_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},
+```
 
 因为对每个 $k$ 都有 $e^{a_k} = e^m e^{a_k - m}$，所以 $e^m$ 可以从求和里提出来，再和外层的
 $\log(e^m \cdot (\cdot)) = m + \log(\cdot)$ 相消。取 $m = \max_k a_k$ 能让每个指数都 $\le 0$，这样即使某个原始的
@@ -314,7 +336,7 @@ def fit_gmm(X: np.ndarray, K: int, n_iter: int = 200, tol: float = 1e-8, reg: fl
 $O(nd)$，一共 $K - 1$ 轮。每个 E 步都要对每个分量调用一次 `_log_gaussian_pdf`：为 `slogdet`/`solve`
 分解 $\Sigma_k$ 花费 $O(d^3)$，为全部 $n$ 个点求解马氏距离项花费 $O(nd^2)$，所以每个 E 步是
 $O(K(d^3 + nd^2))$。每个 M 步的 $K$ 次协方差更新各花费 $O(nd^2)$，合计 $O(Knd^2)$，超过均值更新的
-$O(nKd)$。最多跑 `n_iter` 轮下来，`fit_gmm` 花费 $O(\mathrm{n\_iter} \cdot K(nd^2 + d^3))$——对
+$O(nKd)$。最多跑 `n_iter` 轮下来，`fit_gmm` 花费 $`O(\mathrm{n\_iter} \cdot K(nd^2 + d^3))`$——对
 $n$ 和 $K$ 是线性的，通过每个分量自己的线性代数运算对 $d$ 是三次方的。
 
 在 `X, true_means = make_gmm_clusters(seed=0)`（600 个点，3 个真实簇）上，`fit_gmm(X, 3, seed=0)` 跑
@@ -329,25 +351,29 @@ reg_covar=reg)`，两者收敛到的每样本平均对数似然相差不超过 $
 $\log \mathcal N(x; \mu_k, \sigma^2 I_d) = -\frac{d}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \lVert x - \mu_k \rVert^2$，
 于是一个点 $x$ 在分量 $k$ 上的响应度是
 
-$$\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},$$
+```math
+\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},
+```
 
 $-\frac{d}{2}\log(2\pi\sigma^2)$ 这一项在分子分母之间相消（对每个 $k$ 都一样）。设
 $k^\ast = \arg\min_k \lVert x - \mu_k \rVert^2$（按假设唯一），把每一项都除以
 $\exp\bigl(-\lVert x - \mu_{k^\ast} \rVert^2 / 2\sigma^2\bigr)$：
 
-$$\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.$$
+```math
+\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.
+```
 
-对 $k \ne k^\ast$，$\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 > 0$ 严格成立（$k^\ast$
+对 $k \ne k^\ast$，$`\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 > 0`$ 严格成立（$`k^\ast`$
 唯一），所以这一项的指数在 $\sigma \to 0^+$ 时 $\to -\infty$，这一项本身 $\to 0$；而 $k = k^\ast$ 那一项在任意
 $\sigma$ 下都恰好等于 $\pi_{k^\ast}$。每个 $\pi_k > 0$ 都固定不变、不依赖 $\sigma$，跟不上一个正在趋于
 $0$ 的指数项的步伐；因此 $\gamma_{k^\ast}(x) \to \pi_{k^\ast} / \pi_{k^\ast} = 1$，而对 $k \ne k^\ast$ 有
-$\gamma_k(x) \to 0$：$\gamma(x) \to \mathbb 1[k = k^\ast]$，成为一个 one-hot 向量。
+$\gamma_k(x) \to 0$：$`\gamma(x) \to \mathbb 1[k = k^\ast]`$，成为一个 one-hot 向量。
 
 当每个点的 $\gamma$ 在极限下都是 one-hot 时，M 步的均值更新
 $\mu_k = \sum_i \gamma_{ik} x_i / \sum_i \gamma_{ik}$ 就变成只对满足 $k^\ast(x_i) = k$ 的那些点求和、再除以它们的个数：
-$\mu_k \to \frac{1}{|C_k|} \sum_{i \in C_k} x_i$，$C_k = \{i : k^\ast(x_i) = k\}$——也就是离
+$\mu_k \to \frac{1}{|C_k|} \sum_{i \in C_k} x_i$，$`C_k = \{i : k^\ast(x_i) = k\}`$——也就是离
 $\mu_k$ 最近的那些点的均值，正是 k-means 的质心更新，只是把软响应度换成了按最近距离的硬分配。恰好等距的点（同时离两个或更多均值一样近）正是这个论证失效的地方：此时
-$\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 = 0$ 对不止一个 $k$ 成立，$\gamma$ 在任意
+$\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 = 0$ 对不止一个 $k$ 成立，$`\gamma`$ 在任意
 $\sigma$ 下都在它们之间保持不变，永远到不了 one-hot——就像下表最后一列那样。
 
 ```text
@@ -384,10 +410,10 @@ $p \log n$ 惩罚——也就是那 $d + d(d+1)/2$ 个额外参数的代价—�
 
 ### 追问
 
-- **奇异似然。** 不加正则化，$\ell(\theta)$ 没有有限的最大值：让某个分量的均值恰好落在一个数据点上，
+- **奇异似然。** 不加正则化，$`\ell(\theta)`$ 没有有限的最大值：让某个分量的均值恰好落在一个数据点上，
   $\mu_k = x_i$，同时把它的协方差缩小成 $\Sigma_k = \varepsilon I_d$；那么
   $\mathcal N(x_i; \mu_k, \Sigma_k) = (2\pi\varepsilon)^{-d/2}$，当 $\varepsilon \to 0^+$ 时趋于
-  $\infty$，$\ell(\theta)$ 也随之趋于 $\infty$（其余 $n - 1$ 个点仍然只贡献一个有限、有界的量）。每次
+  $\infty$，$`\ell(\theta)`$ 也随之趋于 $\infty$（其余 $n - 1$ 个点仍然只贡献一个有限、有界的量）。每次
   M 步之后加到每个 $\Sigma_k$ 上的 `reg` 项，把每个 $\Sigma_k$ 的每个特征值都下限在 `reg`，排除了这种精确的坍缩，让
   $\ell$ 在整条轨迹上都保持有界。
 - **一般缺失数据下的 EM。** 高斯混合只是一个通用模板的一个实例：对任何观测数据为 $X$、未观测量为 $Z$
@@ -405,7 +431,7 @@ $p \log n$ 惩罚——也就是那 $d + d(d+1)/2$ 个额外参数的代价—�
   再用每个 $K$ 各自最好的那次重启，去比较不同的 $K$。
 - **对角协方差与完整协方差。** 把每个 $\Sigma_k$ 限制成对角矩阵，能把每个分量的 $O(d^3)$
   `slogdet`/`solve` 换成 $O(d)$ 的逐元素运算（对数方差求和，用除法代替线性求解），M 步也只需要
-  $d$ 个逐特征的方差，$O(nd)$ 而不是 $O(nd^2)$——当各特征接近独立时是个划算的取舍，代价是一个轴对齐的协方差，无法拟合两个特征之间的相关性，除非用好几个旋转过的、看起来是对角的分量去凑出原本一个完整协方差的分量就能直接拟合的效果。
+  $d$ 个逐特征的方差，$`O(nd)`$ 而不是 $O(nd^2)$——当各特征接近独立时是个划算的取舍，代价是一个轴对齐的协方差，无法拟合两个特征之间的相关性，除非用好几个旋转过的、看起来是对角的分量去凑出原本一个完整协方差的分量就能直接拟合的效果。
 
 <details>
 <summary>验证代码（可运行）</summary>

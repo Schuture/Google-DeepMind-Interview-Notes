@@ -226,7 +226,9 @@ A weighted union-find keeps every unit in a rooted tree, one tree per connected 
 a fact through the trees' shapes rather than through explicit edges. Give every unit $u$ a parent pointer
 and a weight $w(u)$ such that
 
-$$1\,u = w(u) \cdot \mathrm{parent}(u),$$
+```math
+1\,u = w(u) \cdot \mathrm{parent}(u),
+```
 
 with a root its own parent and $w(\mathrm{root}) = 1$; composing weights while walking parent pointers up
 to the root — the same product-along-a-path rule as Part 1 — gives, for any $u$, the factor from $u$ to
@@ -238,7 +240,7 @@ costs one hop, not the whole original chain.
 
 `add_fact(a, b, r)` first makes sure `a` and `b` exist (a new unit starts as its own root, weight `1.0`,
 size `1`), then finds both roots. Write $(R_a, w_a) = \mathrm{find}(a)$ and $(R_b, w_b) = \mathrm{find}(b)$,
-so $1\,a = w_a R_a$ and $1\,b = w_b R_b$. Two cases:
+so $`1\,a = w_a R_a`$ and $`1\,b = w_b R_b`$. Two cases:
 
 - If $R_a = R_b$, both are already expressed over the same root, so the new fact can be checked directly:
   chaining $a \to R_a\ (=R_b) \to b$ gives an implied factor $a \to b$ of $w_a \cdot (1 / w_b)$ — the
@@ -250,11 +252,13 @@ so $1\,a = w_a R_a$ and $1\,b = w_b R_b$. Two cases:
 - If $R_a \neq R_b$, the two trees merge: attach whichever root has the smaller `_size` under the other
   (*union by size*), so no tree's depth needs to grow on most merges. Arrange the roles of `a` and `b`
   (swapping them, and replacing `r` with `1 / r`, when it is the other way round) so that $R_b$ is always
-  the one attached under $R_a$; its new weight must satisfy $1\,R_b = w(R_b)\,R_a$, found by chaining
+  the one attached under $R_a$; its new weight must satisfy $`1\,R_b = w(R_b)\,R_a`$, found by chaining
   $R_b \to b \to a \to R_a$ — the first leg inverts $b \to R_b = w_b$, the middle leg is the new fact read
   backwards ($b \to a = 1 / r$), and the last leg is $a \to R_a = w_a$:
 
-  $$w(R_b) \;=\; \frac{1}{w_b} \cdot \frac{1}{r} \cdot w_a \;=\; \frac{w_a}{r\,w_b}.$$
+  ```math
+  w(R_b) \;=\; \frac{1}{w_b} \cdot \frac{1}{r} \cdot w_a \;=\; \frac{w_a}{r\,w_b}.
+  ```
 
 `query(src, dst)` reuses exactly this $w_x / w_y$ reasoning for two units sharing a root — including when
 `src == dst`, where $w_{\mathrm{src}} = w_{\mathrm{dst}}$ makes the ratio `1.0` automatically, no special
@@ -326,7 +330,7 @@ near-constant amortised time, and neither ever scans a fact it was not directly 
   $|\log f - \log r|$ is close to a fixed *relative* tolerance on $f$ against $r$ only for small
   tolerances, so a value tuned in the linear domain has to be re-derived, not reused as-is.
 - **Affine units.** A purely multiplicative fact cannot express Celsius versus Fahrenheit, where
-  $F = 1.8\,C + 32$; the general case is $x_b = r\,x_a + s$ for a pair $(r, s)$, and composing two affine
+  $`F = 1.8\,C + 32`$; the general case is $`x_b = r\,x_a + s`$ for a pair $(r, s)$, and composing two affine
   maps is itself affine, $(r_2, s_2) \circ (r_1, s_1) = (r_1 r_2,\ r_2 s_1 + s_2)$, so the union-find of
   Part 3 still works with every node storing an $(r, s)$ pair to its root instead of a single factor, and
   `_find`'s path compression composes pairs by that rule instead of multiplying two numbers.

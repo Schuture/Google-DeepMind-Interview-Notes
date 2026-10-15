@@ -96,8 +96,10 @@ a given input, not something it decides).
 
 **Feed-request rate.** $200{,}000{,}000$ daily active users each open the feed $10$ times a day:
 
-$$200{,}000{,}000 \times 10 = 2{,}000{,}000{,}000 \text{ requests/day,} \qquad
-\frac{2{,}000{,}000{,}000}{86{,}400} \approx 23{,}148 \text{ requests/s average.}$$
+```math
+200{,}000{,}000 \times 10 = 2{,}000{,}000{,}000 \text{ requests/day,} \qquad
+\frac{2{,}000{,}000{,}000}{86{,}400} \approx 23{,}148 \text{ requests/s average.}
+```
 
 At $3\times$ the daily average, peak throughput is about $69{,}444$ requests/s.
 
@@ -111,7 +113,7 @@ items/s on average and about $34{,}722{,}222$ items/s at peak.
 
 **Ranking fleet.** Assume one ranking replica scores one request's $500$ candidates in a single batched
 forward pass taking about $20$ ms, for a throughput of $500 / 0.02 = 25{,}000$ items/s. Meeting peak
-demand needs $34{,}722{,}222 / 25{,}000 \approx 1{,}389$ replicas bare; with $20\%$ headroom for uneven
+demand needs $34{,}722{,}222 / 25{,}000 \approx 1{,}389$ replicas bare; with $`20\%`$ headroom for uneven
 load and rolling deploys, $1{,}667$ replicas. (Batching several requests' candidates into one forward
 pass, instead of one request per call, would raise this per-replica throughput and shrink the fleet;
 the arithmetic here keeps the simpler one-request-per-call model.)
@@ -121,7 +123,7 @@ item, quantised to `int8` — one byte per dimension:
 $500{,}000{,}000 \times 128\text{ B} = 64{,}000{,}000{,}000$ B, exactly $64$ GB. Sized into shards of
 about $8$ GB each — comfortably inside one machine's memory alongside serving overhead — that is $8$
 shards; replicated $3\times$ for availability and to spread query fan-out, $24$ machines serve the
-index. The catalogue grows by $5{,}000{,}000$ items a day, $1\%$ of its size, adding only
+index. The catalogue grows by $5{,}000{,}000$ items a day, $`1\%`$ of its size, adding only
 $5{,}000{,}000 \times 128\text{ B} \approx 0.64$ GB of new embeddings a day — the index's memory
 footprint is set by the existing catalogue, not by daily ingestion.
 
@@ -257,7 +259,7 @@ the cadence the training section sets out.
 ### Training
 
 **Labels.** Every training row starts from one interaction row (Data and features, above):
-$P(\text{watch} \ge 50\%)$'s label is $1$ when `watch_time_ms` reaches half the item's duration,
+$`P(\text{watch} \ge 50\%)`$'s label is $1$ when `watch_time_ms` reaches half the item's duration,
 $P(\text{like})$ and $P(\text{share})$ read directly off `engagement_flags`, and
 $P(\text{skip within 2 s})$'s label is $1$ when `watch_time_ms` is under $2{,}000$. All four are
 computed from the same logged row, so one interaction produces one training example carrying all four
@@ -266,12 +268,14 @@ labels at once, for the shared multi-task model.
 **Negative sampling for the two-tower model.** The ranking model above is trained on rows that already
 carry both a positive and an implicit negative signal (a low score just means low predicted
 engagement), but the two-tower retrieval model needs an explicit contrast: a positive pair is a (user,
-item) row with $P(\text{watch} \ge 50\%)=1$, and its negatives are drawn *in-batch* — every other row's
+item) row with $`P(\text{watch} \ge 50\%)=1`$, and its negatives are drawn *in-batch* — every other row's
 item in the same training batch serves as a negative for this row's user, at no extra data-loading
 cost, using the loss
 
-$$\mathcal{L} = -\frac{1}{B}\sum_{i=1}^{B} \log
-\frac{\exp(u_i \cdot v_i / \tau)}{\sum_{j=1}^{B} \exp(u_i \cdot v_j / \tau)},$$
+```math
+\mathcal{L} = -\frac{1}{B}\sum_{i=1}^{B} \log
+\frac{\exp(u_i \cdot v_i / \tau)}{\sum_{j=1}^{B} \exp(u_i \cdot v_j / \tau)},
+```
 
 for a batch of $B$ (user, positive item) pairs with user embeddings $u_i$ and item embeddings $v_i$ and
 a temperature $\tau$ (the estimate check below computes this loss on a toy batch and checks it against
@@ -302,14 +306,16 @@ in the gap between its upload and the next index rebuild.
 
 **(a) Choosing the objective and combining predicted signals.** The ranking model is multi-task: shared
 lower layers consume the merged candidate's features, and separate heads predict several engagement
-probabilities for it — $P(\text{watch} \ge 50\%)$, $P(\text{like})$, $P(\text{share})$, and
+probabilities for it — $`P(\text{watch} \ge 50\%)`$, $P(\text{like})$, $P(\text{share})$, and
 $P(\text{skip within 2 s})$ as an explicit negative signal — trained jointly from the same interaction
 rows (Training, above), which lets the rarer labels (like, share) benefit from representations learned
 mostly from the much more common watch-time label, rather than each being trained from a separate,
 smaller model. Combining the four predictions into the one score re-ranking consumes is a weighted sum,
 
-$$\text{score} = w_1 P(\text{watch} \ge 50\%) + w_2 P(\text{like}) + w_3 P(\text{share})
-- w_4 P(\text{skip within 2 s}),$$
+```math
+\text{score} = w_1 P(\text{watch} \ge 50\%) + w_2 P(\text{like}) + w_3 P(\text{share})
+- w_4 P(\text{skip within 2 s}),
+```
 
 with weights set by experimentation against the online guardrails and primary metric in the evaluation
 deep dive below, not learned end-to-end inside the model itself — chosen over training a single model
@@ -360,7 +366,7 @@ serving policy assigned to placing that item where it did, not only whether it w
 training into a form of importance-weighted learning — weighting an example by the inverse of its logged
 propensity — so an item that was rarely shown but did well when it was counts more than its raw
 impression count alone would suggest, correcting the training sample back toward what an unbiased log
-would look like. Second, *exploration*: a small, fixed fraction of impressions (for example $2\%$) is
+would look like. Second, *exploration*: a small, fixed fraction of impressions (for example $`2\%`$) is
 drawn uniformly at random from the merged candidate pool rather than by predicted score, deliberately
 trading a little short-term engagement for coverage of items the current model would not otherwise have
 shown at all — an item with a middling predicted score but genuine appeal only gets the chance to prove
@@ -378,11 +384,13 @@ surfaced for that user — a candidate generator that never proposes an item giv
 recover, so recall@k is checked before ranking is blamed for a miss. *NDCG@k* (normalised discounted
 cumulative gain) evaluates ranking's ordering of whatever candidates it was given, against a graded
 relevance label per candidate — for example $0$ for a skip, $1$ for a partial watch, $2$ for a completed
-watch, $3$ for a like, $4$ for a share. Writing $\mathrm{rel}_i$ for the true relevance of the item the
+watch, $3$ for a like, $4$ for a share. Writing $`\mathrm{rel}_i`$ for the true relevance of the item the
 model placed at rank $i$ (rank $1$ first):
 
-$$\mathrm{DCG@}k = \sum_{i=1}^{k} \frac{2^{\mathrm{rel}_i} - 1}{\log_2(i+1)}, \qquad
-\mathrm{NDCG@}k = \frac{\mathrm{DCG@}k}{\mathrm{IDCG@}k},$$
+```math
+\mathrm{DCG@}k = \sum_{i=1}^{k} \frac{2^{\mathrm{rel}_i} - 1}{\log_2(i+1)}, \qquad
+\mathrm{NDCG@}k = \frac{\mathrm{DCG@}k}{\mathrm{IDCG@}k},
+```
 
 where $\mathrm{IDCG@}k$ is the same sum computed on the ideal ordering — the candidates sorted by true
 relevance, descending — so a perfect ranking scores $1$, and $\mathrm{NDCG@}k$ is defined as $0$ when
@@ -390,7 +398,7 @@ every candidate has relevance $0$ (then $\mathrm{IDCG@}k = 0$ too). For four can
 relevances $[3, 2, 3, 0]$ in the model's chosen order, $\mathrm{DCG@4} \approx 12.393$ and
 $\mathrm{IDCG@4}$ — the same four re-sorted, $[3,3,2,0]$ — $\approx 12.917$, giving
 $\mathrm{NDCG@4} \approx 0.9595$: close to $1$ because the model's order is nearly, not perfectly, the
-ideal one (the two rank-$3$ items are swapped).
+ideal one (the two rank-$`3`$ items are swapped).
 
 Online, a launch is judged by a randomised A/B test, not by the offline metrics alone, since neither
 recall@k nor NDCG@k can see the long-term satisfaction the business goal actually cares about. The

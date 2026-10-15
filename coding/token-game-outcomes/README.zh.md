@@ -192,7 +192,7 @@ def winning_move(n: int, edges: list[tuple[int, int]], v: int) -> int | None:
     return None
 ```
 
-以 $n$ 个节点、$m$ 条边计，`_topo_order` 是 $O(n + m)$ 的：构建邻接表和入度数组是 $O(n + m)$，Kahn
+以 $n$ 个节点、$`m`$ 条边计，`_topo_order` 是 $O(n + m)$ 的：构建邻接表和入度数组是 $O(n + m)$，Kahn
 算法对每个节点恰好移除一次，并且恰好检查它的每一条出边一次。`outcomes_dag` 里对 `reversed(...)` 的
 遍历是另一个 $O(n + m)$，对每个节点只看一次 `adj[v]`。`winning_move` 在同一个 $O(n + m)$ 的调用之上，
 额外加上一次 $O(\deg(v) \log \deg(v))$ 的排序。
@@ -266,24 +266,24 @@ def outcomes(n: int, edges: list[tuple[int, int]]) -> list[str]:
 什么*局面*从头到尾只需要一个节点，从不需要标明是哪一方在动。当有多枚棋子时，一次移动就是从 `k` 个相
 互独立的单棋子博弈里选一个来推进——这正是标准的*博弈之和*（sum of games），而 Sprague-Grundy 定理只
 用一个数字就能刻画它，不必对整个乘积状态空间重新做一遍 W/L/D 分析。给每个节点 `v` 赋一个 *Grundy 数*
-（Grundy number）$g(v) = \operatorname{mex}\{g(w) : w \text{ 是 } v \text{ 的后继}\}$，即*最小排除
+（Grundy number）$`g(v) = \mathrm{mex}\{g(w) : w \text{ 是 } v \text{ 的后继}\}`$，即*最小排除
 数*（minimum excludant，mex）：不是 `v` 任何一个后继节点的 Grundy 数的、最小的非负整数（汇点没有后
-继，所以 $g(\text{汇点}) = \operatorname{mex}(\emptyset) = 0$）。要推导的结论是：棋子分别停在节点
+继，所以 $g(\text{汇点}) = \mathrm{mex}(\emptyset) = 0$）。要推导的结论是：棋子分别停在节点
 $t_1, \ldots, t_k$ 上时，先手能确保获胜，当且仅当 $g(t_1) \oplus \cdots \oplus g(t_k) \neq 0$，其中
-$\oplus$ 是按位异或（XOR）——这正是 Nim 游戏里的 Bouton 法则，$g(t_i)$ 在其中扮演的正是第 $i$ 堆石
+$\oplus$ 是按位异或（XOR）——这正是 Nim 游戏里的 Bouton 法则，$`g(t_i)`$ 在其中扮演的正是第 $i$ 堆石
 子数量的角色。
 
-证明依赖 mex 的定义直接给出的两个事实：$g(v)$ 自身永远不会是 `v` 任何一个后继节点的 Grundy 数（根据
-mex 的定义，$g(v)$ 本身正是被排除在外的那个值），而且每一个小于 $g(v)$ 的非负整数都*确实*是 `v` 某个
+证明依赖 mex 的定义直接给出的两个事实：$`g(v)`$ 自身永远不会是 `v` 任何一个后继节点的 Grundy 数（根据
+mex 的定义，$`g(v)`$ 本身正是被排除在外的那个值），而且每一个小于 $g(v)$ 的非负整数都*确实*是 `v` 某个
 后继节点的 Grundy 数（否则那个更小的值就会被排除掉，成为 mex 本身）。对剩余步数做强归纳——步数是有限
 的，因为图是无环的，而且每一步都会把某一枚棋子沿拓扑序严格向前推进——可以证明：异或值 $X = 0$ 的局面
-对行动方是必败的，$X \neq 0$ 的局面是必胜的。若 $X = 0$：任何一步都会把恰好一枚棋子的贡献从 $g(v)$
+对行动方是必败的，$`X \neq 0`$ 的局面是必胜的。若 $X = 0$：任何一步都会把恰好一枚棋子的贡献从 $g(v)$
 变成某个后继 $w$ 的 $g(w)$，而由第一个事实 $g(w) \neq g(v)$，新的异或值是
 $X \oplus g(v) \oplus g(w) = g(v) \oplus g(w) \neq 0$；根据归纳假设，非零异或值对下一个行动方是必胜
 的，所以从 $X = 0$ 的局面出发的每一步都会把胜利交给对手，这就是必败。若 $X \neq 0$：设 $i$ 是某枚
 Grundy 数 $g(t_i)$ 在 $X$ 的最高置位那一位上也置位的棋子（必然存在这样的棋子，否则 $X$ 的那一位就不
 可能是 1）；那么 $g(t_i) \oplus X < g(t_i)$，因为异或上 $X$ 会清除 $g(t_i)$ 的那个最高位，只影响更低
-的位。由第二个事实，$t_i$ 的某个后继 $w$ 恰好有 $g(w) = g(t_i) \oplus X$，因为它小于 $g(t_i)$；把第
+的位。由第二个事实，$`t_i`$ 的某个后继 $w$ 恰好有 $g(w) = g(t_i) \oplus X$，因为它小于 $g(t_i)$；把第
 $i$ 枚棋子移到那里，异或值就变成
 $X \oplus g(t_i) \oplus g(w) = X \oplus g(t_i) \oplus (g(t_i) \oplus X) = 0$，根据归纳假设，这是一个
 对手必败的局面。所以 $X \neq 0$ 的局面总有一步能把对手带入必败，这就是必胜。
@@ -310,8 +310,8 @@ def first_player_wins(n: int, edges: list[tuple[int, int]], tokens: list[int]) -
 因也相同：`grundy[v]` 只需要用到从 `v` 可达的节点的 Grundy 数，而这些都已经算好了。`while` 循环最多
 访问 $\deg(v) + 1$ 个值，所以构建 `seen` 和求 mex 加起来是 $O(\deg(v))$；对所有节点求和，
 `first_player_wins` 是 $O(n + m)$ 的时间和空间，和 Part 1 一致。只有一枚棋子时，这和 Part 1 完全一
-致：$g(v) \neq 0$ 当且仅当 `outcomes_dag` 把 `v` 标记为 `"W"`，理由是同一个按逆拓扑序展开的归纳——
-汇点的 $g = 0$、结果是 `"L"`，归纳地，$g(v) \neq 0$ 当且仅当某个后继 $w$ 满足 $g(w) = 0$，当且仅当
+致：$`g(v) \neq 0`$ 当且仅当 `outcomes_dag` 把 `v` 标记为 `"W"`，理由是同一个按逆拓扑序展开的归纳——
+汇点的 $g = 0$、结果是 `"L"`，归纳地，$`g(v) \neq 0`$ 当且仅当某个后继 $w$ 满足 $g(w) = 0$，当且仅当
 （根据归纳假设）某个后继的结果是 `"L"`，当且仅当 `v` 是 `"W"`——下面的验证代码会直接确认这一事实。
 
 ### 追问

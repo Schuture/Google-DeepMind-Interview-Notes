@@ -10,7 +10,7 @@
 
 ## 题目
 
-以下统一记号：模型是一个仅解码器（decoder-only）Transformer，共 $L$ 层，残差流（即“宽度”）维度为 $d$，$h$ 个注意力头，每个头的维度 $d_h = d / h$，序列长度为 $T$。自注意力始终是因果的（causal）：位置 $i$ 只能关注位置 $j \le i$。共十二个问题，按主题分组；每题都要口头作答，多数还需要一段简短推导。
+以下统一记号：模型是一个仅解码器（decoder-only）Transformer，共 $L$ 层，残差流（即“宽度”）维度为 $d$，$`h`$ 个注意力头，每个头的维度 $d_h = d / h$，序列长度为 $T$。自注意力始终是因果的（causal）：位置 $i$ 只能关注位置 $j \le i$。共十二个问题，按主题分组；每题都要口头作答，多数还需要一段简短推导。
 
 ### 注意力机制
 
@@ -18,7 +18,7 @@
 
 **Q2.** 对一层因果（causal）多头自注意力，分别给出它的时间开销，以及实际生成的分数矩阵与权重矩阵所占的内存，都写成 $T$ 与 $d$ 的函数——并明确说明你对头宽 $d_h$ 随 $d$ 增长时的行为做了什么假设。然后精确说明 FlashAttention 改变了这两项开销中的哪一项，以及为什么。
 
-**Q3.** 为什么自回归解码（autoregressive decoding）要缓存键（key）和值（value），而不是每一步都重新计算？把 KV 缓存的字节数推导为层数 $L$、键/值头数 $h_{kv}$、头宽 $d_h$、序列长度 $T$、批大小 $b$，以及每个存储数值所占字节数的函数。对 $L = 32$、$h_{kv} = 8$、$d_h = 128$、$T = 32{,}768$、$b = 1$、bf16（2 字节）求出具体数值。然后说明多查询注意力（multi-query attention，MQA）与分组查询注意力（grouped-query attention，GQA）如何改变 $h_{kv}$，并通过它改变缓存大小。
+**Q3.** 为什么自回归解码（autoregressive decoding）要缓存键（key）和值（value），而不是每一步都重新计算？把 KV 缓存的字节数推导为层数 $L$、键/值头数 $h_{kv}$、头宽 $d_h$、序列长度 $T$、批大小 $b$，以及每个存储数值所占字节数的函数。对 $L = 32$、$`h_{kv} = 8`$、$`d_h = 128`$、$`T = 32{,}768`$、$`b = 1`$、bf16（2 字节）求出具体数值。然后说明多查询注意力（multi-query attention，MQA）与分组查询注意力（grouped-query attention，GQA）如何改变 $h_{kv}$，并通过它改变缓存大小。
 
 **Q4.** 旋转位置编码（rotary position embeddings，RoPE）在做点积之前，把位置 $m$ 处的查询和位置 $n$ 处的键分别旋转一个与其位置成正比的角度。先在单个二维坐标对上、取旋转频率为 $\omega$，证明 $q_m^\top k_n$ 只通过 $m - n$ 依赖于 $m$ 和 $n$。再论证这一结论如何推广到一个真实查询/键向量的全部 $d$ 个坐标。将其与加在输入上、位于查询/键投影之前的可学习或正弦绝对位置编码作对比。
 
@@ -30,19 +30,19 @@
 
 ### 目标函数与数据
 
-**Q7.** 定义逐 token 的交叉熵损失（cross-entropy）与困惑度（perplexity），并说明困惑度与“每 token 比特数”的关系。某模型为一个长度为 4 的序列的四个真实下一个 token（各自以之前的真实 token 为条件）分别给出概率 $0.5$、$0.2$、$0.8$、$0.25$。求以奈特（nat）为单位的交叉熵，以及困惑度。
+**Q7.** 定义逐 token 的交叉熵损失（cross-entropy）与困惑度（perplexity），并说明困惑度与“每 token 比特数”的关系。某模型为一个长度为 4 的序列的四个真实下一个 token（各自以之前的真实 token 为条件）分别给出概率 $0.5$、$`0.2`$、$`0.8`$、$`0.25`$。求以奈特（nat）为单位的交叉熵，以及困惑度。
 
 **Q8.** 字节对编码（byte-pair encoding，BPE）从单个字符出发，反复合并出现频率最高的相邻符号对，逐步构建子词词表。从词频 `low: 5, lower: 2, newest: 6, widest: 3` 出发（每个词先拆分为字符，末尾再加一个词尾标记 `_`），手动执行前三次合并：写出每一步被合并的符号对及其计数，若出现并列，取字典序较小的符号对（普通字母按 a–z 比较，词尾标记排在所有字母之后）。然后说明合并次数在词表大小与序列长度之间造成的权衡。
 
-**Q9.** 计算最优缩放律（compute-optimal scaling）用 $C \approx 6ND$ 表示预训练所需的浮点运算量（参数量 $N$，训练 token 数 $D$），并使用经验法则 $D \approx 20N$。对计算预算 $C = 10^{23}$ FLOPs，推导 $N$ 与 $D$。然后，不必重新计算数值，说明如果还要把模型部署生命周期内的总推理开销一并最小化（而不只是训练算力），$N$ 的选择会发生什么变化。
+**Q9.** 计算最优缩放律（compute-optimal scaling）用 $C \approx 6ND$ 表示预训练所需的浮点运算量（参数量 $N$，训练 token 数 $D$），并使用经验法则 $D \approx 20N$。对计算预算 $C = 10^{23}$ FLOPs，推导 $N$ 与 $D$。然后，不必重新计算数值，说明如果还要把模型部署生命周期内的总推理开销一并最小化（而不只是训练算力），$`N`$ 的选择会发生什么变化。
 
 ### 后训练与推理
 
 **Q10.** 预训练、监督微调（supervised fine-tuning，SFT）与偏好优化（基于人类反馈的强化学习，reinforcement learning from human feedback，RLHF，配合一个学习到的奖励模型，或直接偏好优化，direct preference optimisation，DPO）是典型大模型训练流程的三个阶段。说明每个阶段的损失分别优化什么。解释为什么 SFT 的损失只施加在回复（response）token 上。从一个带 KL 正则的奖励最大化目标出发推导 DPO 的损失，并解释为什么后训练要保留对参考模型的 KL 惩罚。
 
-**Q11.** 精确定义贪心解码（greedy decoding）、温度采样（temperature sampling）、top-$k$ 采样与核采样（nucleus / top-$p$ sampling），把每一种都写成对下一个 token 概率分布的一次变换，并说明每一种对采样分布形状的影响。某模型给出分布 `{a: 0.5, b: 0.2, c: 0.15, d: 0.1, e: 0.05}`（五个 token）。给出 $p = 0.7$ 的 top-$p$ 采样所保留的准确 token 集合。
+**Q11.** 精确定义贪心解码（greedy decoding）、温度采样（temperature sampling）、top-$`k`$ 采样与核采样（nucleus / top-$`p`$ sampling），把每一种都写成对下一个 token 概率分布的一次变换，并说明每一种对采样分布形状的影响。某模型给出分布 `{a: 0.5, b: 0.2, c: 0.15, d: 0.1, e: 0.05}`（五个 token）。给出 $p = 0.7$ 的 top-$`p`$ 采样所保留的准确 token 集合。
 
-**Q12.** 在一个混合专家（mixture-of-experts，MoE）层中，路由器（router）把每个 token 发送给 $E$ 个专家中的 $k$ 个，网络的其余部分（注意力、嵌入、路由器本身）则由所有 token 共享。定义总参数量与每个 token 的激活参数量，并对 $E = 8$ 个专家（每个 $2 \times 10^{9}$ 参数）、$5 \times 10^{8}$ 个共享参数、$k = 2$ 的配置分别求出两者。解释为什么需要一个辅助负载均衡损失，以及容量因子（capacity factor）的作用是什么。
+**Q12.** 在一个混合专家（mixture-of-experts，MoE）层中，路由器（router）把每个 token 发送给 $E$ 个专家中的 $k$ 个，网络的其余部分（注意力、嵌入、路由器本身）则由所有 token 共享。定义总参数量与每个 token 的激活参数量，并对 $E = 8$ 个专家（每个 $2 \times 10^{9}$ 参数）、$`5 \times 10^{8}`$ 个共享参数、$`k = 2`$ 的配置分别求出两者。解释为什么需要一个辅助负载均衡损失，以及容量因子（capacity factor）的作用是什么。
 
 ## 参考解答
 
@@ -57,49 +57,59 @@
 
 写 $q^\top k = \sum_{i=1}^{d_h} q_ik_i$。由 $\mathrm{E}[q_i] = \mathrm{E}[k_i] = 0$ 且 $q_i \perp k_i$，得 $\mathrm{E}[q_ik_i] = 0$，于是 $\mathrm{E}[q^\top k] = 0$，且
 
-$$\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum_{i=1}^{d_h}\sum_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].$$
+```math
+\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum_{i=1}^{d_h}\sum_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].
+```
 
-当 $i \ne j$ 时，$q_i, k_i, q_j, k_j$ 是四个相互独立、均值为零的变量，故 $\mathrm{E}[q_ik_iq_jk_j] = \mathrm{E}[q_i]\,\mathrm{E}[k_i]\,\mathrm{E}[q_j]\,\mathrm{E}[k_j] = 0$；当 $i = j$ 时，由 $q_i$ 与 $k_i$ 独立得 $\mathrm{E}[q_i^2k_i^2] = \mathrm{E}[q_i^2]\,\mathrm{E}[k_i^2] = 1 \cdot 1 = 1$（用到 $\mathrm{E}[q_i^2] = \mathrm{Var}(q_i) = 1$，因为 $\mathrm{E}[q_i]=0$）。把这 $d_h$ 个留下来的对角项相加，得 $\mathrm{Var}(q^\top k) = d_h$。
+当 $i \ne j$ 时，$`q_i, k_i, q_j, k_j`$ 是四个相互独立、均值为零的变量，故 $`\mathrm{E}[q_ik_iq_jk_j] = \mathrm{E}[q_i]\,\mathrm{E}[k_i]\,\mathrm{E}[q_j]\,\mathrm{E}[k_j] = 0`$；当 $i = j$ 时，由 $q_i$ 与 $k_i$ 独立得 $`\mathrm{E}[q_i^2k_i^2] = \mathrm{E}[q_i^2]\,\mathrm{E}[k_i^2] = 1 \cdot 1 = 1`$（用到 $\mathrm{E}[q_i^2] = \mathrm{Var}(q_i) = 1$，因为 $\mathrm{E}[q_i]=0$）。把这 $d_h$ 个留下来的对角项相加，得 $\mathrm{Var}(q^\top k) = d_h$。
 
-因此未缩放的点积标准差为 $\sqrt{d_h}$，随头宽增长而增长。随着 $d_h$ 增大，softmax 之前的分数在绝对值上会散得更开；softmax 随即趋于饱和，输出接近 one-hot 向量（最大的分数主导整个和），其 Jacobian $\partial p_i/\partial s_j = p_i(\delta_{ij}-p_j)$ 在分布如此尖锐时每一项都趋于 $0$——对分数、进而对 $Q$、$K$ 的梯度消失，训练停滞。把 $q^\top k$ 除以 $\sqrt{d_h}$ 会把它的方差重新缩放到恰好 $1$，与 $d_h$ 无关，从而让 softmax 始终处在条件良好的区间，不受头宽影响。
+因此未缩放的点积标准差为 $\sqrt{d_h}$，随头宽增长而增长。随着 $d_h$ 增大，softmax 之前的分数在绝对值上会散得更开；softmax 随即趋于饱和，输出接近 one-hot 向量（最大的分数主导整个和），其 Jacobian $\partial p_i/\partial s_j = p_i(\delta_{ij}-p_j)$ 在分布如此尖锐时每一项都趋于 $0$——对分数、进而对 $Q$、$`K`$ 的梯度消失，训练停滞。把 $q^\top k$ 除以 $\sqrt{d_h}$ 会把它的方差重新缩放到恰好 $1$，与 $d_h$ 无关，从而让 softmax 始终处在条件良好的区间，不受头宽影响。
 
-**Q2.** 时间：四个 $d \times d$ 投影（$Q,K,V,O$）共 $\Theta(Td^2)$，加上分数与加权求和这两次收缩共 $\Theta(T^2d)$，合计 $\Theta(Td^2 + T^2d)$。$O(Td)$ 激活之外的内存：把头宽 $d_h$ 当作固定常数时，实际生成的分数/权重矩阵占用 $\Theta(dT^2)$ 个元素。FlashAttention 恰好去掉了这一项内存开销，而不改变 FLOPs 总量。
+**Q2.** 时间：四个 $d \times d$ 投影（$`Q,K,V,O`$）共 $\Theta(Td^2)$，加上分数与加权求和这两次收缩共 $\Theta(T^2d)$，合计 $\Theta(Td^2 + T^2d)$。$`O(Td)`$ 激活之外的内存：把头宽 $d_h$ 当作固定常数时，实际生成的分数/权重矩阵占用 $\Theta(dT^2)$ 个元素。FlashAttention 恰好去掉了这一项内存开销，而不改变 FLOPs 总量。
 
-设 $Q,K,V \in \mathbb{R}^{T \times d}$ 各由一次 $d \times d$ 投影得到，一次投影耗费 $2Td^2$ FLOPs（每次乘加算 2 次），共四次投影（含输出投影 $W_o$）：$8Td^2$。拆成 $h$ 个宽度为 $d_h = d/h$ 的头后，单个头的分数收缩 $Q_hK_h^\top$ 耗费 $2Td_hT$ FLOPs；对 $h$ 个头求和得 $h \cdot 2T^2d_h = 2T^2(hd_h) = 2T^2d$——与拆成多少个头无关，因为无论 $h$ 取何值，$hd_h = d$ 都固定不变。对 $V$ 的加权求和是形状相同的收缩，同样是 $2T^2d$。合计：$8Td^2 + 4T^2d$ FLOPs，即 $\Theta(Td^2 + T^2d)$，在 $T \approx 2d$ 处交叉。
+设 $Q,K,V \in \mathbb{R}^{T \times d}$ 各由一次 $d \times d$ 投影得到，一次投影耗费 $2Td^2$ FLOPs（每次乘加算 2 次），共四次投影（含输出投影 $W_o$）：$`8Td^2`$。拆成 $h$ 个宽度为 $d_h = d/h$ 的头后，单个头的分数收缩 $Q_hK_h^\top$ 耗费 $2Td_hT$ FLOPs；对 $h$ 个头求和得 $h \cdot 2T^2d_h = 2T^2(hd_h) = 2T^2d$——与拆成多少个头无关，因为无论 $h$ 取何值，$`hd_h = d`$ 都固定不变。对 $V$ 的加权求和是形状相同的收缩，同样是 $2T^2d$。合计：$`8Td^2 + 4T^2d`$ FLOPs，即 $\Theta(Td^2 + T^2d)$，在 $T \approx 2d$ 处交叉。
 
-相比之下，分数与权重数组是 $h$ 个各自独立的 $T \times T$ 矩阵——每个头一个，因为每个头的 softmax 是各自独立归一化的——因此共占用 $hT^2 = (d/d_h)\,T^2$ 个数，这一项*并不*独立于头的拆分方式：把 $h$ 翻倍（$d_h$ 减半）会让这部分内存翻倍，尽管上面的 FLOPs 总量丝毫不变。把 $d_h$ 当作固定常数（64–128，基本不随模型规模变化）后，这部分内存是 $\Theta(dT^2)$：对 $d$ 线性、对 $T$ 二次，一旦 $T$ 较大就会主导 $O(Td)$ 的激活内存。
+相比之下，分数与权重数组是 $h$ 个各自独立的 $T \times T$ 矩阵——每个头一个，因为每个头的 softmax 是各自独立归一化的——因此共占用 $`hT^2 = (d/d_h)\,T^2`$ 个数，这一项*并不*独立于头的拆分方式：把 $h$ 翻倍（$`d_h`$ 减半）会让这部分内存翻倍，尽管上面的 FLOPs 总量丝毫不变。把 $d_h$ 当作固定常数（64–128，基本不随模型规模变化）后，这部分内存是 $\Theta(dT^2)$：对 $d$ 线性、对 $T$ 二次，一旦 $T$ 较大就会主导 $O(Td)$ 的激活内存。
 
-FlashAttention 计算的是同样的 $8Td^2 + 4T^2d$ FLOPs（反向传播中因为要重新计算分块、而不是读回保存的分数矩阵，会略多一些），但从不生成完整的 $T \times T$ 分数/权重矩阵。它把 $K, V$ 切成小块，并维护一个运行中的、未归一化的 softmax——运行最大值 $m$、运行求和 $\ell$、运行输出累加器 $\mathrm{acc}$——每处理一个块就更新一次。把新块的局部统计量 $(m_2, \ell_2, \mathrm{acc}_2)$ 合并进已有的 $(m_1, \ell_1, \mathrm{acc}_1)$ 时，对任一块 $i$ 都有 $e^{s - m} = e^{s - m_i}\,e^{m_i - m}$，于是取 $m = \max(m_1, m_2)$ 后，
+FlashAttention 计算的是同样的 $8Td^2 + 4T^2d$ FLOPs（反向传播中因为要重新计算分块、而不是读回保存的分数矩阵，会略多一些），但从不生成完整的 $T \times T$ 分数/权重矩阵。它把 $K, V$ 切成小块，并维护一个运行中的、未归一化的 softmax——运行最大值 $m$、运行求和 $\ell$、运行输出累加器 $\mathrm{acc}$——每处理一个块就更新一次。把新块的局部统计量 $`(m_2, \ell_2, \mathrm{acc}_2)`$ 合并进已有的 $`(m_1, \ell_1, \mathrm{acc}_1)`$ 时，对任一块 $i$ 都有 $`e^{s - m} = e^{s - m_i}\,e^{m_i - m}`$，于是取 $m = \max(m_1, m_2)$ 后，
 
-$$\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}_1e^{m_1 - m} + \mathrm{acc}_2e^{m_2 - m},$$
+```math
+\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}_1e^{m_1 - m} + \mathrm{acc}_2e^{m_2 - m},
+```
 
-最终输出为 $\mathrm{acc}/\ell$——这正是对所有已见过的键做 softmax 加权求和的精确结果，而计算过程中每次只需保留一个块的分数矩阵（$O(\text{block}\times d)$）。峰值内存从 $\Theta(dT^2)$ 降到 $O(Td)$，与该层其余部分同阶。
+最终输出为 $\mathrm{acc}/\ell$——这正是对所有已见过的键做 softmax 加权求和的精确结果，而计算过程中每次只需保留一个块的分数矩阵（$`O(\text{block}\times d)`$）。峰值内存从 $\Theta(dT^2)$ 降到 $O(Td)$，与该层其余部分同阶。
 
 **Q3.** 缓存避免了在每一个新的解码步骤都为所有更早的位置重新计算 $K, V$。缓存大小 $= 2 \cdot L \cdot h_{kv} \cdot d_h \cdot T \cdot b \cdot \text{bytes}$，代入给定数值恰好是 $4$ GiB。
 
-在因果掩码（causal mask）下，位置 $j$ 的键、值向量永远不依赖任何 $j$ 之后的位置；一旦算出，在生成过程剩余的时间里就保持不变。因此解码第 $T{+}1$ 个 token 只需要这一个新 token 的 $Q, K, V$：把新的 $K, V$ 追加到缓存了所有更早位置的缓存里即可，无需为整个前缀重新计算 $K, V$——把每 token $O(T)$、总共 $O(T^2)$ 的开销降为每 token $O(1)$。需要存储的是：对 $L$ 层中的每一层，$K$ 和 $V$ 都要存（系数 $2$），形状均为 $(b, h_{kv}, T, d_h)$——这里专门用 $h_{kv}$ 个键/值头，因为在 MQA/GQA 下 $K, V$ 保留的头数会少于 $Q$ 使用的头数（见下）——再乘以每个存储数值所占字节数。把每个因子相乘：$2 \cdot L \cdot h_{kv} \cdot d_h \cdot T \cdot b \cdot \text{bytes}$。
+在因果掩码（causal mask）下，位置 $j$ 的键、值向量永远不依赖任何 $j$ 之后的位置；一旦算出，在生成过程剩余的时间里就保持不变。因此解码第 $T{+}1$ 个 token 只需要这一个新 token 的 $Q, K, V$：把新的 $K, V$ 追加到缓存了所有更早位置的缓存里即可，无需为整个前缀重新计算 $K, V$——把每 token $O(T)$、总共 $O(T^2)$ 的开销降为每 token $O(1)$。需要存储的是：对 $L$ 层中的每一层，$`K`$ 和 $V$ 都要存（系数 $2$），形状均为 $(b, h_{kv}, T, d_h)$——这里专门用 $h_{kv}$ 个键/值头，因为在 MQA/GQA 下 $K, V$ 保留的头数会少于 $Q$ 使用的头数（见下）——再乘以每个存储数值所占字节数。把每个因子相乘：$`2 \cdot L \cdot h_{kv} \cdot d_h \cdot T \cdot b \cdot \text{bytes}`$。
 
-代入 $L = 2^5$、$h_{kv} = 2^3$、$d_h = 2^7$、$T = 2^{15}$、$b = 2^0$、bf16 $= 2^1$ 字节，每个因子都恰好是 2 的幂，最前面的系数 2 本身也是 $2^1$：把指数相加，$1+5+3+7+15+0+1 = 32$，缓存恰好是 $2^{32}$ 字节 $= 4$ GiB。
+代入 $L = 2^5$、$`h_{kv} = 2^3`$、$`d_h = 2^7`$、$`T = 2^{15}`$、$`b = 2^0`$、bf16 $= 2^1$ 字节，每个因子都恰好是 2 的幂，最前面的系数 2 本身也是 $2^1$：把指数相加，$`1+5+3+7+15+0+1 = 32`$，缓存恰好是 $2^{32}$ 字节 $= 4$ GiB。
 
-MQA 令 $h_{kv} = 1$：所有查询头共用一个键/值头，相对本例再额外缩小 $h_{kv}$ 倍（此处降到 $0.5$ GiB）。GQA 令 $h_{kv} = g$，其中 $1 < g < h$，若干查询头分组共用 $g$ 个键/值头之一——本例中的 $h_{kv} = 8$，只要模型的查询头数超过 8，本身就已经是一种 GQA 配置（比如 $h = 32$，即 $d = h d_h = 4096$）：完全多头注意力（$h_{kv} = h = 32$）需要本例缓存的 $4$ 倍（$16$ GiB），而 MQA 只需要本例的 $1/8$（$0.5$ GiB）——GQA 用一部分 MQA 式的内存节省，换取保留不止一个共享的键/值子空间，通常掉点更少。
+MQA 令 $h_{kv} = 1$：所有查询头共用一个键/值头，相对本例再额外缩小 $h_{kv}$ 倍（此处降到 $0.5$ GiB）。GQA 令 $h_{kv} = g$，其中 $1 < g < h$，若干查询头分组共用 $g$ 个键/值头之一——本例中的 $h_{kv} = 8$，只要模型的查询头数超过 8，本身就已经是一种 GQA 配置（比如 $h = 32$，即 $d = h d_h = 4096$）：完全多头注意力（$`h_{kv} = h = 32`$）需要本例缓存的 $4$ 倍（$`16`$ GiB），而 MQA 只需要本例的 $1/8$（$`0.5`$ GiB）——GQA 用一部分 MQA 式的内存节省，换取保留不止一个共享的键/值子空间，通常掉点更少。
 
 **Q4.** $q_m^\top k_n$ 只通过 $m - n$ 依赖于 $m, n$，因为把两个向量都按与位置成线性关系的角度旋转后，点积就变成了角度*之差*的函数，而这个差恰好是 $(m-n)\omega$。
 
 在单个二维坐标对上，记旋转矩阵
 
-$$R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},$$
+```math
+R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},
+```
 
-它是正交矩阵，满足 $R(\theta)^\top = R(-\theta)$ 以及 $R(\theta_1)R(\theta_2) = R(\theta_1+\theta_2)$（两次旋转复合等于角度相加）。RoPE 把位置 $m$ 处的查询旋转角度 $m\omega$，位置 $n$ 处的键旋转角度 $n\omega$，其中 $\omega$ 是固定频率：$q_m = R(m\omega)\,q$，$k_n = R(n\omega)\,k$。于是
+它是正交矩阵，满足 $R(\theta)^\top = R(-\theta)$ 以及 $R(\theta_1)R(\theta_2) = R(\theta_1+\theta_2)$（两次旋转复合等于角度相加）。RoPE 把位置 $m$ 处的查询旋转角度 $m\omega$，位置 $n$ 处的键旋转角度 $n\omega$，其中 $\omega$ 是固定频率：$`q_m = R(m\omega)\,q`$，$`k_n = R(n\omega)\,k`$。于是
 
-$$q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\,k = q^\top R(n\omega - m\omega)\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,$$
+```math
+q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\,k = q^\top R(n\omega - m\omega)\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,
+```
 
-这里先用了 $R(m\omega)^\top = R(-m\omega)$，再用了 $R(-m\omega)R(n\omega) = R(n\omega - m\omega)$。等式右边是 $q$、$k$、$\omega$ 以及单一标量 $m-n$ 的固定函数：任意两对 $(m,n)$ 与 $(m+c, n+c)$ 都给出相同的角度 $-(m-n)\omega$，从而给出相同的值，与 $m,n$ 各自取什么无关。
+这里先用了 $R(m\omega)^\top = R(-m\omega)$，再用了 $R(-m\omega)R(n\omega) = R(n\omega - m\omega)$。等式右边是 $q$、$`k`$、$`\omega`$ 以及单一标量 $m-n$ 的固定函数：任意两对 $(m,n)$ 与 $(m+c, n+c)$ 都给出相同的角度 $-(m-n)\omega$，从而给出相同的值，与 $m,n$ 各自取什么无关。
 
-对一个完整的 $d$ 维查询/键向量，RoPE 把 $d$ 个坐标拆成 $d/2$ 对，对第 $i$ 对使用它自己的频率 $\omega_i = \Theta^{-2i/d}$（一个几何级数，$\Theta$ 通常取 $10^4$–$10^6$）独立地做上述旋转，各对互不影响。完整点积是这 $d/2$ 个成对点积之和，$q_m^\top k_n = \sum_{i=0}^{d/2-1} q^{(i)\top}R\bigl(-(m-n)\omega_i\bigr)k^{(i)}$，其中每一项都只通过 $m-n$ 依赖于 $m,n$——因此整个和也是如此。
+对一个完整的 $d$ 维查询/键向量，RoPE 把 $d$ 个坐标拆成 $d/2$ 对，对第 $i$ 对使用它自己的频率 $\omega_i = \Theta^{-2i/d}$（一个几何级数，$`\Theta`$ 通常取 $10^4$–$`10^6`$）独立地做上述旋转，各对互不影响。完整点积是这 $d/2$ 个成对点积之和，$`q_m^\top k_n = \sum_{i=0}^{d/2-1} q^{(i)\top}R\bigl(-(m-n)\omega_i\bigr)k^{(i)}`$，其中每一项都只通过 $m-n$ 依赖于 $m,n$——因此整个和也是如此。
 
 对比：可学习或正弦绝对位置编码 $p_m$ 是在查询/键投影*之前*加到 token 嵌入上的，所以 $q_m = W_q(x_m + p_m) = q + W_qp_m$（记 $q = W_qx_m$），同理 $k_n = k + W_kp_n$。于是
 
-$$q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,$$
+```math
+q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,
+```
 
 其中四项里有三项直接涉及 $p_m$ 或 $p_n$，而不是二者之差——这种参数化方式没有任何机制强迫整个和坍缩成只依赖 $m-n$ 的函数。相对位置的行为至多是从训练数据里近似学到的，并非代数上必然成立，也没有理由在比训练时更长的序列长度上依然表现良好，这与 RoPE 精确的、只依赖相对位置的性质不同。
 
@@ -107,41 +117,45 @@ $$q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\
 
 **Q5.** 一个块有 $12d^2$ 个参数；整个模型有 $12Ld^2 + Vd$ 个；训练每个 token 大约需要 $6N$ 次 FLOPs，推理大约需要 $2N$ 次，其中 $N = 12Ld^2$——因为线性层里的每个参数，在前向传播中恰好参与一次 token 的乘加，在反向传播中还会参与两次同样大小的矩阵乘法。
 
-注意力有四个 $d \times d$ 矩阵（$W_q, W_k, W_v, W_o$，不含偏置）：$4d^2$。MLP 有 $W_1 \in \mathbb{R}^{d \times 4d}$ 与 $W_2 \in \mathbb{R}^{4d \times d}$：$2 \cdot 4d^2 = 8d^2$。一个块：$4d^2 + 8d^2 = 12d^2$。堆叠 $L$ 个块，再加上一张 $V \times d$ 的嵌入表——由于绑定，它只算一次，而不是为输入查找表和输出反嵌入（unembedding）各算一次：$N_{\text{total}} = 12Ld^2 + Vd$。
+注意力有四个 $d \times d$ 矩阵（$`W_q, W_k, W_v, W_o`$，不含偏置）：$`4d^2`$。MLP 有 $W_1 \in \mathbb{R}^{d \times 4d}$ 与 $W_2 \in \mathbb{R}^{4d \times d}$：$`2 \cdot 4d^2 = 8d^2`$。一个块：$`4d^2 + 8d^2 = 12d^2`$。堆叠 $L$ 个块，再加上一张 $V \times d$ 的嵌入表——由于绑定，它只算一次，而不是为输入查找表和输出反嵌入（unembedding）各算一次：$`N_{\text{total}} = 12Ld^2 + Vd`$。
 
 关于 FLOPs：一个线性层 $W \in \mathbb{R}^{a \times b}$ 作用在单个 token 的激活向量上，需要做 $ab$ 次乘加 $= 2ab$ 次 FLOPs——恰好是该层每个参数 2 次 FLOPs，因为对单个 token 而言，每个权重都恰好连接一个输入特征和一个输出特征。把 $L$ 个块内部所有线性层（共 $N = 12Ld^2$ 个参数）加起来，前向传播每个 token 大约需要 $2N$ 次 FLOPs。这一近似舍弃了两部分：嵌入查找是一次免费的 gather 操作，不是矩阵乘法；而注意力的分数/加权求和收缩每个 token 还要额外花费 $O(Td)$（见 Q2）——在 $T \ll d$ 这个此近似所针对的通常情形下，相对 $O(d^2)$ 可以忽略。反向传播经过一个线性层时，要再算两次与前向同样大小的矩阵乘法：对该层输入的梯度，以及对该层权重的梯度（一个同样形状的外积）；所以反向传播大约是前向的两倍，约 $4N$。前向加反向合计约 $2N + 4N = 6N$ 次 FLOPs，每个训练 token。用 KV 缓存为一个新 token 提供服务——不重新计算更早的位置——只跑前向：约 $2N$。
 
 **Q6.** 后置归一化在残差相加*之后*才归一化；前置归一化只归一化送入子层的那条分支，残差相加本身不做归一化。正是这个未被归一化的相加，让前置归一化的梯度不会随深度增加而消失或爆炸。RMSNorm 相对 LayerNorm 舍弃的是均值中心化和加性偏置。
 
-后置归一化：$x_{l+1} = \mathrm{Norm}\bigl(x_l + f_l(x_l)\bigr)$。前置归一化：$x_{l+1} = x_l + f_l\bigl(\mathrm{Norm}(x_l)\bigr)$，其中 $f_l$ 是注意力或 MLP 子层。
+后置归一化：$`x_{l+1} = \mathrm{Norm}\bigl(x_l + f_l(x_l)\bigr)`$。前置归一化：$`x_{l+1} = x_l + f_l\bigl(\mathrm{Norm}(x_l)\bigr)`$，其中 $f_l$ 是注意力或 MLP 子层。
 
-把每个子层对残差流的净效果线性化为一个标量 $a_l$（这是本论证中一个粗略但标准的简化）。在前置归一化中，$x_{l+1} = x_l + a_l\,g(x_l)$，其中 $g$ 有界——分支内部的归一化从不触碰 $x_l$ 本身——所以 $\partial x_{l+1}/\partial x_l = 1 + O(a_l)$，由链式法则，$\partial x_L/\partial x_0 = \prod_{l=1}^{L}\bigl(1 + O(a_l)\bigr)$：每一层都留下一个恰好为 $1$ 的*加性*恒等项，因此这个乘积不可能像一堆全都小于 $1$ 的因子相乘那样坍缩到 $0$。在后置归一化中，残差之和本身在每一层都被重新归一化，$x_{l+1} = \mathrm{Norm}\bigl(x_l + f_l(x_l)\bigr) \approx a_lx_l$（在某个线性化点附近）——恒等路径与分支被折叠进同一个乘法因子，因为归一化是把整个和一起重新缩放的——所以 $\partial x_L/\partial x_0 \approx \prod_{l=1}^{L} a_l$：一个 $L$ 项的普通乘积，除非每个 $a_l$ 都极其接近 $1$，否则会随 $L$ 指数级地消失或爆炸。这正是深层后置归一化 Transformer 历史上需要小心的学习率预热（warm-up）才能撑过训练早期的原因，而前置归一化在深得多的网络里也能开箱即用地稳定训练。
+把每个子层对残差流的净效果线性化为一个标量 $a_l$（这是本论证中一个粗略但标准的简化）。在前置归一化中，$`x_{l+1} = x_l + a_l\,g(x_l)`$，其中 $g$ 有界——分支内部的归一化从不触碰 $x_l$ 本身——所以 $\partial x_{l+1}/\partial x_l = 1 + O(a_l)$，由链式法则，$`\partial x_L/\partial x_0 = \prod_{l=1}^{L}\bigl(1 + O(a_l)\bigr)`$：每一层都留下一个恰好为 $1$ 的*加性*恒等项，因此这个乘积不可能像一堆全都小于 $1$ 的因子相乘那样坍缩到 $0$。在后置归一化中，残差之和本身在每一层都被重新归一化，$`x_{l+1} = \mathrm{Norm}\bigl(x_l + f_l(x_l)\bigr) \approx a_lx_l`$（在某个线性化点附近）——恒等路径与分支被折叠进同一个乘法因子，因为归一化是把整个和一起重新缩放的——所以 $\partial x_L/\partial x_0 \approx \prod_{l=1}^{L} a_l$：一个 $L$ 项的普通乘积，除非每个 $a_l$ 都极其接近 $1$，否则会随 $L$ 指数级地消失或爆炸。这正是深层后置归一化 Transformer 历史上需要小心的学习率预热（warm-up）才能撑过训练早期的原因，而前置归一化在深得多的网络里也能开箱即用地稳定训练。
 
-$$\mathrm{LN}(v)_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)_i = \frac{v_i}{\mathrm{RMS}(v)}\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.$$
+```math
+\mathrm{LN}(v)_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)_i = \frac{v_i}{\mathrm{RMS}(v)}\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.
+```
 
-RMSNorm 舍弃了减均值 $\mu$ 这一步（不做重新居中，只做缩放），也舍弃了加性偏置 $\beta$，只保留可学习的逐特征缩放 $\gamma$。当 $v$ 本身均值为零时，$\sigma^2 = \frac1d\sum_iv_i^2$ 与 $\mathrm{RMS}(v)^2$ 重合（相差仅在 $\epsilon$ 内），此时两者的缩放因子完全相同，区别只在于是否先减去了 $\mu$——RMSNorm 只是省去了这一次归约，每次调用少做一遍对 $d$ 个特征的遍历，并且少了 $\beta$ 的 $d$ 个额外参数。
+RMSNorm 舍弃了减均值 $\mu$ 这一步（不做重新居中，只做缩放），也舍弃了加性偏置 $\beta$，只保留可学习的逐特征缩放 $\gamma$。当 $v$ 本身均值为零时，$`\sigma^2 = \frac1d\sum_iv_i^2`$ 与 $\mathrm{RMS}(v)^2$ 重合（相差仅在 $\epsilon$ 内），此时两者的缩放因子完全相同，区别只在于是否先减去了 $\mu$——RMSNorm 只是省去了这一次归约，每次调用少做一遍对 $d$ 个特征的遍历，并且少了 $\beta$ 的 $d$ 个额外参数。
 
 ### 目标函数与数据
 
 **Q7.** 交叉熵约为 $0.978$ 奈特，困惑度 $= \sqrt[4]{50} \approx 2.659$。
 
-对一个长度为 $T$ 的序列，模型在每一步给真实下一个 token 分配的概率记为 $p_t = \pi_\theta(y_t \mid y_{<t})$，逐 token 交叉熵（以奈特为单位）为 $\mathcal{H} = -\frac1T\sum_{t=1}^T \ln p_t$，困惑度为 $\mathrm{PPL} = e^{\mathcal{H}}$——平均而言，模型的不确定程度就如同每一步都在 $\mathrm{PPL}$ 个选项之间做均匀选择：均匀地从 $k$ 个选项中选一个，意外程度为 $-\ln(1/k) = \ln k$ 奈特，当 $\mathrm{PPL}=k$ 时正好等于 $\mathcal{H} = \ln k$。以 2 为底时，$\mathrm{PPL} = 2^{\mathcal{H}/\ln 2}$，所以 $\mathcal{H}/\ln 2$ 就是“每 token 比特数”。
+对一个长度为 $T$ 的序列，模型在每一步给真实下一个 token 分配的概率记为 $p_t = \pi_\theta(y_t \mid y_{<t})$，逐 token 交叉熵（以奈特为单位）为 $\mathcal{H} = -\frac1T\sum_{t=1}^T \ln p_t$，困惑度为 $\mathrm{PPL} = e^{\mathcal{H}}$——平均而言，模型的不确定程度就如同每一步都在 $\mathrm{PPL}$ 个选项之间做均匀选择：均匀地从 $k$ 个选项中选一个，意外程度为 $-\ln(1/k) = \ln k$ 奈特，当 $\mathrm{PPL}=k$ 时正好等于 $\mathcal{H} = \ln k$。以 2 为底时，$`\mathrm{PPL} = 2^{\mathcal{H}/\ln 2}`$，所以 $\mathcal{H}/\ln 2$ 就是“每 token 比特数”。
 
-代入 $p_1,\dots,p_4 = 0.5, 0.2, 0.8, 0.25$：$\prod_t p_t = 0.5 \times 0.2 \times 0.8 \times 0.25 = 0.02 = 1/50$，所以 $\mathrm{PPL} = \bigl(\prod_t p_t\bigr)^{-1/T} = 50^{1/4} = \sqrt[4]{50} \approx 2.659$，且 $\mathcal{H} = \ln(\mathrm{PPL}) = \tfrac14\ln 50 \approx 0.978$ 奈特 $\approx 1.411$ 比特每 token。
+代入 $p_1,\dots,p_4 = 0.5, 0.2, 0.8, 0.25$：$`\prod_t p_t = 0.5 \times 0.2 \times 0.8 \times 0.25 = 0.02 = 1/50`$，所以 $\mathrm{PPL} = \bigl(\prod_t p_t\bigr)^{-1/T} = 50^{1/4} = \sqrt[4]{50} \approx 2.659$，且 $\mathcal{H} = \ln(\mathrm{PPL}) = \tfrac14\ln 50 \approx 0.978$ 奈特 $\approx 1.411$ 比特每 token。
 
-**Q8.** 前三次合并依次是 $(e,s)$、然后 $(es,t)$、然后 $(est,\_)$，计数都是 $9$。
+**Q8.** 前三次合并依次是 $(e,s)$、然后 $(es,t)$、然后 $`(est,\_)`$，计数都是 $9$。
 
-先拆成符号：`low` → `l o w _`（×5）；`lower` → `l o w e r _`（×2）；`newest` → `n e w e s t _`（×6）；`widest` → `w i d e s t _`（×3）。把所有相邻符号对的计数按词频加权、在四个词上求和：$(l,o){=}7$、$(o,w){=}7$、$(w,\_){=}5$、$(w,e){=}8$、$(e,r){=}2$、$(r,\_){=}2$、$(n,e){=}6$、$(e,w){=}6$、$(e,s){=}9$、$(s,t){=}9$、$(t,\_){=}9$、$(w,i){=}3$、$(i,d){=}3$、$(d,e){=}3$——最大值 $9$ 出现三次并列，分别是 $(e,s)$、$(s,t)$、$(t,\_)$（`newest` 与 `widest` 共享完全相同的后缀 `est_`，其中每一个相邻对都得到同样的组合计数 $6 + 3$）。按字典序打破并列，优先选中 $(e,s)$。合并后 `newest` 变成 `n e w es t _`，`widest` 变成 `w i d es t _`；重新计数，$(es,t)$ 与 $(t,\_)$ 并列为 $9$，而 $(es,t)$ 按字典序更靠前（`es` < `t`），于是第二次合并选中它，得到 `n e w est _` 与 `w i d est _`。再次重新计数，此时只剩 $(est,\_) = 9$ 位居最高且不再并列，第三次合并选中它：`n e w est_` 与 `w i d est_`。`low` 与 `lower` 因为不含这三次合并所需的字母组合，始终未被触及。
+先拆成符号：`low` → `l o w _`（×5）；`lower` → `l o w e r _`（×2）；`newest` → `n e w e s t _`（×6）；`widest` → `w i d e s t _`（×3）。把所有相邻符号对的计数按词频加权、在四个词上求和：$`(l,o){=}7`$、$`(o,w){=}7`$、$`(w,\_){=}5`$、$`(w,e){=}8`$、$`(e,r){=}2`$、$`(r,\_){=}2`$、$`(n,e){=}6`$、$`(e,w){=}6`$、$`(e,s){=}9`$、$`(s,t){=}9`$、$`(t,\_){=}9`$、$`(w,i){=}3`$、$`(i,d){=}3`$、$`(d,e){=}3`$——最大值 $9$ 出现三次并列，分别是 $(e,s)$、$`(s,t)`$、$`(t,\_)`$（`newest` 与 `widest` 共享完全相同的后缀 `est_`，其中每一个相邻对都得到同样的组合计数 $6 + 3$）。按字典序打破并列，优先选中 $(e,s)$。合并后 `newest` 变成 `n e w es t _`，`widest` 变成 `w i d es t _`；重新计数，$`(es,t)`$ 与 $`(t,\_)`$ 并列为 $9$，而 $(es,t)$ 按字典序更靠前（`es` < `t`），于是第二次合并选中它，得到 `n e w est _` 与 `w i d est _`。再次重新计数，此时只剩 $`(est,\_) = 9`$ 位居最高且不再并列，第三次合并选中它：`n e w est_` 与 `w i d est_`。`low` 与 `lower` 因为不含这三次合并所需的字母组合，始终未被触及。
 
 合并次数越多，越能把词表里的冗余压缩掉——常见的多字符片段（如 `est_`，合并足够多次后甚至是完整的短词）会变成单个 token——这会缩短给定文本对应的 token 序列长度，而对于注意力开销随 $T$ 二次增长的 Transformer（见 Q2），更短的 $T$ 更便宜。但合并得越多，词表本身也越大（更多互不相同的合并符号需要嵌入、也需要在其上产生 logits，直接加到 Q5 里的 $Vd$ 上），而更罕见的合并 token 在训练中各自被见到的次数也更少，其嵌入是从更少的数据里学出来的；合并太少会让序列偏长、开销偏高，合并太多则会让词表的长尾训练不足，也难以在遇到词表外的拼写时优雅地退回到字符级表示。
 
-**Q9.** $N \approx 2.9 \times 10^{10}$ 个参数，$D \approx 5.8 \times 10^{11}$ 个 token。
+**Q9.** $N \approx 2.9 \times 10^{10}$ 个参数，$`D \approx 5.8 \times 10^{11}`$ 个 token。
 
-把经验法则 $D \approx 20N$ 代入 $C \approx 6ND$：$C \approx 6N(20N) = 120N^2$，于是
+把经验法则 $D \approx 20N$ 代入 $C \approx 6ND$：$`C \approx 6N(20N) = 120N^2`$，于是
 
-$$N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.$$
+```math
+N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.
+```
 
-对 $C = 10^{23}$：$N \approx \sqrt{10^{23}/120} \approx 2.9\times10^{10}$，$D \approx 20 \times 2.9\times10^{10} \approx 5.8\times10^{11}$。
+对 $C = 10^{23}$：$`N \approx \sqrt{10^{23}/120} \approx 2.9\times10^{10}`$，$`D \approx 20 \times 2.9\times10^{10} \approx 5.8\times10^{11}`$。
 
 这个 $N$ 是在固定的*训练*算力预算下让训练损失最小，它没有考虑推理开销——推理开销大致随 $N$ 按每个生成 token 线性增长（Q5），并且模型每被服务一次就要付出一次这个代价，而一个已部署模型一生中被服务的 token 总数往往远远超过它训练时用过的 token 数。如果要最小化的是总开销（训练加上服务），最优点就会偏向*更小*的 $N$、在比 $D \approx 20N$ *更多*的 token 上训练：故意多花一些训练算力（偏离训练算力最优的前沿），换来一个更小、服务更便宜的模型，其损失比同等规模下按训练最优比例训练所能达到的更低。
 
@@ -149,41 +163,49 @@ $$N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.$$
 
 **Q10.** 预训练最大化原始文本上的下一个 token 似然；SFT 最大化同样的下一个 token 似然，但只在给定提示（prompt）下、针对示范回复的 token 上计算；偏好优化在保持与参考策略的 KL 散度足够小的约束下，最大化期望奖励（人类偏好，或一个学习到的奖励模型）——而 DPO 正是同一个带 KL 正则目标的闭式解，不需要单独的奖励模型或强化学习式的 rollout。
 
-预训练：$\mathcal{L}_{\text{pre}} = -\frac1T\sum_t \ln \pi_\theta(x_t \mid x_{<t})$，作用在原始文本 $x$ 上。SFT，给定提示 $x$ 和示范回复 $y$：$\mathcal{L}_{\text{SFT}} = -\frac{1}{|y|}\sum_{t \in y} \ln \pi_\theta(y_t \mid x, y_{<t})$——提示 token 上的损失被精确地掩蔽为 $0$（实践中通常给它们一个被忽略的标签）。提示是模型必须依赖的固定上下文，而不是应该被训练去*生成*的东西：提示的风格千差万别，往往来自与期望回复风格不同的来源（用户、模板），在提示 token 上训练会把梯度信号浪费在模仿提示措辞上，而不是提升回复质量，何况对于一段逐字交给模型的提示，本来也没有什么“正确”的生成方式。
+预训练：$`\mathcal{L}_{\text{pre}} = -\frac1T\sum_t \ln \pi_\theta(x_t \mid x_{<t})`$，作用在原始文本 $x$ 上。SFT，给定提示 $x$ 和示范回复 $y$：$`\mathcal{L}_{\text{SFT}} = -\frac{1}{|y|}\sum_{t \in y} \ln \pi_\theta(y_t \mid x, y_{<t})`$——提示 token 上的损失被精确地掩蔽为 $0$（实践中通常给它们一个被忽略的标签）。提示是模型必须依赖的固定上下文，而不是应该被训练去*生成*的东西：提示的风格千差万别，往往来自与期望回复风格不同的来源（用户、模板），在提示 token 上训练会把梯度信号浪费在模仿提示措辞上，而不是提升回复质量，何况对于一段逐字交给模型的提示，本来也没有什么“正确”的生成方式。
 
 对 DPO，带 KL 正则的目标是
 
-$$\max_\theta\ \mathbb{E}_{x\sim\mathcal D,\ y\sim\pi_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\,\mathrm{KL}\bigl(\pi_\theta(\cdot|x)\,\|\,\pi_{\mathrm{ref}}(\cdot|x)\bigr).$$
+```math
+\max_\theta\ \mathbb{E}_{x\sim\mathcal D,\ y\sim\pi_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\,\mathrm{KL}\bigl(\pi_\theta(\cdot|x)\,\|\,\pi_{\mathrm{ref}}(\cdot|x)\bigr).
+```
 
 对固定的 $x$，在约束 $\sum_y \pi(y) = 1$ 下对分布 $\pi(\cdot|x)$ 最大化 $\sum_y \pi(y)r(y) - \beta\sum_y\pi(y)\ln\frac{\pi(y)}{\pi_{\mathrm{ref}}(y)}$，得到闭式最优解
 
-$$\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\mathrm{ref}}(y\mid x)\,\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi_{\mathrm{ref}}(y\mid x)\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).$$
+```math
+\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\mathrm{ref}}(y\mid x)\,\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi_{\mathrm{ref}}(y\mid x)\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).
+```
 
 反解出奖励：
 
-$$r(x,y) = \beta\ln\frac{\pi^*(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).$$
+```math
+r(x,y) = \beta\ln\frac{\pi^*(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).
+```
 
-代入 Bradley–Terry 偏好模型 $P(y_w \succ y_l \mid x) = \sigma\bigl(r(x,y_w) - r(x,y_l)\bigr)$，$\beta\ln Z(x)$ 这一项对 $y_w$ 与 $y_l$ 是公共的（只依赖于 $x$），在作差时相消：
+代入 Bradley–Terry 偏好模型 $P(y_w \succ y_l \mid x) = \sigma\bigl(r(x,y_w) - r(x,y_l)\bigr)$，$`\beta\ln Z(x)`$ 这一项对 $y_w$ 与 $y_l$ 是公共的（只依赖于 $x$），在作差时相消：
 
-$$P(y_w \succ y_l \mid x) = \sigma\!\left(\beta\ln\frac{\pi^*(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^*(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right).$$
+```math
+P(y_w \succ y_l \mid x) = \sigma\!\left(\beta\ln\frac{\pi^*(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^*(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right).
+```
 
-在这个模型下，用极大似然把 $\pi_\theta$ 拟合到观测到的偏好对上，正是 DPO 的损失，$\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)} - \beta\ln\frac{\pi_\theta(y_l|x)}{\pi_{\mathrm{ref}}(y_l|x)}\Bigr)$：不需要奖励模型，也不需要强化学习式的 rollout，因为 $\pi^*$ 与 $r$ 之间的闭式关系，把奖励直接代换成了 $\pi_\theta$ 自身上的一个有监督分类损失。
+在这个模型下，用极大似然把 $\pi_\theta$ 拟合到观测到的偏好对上，正是 DPO 的损失，$`\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)} - \beta\ln\frac{\pi_\theta(y_l|x)}{\pi_{\mathrm{ref}}(y_l|x)}\Bigr)`$：不需要奖励模型，也不需要强化学习式的 rollout，因为 $`\pi^*`$ 与 $r$ 之间的闭式关系，把奖励直接代换成了 $\pi_\theta$ 自身上的一个有监督分类损失。
 
-无论走哪条路，都要保留 KL 项，因为奖励信号（一个学习到的奖励模型，或者 DPO 偏好数据里隐含的奖励）只在它被训练或采集时所在的数据分布附近才准确：一个可以任意偏离 $\pi_{\mathrm{ref}}$ 的策略，能找到在不完美的奖励下得分很高、实际却并不好的输出，即所谓“奖励黑客”（reward hacking），而偏离 $\pi_{\mathrm{ref}}$ 太远还有可能丢掉预训练/SFT 阶段学到的语言能力。上面的闭式解把这一点讲得很明白：当 $\beta \to \infty$ 时，无论 $r$ 是什么，$\pi^* \to \pi_{\mathrm{ref}}$；当 $\beta \to 0$ 时，$\pi^*$ 会完全坍缩到最大化奖励的输出上，不再有任何正则化。
+无论走哪条路，都要保留 KL 项，因为奖励信号（一个学习到的奖励模型，或者 DPO 偏好数据里隐含的奖励）只在它被训练或采集时所在的数据分布附近才准确：一个可以任意偏离 $\pi_{\mathrm{ref}}$ 的策略，能找到在不完美的奖励下得分很高、实际却并不好的输出，即所谓“奖励黑客”（reward hacking），而偏离 $\pi_{\mathrm{ref}}$ 太远还有可能丢掉预训练/SFT 阶段学到的语言能力。上面的闭式解把这一点讲得很明白：当 $\beta \to \infty$ 时，无论 $r$ 是什么，$`\pi^* \to \pi_{\mathrm{ref}}`$；当 $\beta \to 0$ 时，$`\pi^*`$ 会完全坍缩到最大化奖励的输出上，不再有任何正则化。
 
-**Q11.** 记 $z$ 为下一个 token 的 logits，$p = \mathrm{softmax}(z)$。
+**Q11.** 记 $z$ 为下一个 token 的 logits，$`p = \mathrm{softmax}(z)`$。
 
-*贪心解码*每一步都选 $\arg\max_i p_i$：确定性、零熵，是温度采样在 $\tau \to 0^+$ 时的极限。*温度采样*在 softmax 之前缩放 logits，$p_i(\tau) = e^{z_i/\tau} / \sum_je^{z_j/\tau}$：$\tau < 1$ 把分布往 arg-max 方向收紧，$\tau > 1$ 把分布往均匀方向拉平，$\tau = 1$ 保持不变——在任意有限的 $\tau$ 下，每个 token 都仍可能被采到，只是权重被重新分配。*Top-$k$ 采样*只保留概率最高的 $k$ 个 token，重新归一化使其和为 $1$，再从这个截断后的分布中采样（其余位置概率为 $0$）：它固定的是保留集合的*大小*，与概率质量的分布形态无关。*核（top-$p$）采样*把 token 按概率从大到小排序，保留累积概率首次达到 $p$ 的最短前缀，重新归一化后从中采样：它固定的是保留的*概率质量*，保留集合的大小则随之自适应——分布越尖锐（模型越自信）保留得越少，分布越平坦保留得越多。
+*贪心解码*每一步都选 $\arg\max_i p_i$：确定性、零熵，是温度采样在 $\tau \to 0^+$ 时的极限。*温度采样*在 softmax 之前缩放 logits，$`p_i(\tau) = e^{z_i/\tau} / \sum_je^{z_j/\tau}`$：$`\tau < 1`$ 把分布往 arg-max 方向收紧，$`\tau > 1`$ 把分布往均匀方向拉平，$`\tau = 1`$ 保持不变——在任意有限的 $\tau$ 下，每个 token 都仍可能被采到，只是权重被重新分配。*Top-$`k`$ 采样*只保留概率最高的 $k$ 个 token，重新归一化使其和为 $1$，再从这个截断后的分布中采样（其余位置概率为 $0$）：它固定的是保留集合的*大小*，与概率质量的分布形态无关。*核（top-$`p`$）采样*把 token 按概率从大到小排序，保留累积概率首次达到 $p$ 的最短前缀，重新归一化后从中采样：它固定的是保留的*概率质量*，保留集合的大小则随之自适应——分布越尖锐（模型越自信）保留得越少，分布越平坦保留得越多。
 
-已按降序排列的算例——`a:0.5, b:0.2, c:0.15, d:0.1, e:0.05`——取 $p = 0.7$：累加到 `a` 时是 $0.5 < 0.7$；累加到 `a, b` 时恰好是 $0.7 \ge 0.7$，于是保留集合是 $\{a, b\}$。
+已按降序排列的算例——`a:0.5, b:0.2, c:0.15, d:0.1, e:0.05`——取 $p = 0.7$：累加到 `a` 时是 $0.5 < 0.7$；累加到 `a, b` 时恰好是 $0.7 \ge 0.7$，于是保留集合是 $`\{a, b\}`$。
 
-**Q12.** 总参数量 $= 1.65 \times 10^{10}$；每个 token 的激活参数量 $= 4.5 \times 10^{9}$（约为总量的 $27\%$）。
+**Q12.** 总参数量 $= 1.65 \times 10^{10}$；每个 token 的激活参数量 $= 4.5 \times 10^{9}$（约为总量的 $`27\%`$）。
 
-总参数量是共享参数加上每一个专家的参数，无论某个 token 是否用到它：$\text{shared} + E \cdot P_{\text{expert}}$。每个 token 的激活参数量则是共享参数加上该 token 的路由器实际选中的 $k$ 个专家的参数：$\text{shared} + k \cdot P_{\text{expert}}$（路由器本身增加的参数量相对很小，通常不单独计入）。代入 $E=8$、$P_{\text{expert}} = 2\times10^9$、共享参数 $=5\times10^8$、$k=2$：$\text{total} = 5\times10^8 + 8 \times 2\times10^9 = 1.65\times10^{10}$，$\text{active} = 5\times10^8 + 2 \times 2\times10^9 = 4.5\times10^9$——这个模型每个 token 的推理算力相当于一个 $4.5$B 参数的稠密模型，但容量、以及内存占用，相当于一个 $16.5$B 参数的模型。
+总参数量是共享参数加上每一个专家的参数，无论某个 token 是否用到它：$`\text{shared} + E \cdot P_{\text{expert}}`$。每个 token 的激活参数量则是共享参数加上该 token 的路由器实际选中的 $k$ 个专家的参数：$`\text{shared} + k \cdot P_{\text{expert}}`$（路由器本身增加的参数量相对很小，通常不单独计入）。代入 $E=8$、$`P_{\text{expert}} = 2\times10^9`$、共享参数 $=5\times10^8$、$`k=2`$：$`\text{total} = 5\times10^8 + 8 \times 2\times10^9 = 1.65\times10^{10}`$，$`\text{active} = 5\times10^8 + 2 \times 2\times10^9 = 4.5\times10^9`$——这个模型每个 token 的推理算力相当于一个 $`4.5`$B 参数的稠密模型，但容量、以及内存占用，相当于一个 $`16.5`$B 参数的模型。
 
 路由器只按任务损失训练，这本身并不会对“token 在各专家间分布均匀”施加任何压力——放任不管，它确实会（经验上也确实会）坍缩成把大多数 token 都发给一小撮受偏爱的专家，尤其是在训练早期。被冷落的专家因此收到的梯度更新更少，训练更不充分，这又让路由器更不愿意选它们（一个赢家通吃的反馈回路），而且在一个高效的并行实现里，每个专家每一步的计算/内存预算是固定的，负载不均要么浪费容量（专家空闲），要么迫使 token 被丢弃（专家超载）——同时损害质量与硬件利用率。辅助损失加入一个显式惩罚项，典型形式是 $E \cdot \sum_e f_e P_e$（专家数乘以“实际路由到该专家的 token 比例 $f_e$”与“路由器给该专家的平均 softmax 概率 $P_e$”的点积），当路由均匀时这个惩罚恰好最小，从而把路由器推离坍缩，同时又不需要直接监督哪个 token 该由哪个专家处理。
 
-*容量因子* $c$（通常取 $1$–$2$）把每个专家每个 batch 的最大 token 数设为 $\mathrm{capacity} = c \cdot N_{\text{tokens}}/E$——比完全均匀路由本应送来的 $N_{\text{tokens}}/E$ 多留出一些余量（因为实际路由从来不会完全均匀），同时仍限定了最坏情形。被发往一个已满容量专家的 token 会被丢弃（跳过，例如通过残差连接直接传过去）或改发给排名靠后的专家，从而让专家并行训练中每个专家的计算和内存在各设备间保持一致且有界，代价是当 $c$ 较小时，一部分 token 拿不到它们本该优先选择的专家。
+*容量因子* $c$（通常取 $1$–$`2`$）把每个专家每个 batch 的最大 token 数设为 $\mathrm{capacity} = c \cdot N_{\text{tokens}}/E$——比完全均匀路由本应送来的 $N_{\text{tokens}}/E$ 多留出一些余量（因为实际路由从来不会完全均匀），同时仍限定了最坏情形。被发往一个已满容量专家的 token 会被丢弃（跳过，例如通过残差连接直接传过去）或改发给排名靠后的专家，从而让专家并行训练中每个专家的计算和内存在各设备间保持一致且有界，代价是当 $c$ 较小时，一部分 token 拿不到它们本该优先选择的专家。
 
 ### 追问
 

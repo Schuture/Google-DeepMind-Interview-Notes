@@ -10,16 +10,16 @@
 
 ## 题目
 
-约定贯穿全文的记号：提示 $x$；响应（response）$y=(y_1,\dots,y_n)$，一个长度为 $n$ 的 token 序列；策略（policy）$\pi_\theta(y\mid x) = \prod_{t=1}^n \pi_\theta(y_t \mid x, y_{<t})$，
-即正在训练的语言模型，它逐个 token 地生成 $y$，每一步都以提示和已经生成的 token 为条件；参考策略（reference policy）$\pi_{\text{ref}}$，是当前训练阶
-段开始之前策略的一份冻结副本；标量奖励（reward）$r(x,y)$，数值越大越好；以及 KL 系数 $\beta > 0$。
+约定贯穿全文的记号：提示 $x$；响应（response）$`y=(y_1,\dots,y_n)`$，一个长度为 $n$ 的 token 序列；策略（policy）$`\pi_\theta(y\mid x) = \prod_{t=1}^n \pi_\theta(y_t \mid x, y_{<t})`$，
+即正在训练的语言模型，它逐个 token 地生成 $y$，每一步都以提示和已经生成的 token 为条件；参考策略（reference policy）$`\pi_{\text{ref}}`$，是当前训练阶
+段开始之前策略的一份冻结副本；标量奖励（reward）$`r(x,y)`$，数值越大越好；以及 KL 系数 $\beta > 0$。
 
 ### 策略梯度
 
-**Q1.** 固定提示 $x$，记 $J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}[r(x,y)]$。从 $\nabla_\theta \pi_\theta(y\mid x) = \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x)$
-出发，推导 $\nabla_\theta J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[r(x,y)\,\nabla_\theta \log \pi_\theta(y\mid x)\big]$（对
+**Q1.** 固定提示 $x$，记 $J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}[r(x,y)]$。从 $`\nabla_\theta \pi_\theta(y\mid x) = \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x)`$
+出发，推导 $`\nabla_\theta J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[r(x,y)\,\nabla_\theta \log \pi_\theta(y\mid x)\big]`$（对
 数导数技巧，log-derivative trick）。利用自回归分解，把 $\nabla_\theta \log \pi_\theta(y\mid x)$、进而把 $\nabla_\theta J(\theta)$
-写成对 token $t=1,\dots,n$ 求和的形式。然后，对任意不依赖于 $y$ 的基线（baseline）$b$（可以依赖于 $x$），证明 $\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[(r(x,y) - b)\,\nabla_\theta \log \pi_\theta(y\mid x)\big] = \nabla_\theta J(\theta)$
+写成对 token $t=1,\dots,n$ 求和的形式。然后，对任意不依赖于 $y$ 的基线（baseline）$`b`$（可以依赖于 $x$），证明 $`\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[(r(x,y) - b)\,\nabla_\theta \log \pi_\theta(y\mid x)\big] = \nabla_\theta J(\theta)`$
 同样成立，即减去 $b$ 不会引入偏差。说明选取得当的基线能带来什么好处。
 
 ### PPO
@@ -28,27 +28,31 @@
 之间的比率（ratio），并记 $A$ 为 $(x,y)$ 的标量优势（advantage）：当 $y$ 优于当前策略对 $x$ 的平均响应时为正，劣于时为负。单个样本上 PPO 裁剪代理目标（clipped
 surrogate）为
 
-$$L^{\text{clip}}(\rho, A) = \min\big(\rho A,\ \operatorname{clip}(\rho,\, 1-\epsilon,\, 1+\epsilon)\, A\big), \qquad \operatorname{clip}(\rho, l, u) = \min(\max(\rho, l), u),$$
+```math
+L^{\text{clip}}(\rho, A) = \min\big(\rho A,\ \mathrm{clip}(\rho,\, 1-\epsilon,\, 1+\epsilon)\, A\big), \qquad \mathrm{clip}(\rho, l, u) = \min(\max(\rho, l), u),
+```
 
 其中裁剪范围 $\epsilon \in (0,1)$，在期望意义下对 $\theta$ 最大化。把 $\rho$ 所在的位置分成三个区间——小于 $1-\epsilon$、落在 $[1-\epsilon, 1+\epsilon]$
 内、大于 $1+\epsilon$——对每个区间与 $A$ 的符号的组合，给出 $L^{\text{clip}}$ 的取值以及 $\partial L^{\text{clip}} / \partial \rho$（一
-共五种情形，因为区间内部 $A$ 的两种符号表现一致）；指出哪些情形下梯度被清零，并对这些情形用信任域（trust region）来解释裁剪保护的是什么。计算 $\epsilon = 0.2$ 时，$(\rho, A) \in \{(1.5, 2), (0.5, 2), (1.5, -2), (0.5, -2)\}$
+共五种情形，因为区间内部 $A$ 的两种符号表现一致）；指出哪些情形下梯度被清零，并对这些情形用信任域（trust region）来解释裁剪保护的是什么。计算 $\epsilon = 0.2$ 时，$`(\rho, A) \in \{(1.5, 2), (0.5, 2), (1.5, -2), (0.5, -2)\}`$
 处 $L^{\text{clip}}$ 的取值。
 
-**Q3.** 在应用于语言模型后训练的 PPO 中，评论家（critic）$V_\phi(x, y_{<t})$ 是与策略一起训练的第二个网络。说明它估计的究竟是什么量。来自奖励模型或验证器的终局奖
+**Q3.** 在应用于语言模型后训练的 PPO 中，评论家（critic）$`V_\phi(x, y_{<t})`$ 是与策略一起训练的第二个网络。说明它估计的究竟是什么量。来自奖励模型或验证器的终局奖
 励 $r(x,y)$ 只有在整条响应生成完毕后才能拿到，而针对 $\pi_{\text{ref}}$ 的逐 token KL 惩罚（乘以 $\beta$）通常在每一步都要计入；给出把二者合并成的单个逐
 token 量 $\tilde r_t$，并记 TD（时序差分，temporal-difference）误差为 $\delta_t = \tilde r_t + \gamma V_\phi(x, y_{\le t}) - V_\phi(x, y_{<t})$（折
 扣因子 $\gamma \in (0, 1]$，终止步 $V_\phi(x, y_{\le n}) \doteq 0$），写出广义优势估计（generalised advantage estimation，
-GAE）：优势 $A_t^{\mathrm{GAE}(\gamma,\lambda)}$，对轨迹衰减参数（trace-decay parameter）$\lambda \in [0, 1]$，写成 $\delta_t, \delta_{t+1}, \dots$
+GAE）：优势 $A_t^{\mathrm{GAE}(\gamma,\lambda)}$，对轨迹衰减参数（trace-decay parameter）$`\lambda \in [0, 1]`$，写成 $\delta_t, \delta_{t+1}, \dots$
 按 $(\gamma\lambda)$ 幂次加权求和的形式。推导 $\lambda = 0$ 和 $\lambda = 1$ 这两个极限情形。使用评论家具体要付出什么代价？
 
 ### GRPO
 
-**Q4.** 组相对策略优化（Group Relative Policy Optimisation，GRPO）针对一个提示 $x$，采样一组（group）$G$ 个响应 $y_1,\dots,y_G \sim \pi_{\theta_{\text{old}}}(\cdot\mid x)$，
-并各自用一个标量奖励 $r_i = r(x,y_i)$ 打分（比如某个验证器的输出：$y_i$ 通过测试或与参考答案匹配则为 $1$，否则为 $0$）。响应 $i$ 的每个 token 都获得相同的优
+**Q4.** 组相对策略优化（Group Relative Policy Optimisation，GRPO）针对一个提示 $x$，采样一组（group）$`G`$ 个响应 $y_1,\dots,y_G \sim \pi_{\theta_{\text{old}}}(\cdot\mid x)$，
+并各自用一个标量奖励 $r_i = r(x,y_i)$ 打分（比如某个验证器的输出：$`y_i`$ 通过测试或与参考答案匹配则为 $1$，否则为 $0$）。响应 $i$ 的每个 token 都获得相同的优
 势
 
-$$A_i = \frac{r_i - \bar r}{\operatorname{std}(r) + \delta}, \qquad \bar r = \frac1G\sum_{j=1}^G r_j, \qquad \operatorname{std}(r) = \sqrt{\frac{1}{G-1}\sum_{j=1}^G (r_j-\bar r)^2},$$
+```math
+A_i = \frac{r_i - \bar r}{\mathrm{std}(r) + \delta}, \qquad \bar r = \frac1G\sum_{j=1}^G r_j, \qquad \mathrm{std}(r) = \sqrt{\frac{1}{G-1}\sum_{j=1}^G (r_j-\bar r)^2},
+```
 
 其中 $\delta > 0$ 是一个小常数。解释为什么这不需要评论家，为什么这尤其适合可验证的奖励（单元测试、精确匹配的答案），以及当一组的 $G$ 个奖励全部相等时，每个 $A_i$ 会怎样。说出
 这种做法的两个已知偏差：一个来自按每条响应自身的 token 长度对其损失贡献做归一化，另一个来自除以组内奖励的标准差。计算奖励为 $(1,0,1,0)$ 的一组和奖励为 $(1,1,1,1)$ 的一
@@ -58,15 +62,15 @@ $$A_i = \frac{r_i - \bar r}{\operatorname{std}(r) + \delta}, \qquad \bar r = \fr
 
 ### KL 与偏好
 
-**Q6.** 设 $y\sim\pi_\theta$，$u = \pi_{\text{ref}}(y)/\pi_\theta(y)$。估计量 $k_1 = -\log u$ 和 $k_3 = (u-1) - \log u$
-都被用来从样本估计 $\mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}}) = \mathbb E_{y\sim\pi_\theta}[\log(\pi_\theta(y)/\pi_{\text{ref}}(y))]$。
+**Q6.** 设 $y\sim\pi_\theta$，$`u = \pi_{\text{ref}}(y)/\pi_\theta(y)`$。估计量 $k_1 = -\log u$ 和 $k_3 = (u-1) - \log u$
+都被用来从样本估计 $`\mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}}) = \mathbb E_{y\sim\pi_\theta}[\log(\pi_\theta(y)/\pi_{\text{ref}}(y))]`$。
 证明二者都是无偏的，证明 $k_3 \ge 0$ 对每一个样本都成立（不仅是在期望意义下），并解释为什么实践中更偏好 $k_3$。
 
-**Q7.** 直接偏好优化（Direct Preference Optimisation，DPO）。从 $\max_{\pi} \mathbb E_{y\sim\pi}[r(x,y)] - \beta\,\mathrm{KL}(\pi(\cdot\mid x)\,\|\,\pi_{\text{ref}}(\cdot\mid x))$
-出发（对每个固定的 $x$，在所有条件分布 $\pi(\cdot\mid x)$ 上取最大值），推导闭式最大化解 $\pi^*(y\mid x) = \pi_{\text{ref}}(y\mid x)\exp(r(x,y)/\beta)/Z(x)$，
-并给出 $Z(x)$。把这个关系式反解出用 $\pi^*$、$\pi_{\text{ref}}$、$Z(x)$ 表示的 $r(x,y)$，再代入 Bradley–Terry 模型——一对响应中较优者胜
+**Q7.** 直接偏好优化（Direct Preference Optimisation，DPO）。从 $`\max_{\pi} \mathbb E_{y\sim\pi}[r(x,y)] - \beta\,\mathrm{KL}(\pi(\cdot\mid x)\,\|\,\pi_{\text{ref}}(\cdot\mid x))`$
+出发（对每个固定的 $x$，在所有条件分布 $\pi(\cdot\mid x)$ 上取最大值），推导闭式最大化解 $`\pi^*(y\mid x) = \pi_{\text{ref}}(y\mid x)\exp(r(x,y)/\beta)/Z(x)`$，
+并给出 $Z(x)$。把这个关系式反解出用 $`\pi^*`$、$`\pi_{\text{ref}}`$、$`Z(x)`$ 表示的 $r(x,y)$，再代入 Bradley–Terry 模型——一对响应中较优者胜
 过较劣者的概率为 $P(y_w \succ y_l \mid x) = \sigma\big(r(x,y_w) - r(x,y_l)\big)$，其中 $\sigma(z) = 1/(1+e^{-z})$
-是 logistic 函数——把 $\pi^*$ 换成可训练的 $\pi_\theta$，得到定义在偏好数据集三元组 $(x,y_w,y_l)$ 上的 DPO 损失。解释为什么 $Z(x)$ 在这个过
+是 logistic 函数——把 $`\pi^*`$ 换成可训练的 $\pi_\theta$，得到定义在偏好数据集三元组 $(x,y_w,y_l)$ 上的 DPO 损失。解释为什么 $Z(x)$ 在这个过
 程中会被消掉，并说明 DPO 需要什么样的数据来训练。
 
 **Q8.** Reward hacking（钻奖励的空子）与过度优化（over-optimisation）。在针对一个学出来的奖励模型做 RLHF 训练时，描述你会观察哪些症状来判断策略是在过度优化这个奖励模型、
@@ -75,19 +79,19 @@ $$A_i = \frac{r_i - \bar r}{\operatorname{std}(r) + \delta}, \qquad \bar r = \fr
 ### 同策略与异策略数据
 
 **Q9.** 当一次训练更新所使用的样本来自它正在更新的这个策略本身时，称为同策略（on-policy）；当样本来自另一个策略
-时，称为异策略（off-policy）。用行为策略（behaviour policy）$\mu$——训练数据实际采样自的那个分布——和目标策略
-（target policy）$\pi$——正在被评估或改进、其期望奖励为 $\mathbb E_{y\sim\pi}[r(y)]$ 的那个分布——来形式化这一
+时，称为异策略（off-policy）。用行为策略（behaviour policy）$`\mu`$——训练数据实际采样自的那个分布——和目标策略
+（target policy）$`\pi`$——正在被评估或改进、其期望奖励为 $\mathbb E_{y\sim\pi}[r(y)]$ 的那个分布——来形式化这一
 点。把下列做法放到从严格同策略到严格异策略的谱系上，并说明理由：REINFORCE（也就是 Q1 的策略梯度估计量），它在每
 次梯度更新前都重新采样一个 $y\sim\pi_\theta$；PPO 和 GRPO，它们针对同一批一次性采样自
 $\pi_{\theta_{\text{old}}}$ 的响应做好几次梯度更新；带经验回放缓冲区（replay buffer）的 Q-learning，它使用许多过
 去策略采集到的转移（transition）；以及在一个固定的、预先收集好的偏好数据集上训练的 DPO。
 
-写出用 $y\sim\mu$ 的独立同分布样本构造的、$\mathbb E_{y\sim\pi}[r(y)]$ 的重要性采样估计量，并证明只要在每个满足
-$\pi(y)\,r(y) \ne 0$ 的 $y$ 处都有 $\mu(y) > 0$，它就是无偏的。现在把一条响应建模为从一个固定词表中独立同分布抽取
+写出用 $y\sim\mu$ 的独立同分布样本构造的、$`\mathbb E_{y\sim\pi}[r(y)]`$ 的重要性采样估计量，并证明只要在每个满足
+$`\pi(y)\,r(y) \ne 0`$ 的 $y$ 处都有 $\mu(y) > 0$，它就是无偏的。现在把一条响应建模为从一个固定词表中独立同分布抽取
 的 $T$ 个 token——去掉对历史的自回归条件依赖，从而单独看清序列长度本身对这个估计量做了什么——并记 $w_t =
-\pi(y_t)/\mu(y_t)$ 为第 $t$ 个 token 处的比率，$W = \prod_{t=1}^T w_t$ 为由此得到的整条序列的权重。利用逐 token 分
-布之间的卡方散度（chi-squared divergence）$\chi^2(\pi\,\|\,\mu) = \sum_y (\pi(y)-\mu(y))^2/\mu(y)$，把
-$\operatorname{Var}_\mu(W)$ 推导成 $T$ 和 $\chi^2(\pi\,\|\,\mu)$ 的一个闭式函数，并解释为什么即使 $\pi$ 和 $\mu$ 在
+\pi(y_t)/\mu(y_t)$ 为第 $t$ 个 token 处的比率，$`W = \prod_{t=1}^T w_t`$ 为由此得到的整条序列的权重。利用逐 token 分
+布之间的卡方散度（chi-squared divergence）$`\chi^2(\pi\,\|\,\mu) = \sum_y (\pi(y)-\mu(y))^2/\mu(y)`$，把
+$`\mathrm{Var}_\mu(W)`$ 推导成 $T$ 和 $`\chi^2(\pi\,\|\,\mu)`$ 的一个闭式函数，并解释为什么即使 $\pi$ 和 $\mu$ 在
 每一个单独 token 上都很接近，它也会随 $T$ 指数增长。说明把 PPO 的裁剪代理目标（Q2）逐 token 地施加、对重要性权重
 直接设一个硬上限，以及让 $\pi$ 保持接近 $\mu$ 的 KL 惩罚，各自是如何控制这个方差的，以及各自的代价是什么。最后，
 说出两种大模型后训练系统在并非有意为之的情况下就变成 $\mu \ne \pi$ 的方式。
@@ -97,32 +101,40 @@ $\operatorname{Var}_\mu(W)$ 推导成 $T$ 和 $\chi^2(\pi\,\|\,\mu)$ 的一个�
 <details>
 <summary>展开参考解答</summary>
 
-有两件事值得先跟面试官说清楚：下文所有 KL 项都是正向的 $\mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}})$——也就是在奖励里加一项逐 token 惩
+有两件事值得先跟面试官说清楚：下文所有 KL 项都是正向的 $`\mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}})`$——也就是在奖励里加一项逐 token 惩
 罚时，实际估计的那个方向，而不是反过来；GRPO 的奖励 $r_i$ 是整条响应一个标量，不是逐 token 的，因为组内相对优势只有在每条采样响应恰好对应一个可比较的数值时才有意义。
 
 ### 策略梯度
 
-**Q1.** $\nabla_\theta J(\theta) = \nabla_\theta \sum_y \pi_\theta(y\mid x)\, r(x,y) = \sum_y r(x,y)\, \nabla_\theta \pi_\theta(y\mid x)$，
+**Q1.** $`\nabla_\theta J(\theta) = \nabla_\theta \sum_y \pi_\theta(y\mid x)\, r(x,y) = \sum_y r(x,y)\, \nabla_\theta \pi_\theta(y\mid x)`$，
 因为 $r$ 不依赖于 $\theta$。在 $\pi_\theta(y\mid x) > 0$ 的地方利用 $\nabla_\theta \log \pi_\theta(y\mid x) = \nabla_\theta \pi_\theta(y\mid x)/\pi_\theta(y\mid x)$（普
-通链式法则的改写，这就是整个对数导数技巧），有 $\nabla_\theta \pi_\theta(y\mid x) = \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x)$，
+通链式法则的改写，这就是整个对数导数技巧），有 $`\nabla_\theta \pi_\theta(y\mid x) = \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x)`$，
 于是
 
-$$\nabla_\theta J(\theta) = \sum_y \pi_\theta(y\mid x)\, r(x,y)\, \nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[r(x,y)\,\nabla_\theta \log \pi_\theta(y\mid x)\big].$$
+```math
+\nabla_\theta J(\theta) = \sum_y \pi_\theta(y\mid x)\, r(x,y)\, \nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[r(x,y)\,\nabla_\theta \log \pi_\theta(y\mid x)\big].
+```
 
 逐 token 展开：由自回归分解直接得到 $\log \pi_\theta(y\mid x) = \sum_{t=1}^n \log \pi_\theta(y_t\mid x,y_{<t})$，由梯
 度的线性性，
 
-$$\nabla_\theta J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\Big[r(x,y)\sum_{t=1}^n \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})\Big].$$
+```math
+\nabla_\theta J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\Big[r(x,y)\sum_{t=1}^n \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})\Big].
+```
 
 对于基线，取任意满足 $\nabla_\theta b = 0$ 且不依赖于 $y$（可以依赖于 $x$）的 $b$。由于对任意 $\theta$，概率分布求和都是 $1$，故 $\nabla_\theta \sum_y \pi_\theta(y\mid x) = \nabla_\theta 1 = 0$；
 把等式左边按上面同样的方式展开，
 
-$$0 = \nabla_\theta \sum_y \pi_\theta(y\mid x) = \sum_y \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[\nabla_\theta \log \pi_\theta(y\mid x)\big],$$
+```math
+0 = \nabla_\theta \sum_y \pi_\theta(y\mid x) = \sum_y \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[\nabla_\theta \log \pi_\theta(y\mid x)\big],
+```
 
-于是 $b\,\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}[\nabla_\theta \log \pi_\theta(y\mid x)] = 0$ 也成立，从奖励
+于是 $`b\,\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}[\nabla_\theta \log \pi_\theta(y\mid x)] = 0`$ 也成立，从奖励
 中减去 $b$ 不改变任何东西：
 
-$$\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[(r(x,y)-b)\,\nabla_\theta \log \pi_\theta(y\mid x)\big] = \nabla_\theta J(\theta) - 0 = \nabla_\theta J(\theta).$$
+```math
+\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[(r(x,y)-b)\,\nabla_\theta \log \pi_\theta(y\mid x)\big] = \nabla_\theta J(\theta) - 0 = \nabla_\theta J(\theta).
+```
 
 基线永远不会改变这个估计量收敛到的值；选取一个接近 $\mathbb E_{y\sim\pi_\theta}[r(x,y)\mid x]$ 的 $b(x)$，改变的是单个样本估计的噪声大小，而不是它收
 敛到的值：它把奖励绝对量级中的大部分从与得分函数相乘的那一项里去掉——这正是使用一个学出来的评论家（Q3），或者不训练网络、直接用采样得到的组均值（Q4）的唯一理由。
@@ -133,35 +145,41 @@ $$\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[(r(x,y)-b)\,\nabla_\theta \log \p
 
 | $\rho$ 所在区间 | $A$ 的符号 | $L^{\text{clip}}$ | $\partial L^{\text{clip}}/\partial\rho$ |
 | --- | --- | --- | --- |
-| $[1-\epsilon,\,1+\epsilon]$ | 任意 | $\rho A$ | $A$ |
+| $`[1-\epsilon,\,1+\epsilon]`$ | 任意 | $\rho A$ | $A$ |
 | $>1+\epsilon$ | $A>0$ | $(1+\epsilon)A$ | $0$ |
 | $>1+\epsilon$ | $A<0$ | $\rho A$ | $A$ |
 | $<1-\epsilon$ | $A>0$ | $\rho A$ | $A$ |
 | $<1-\epsilon$ | $A<0$ | $(1-\epsilon)A$ | $0$ |
 
-（区间内部，$\min$ 的两个分支对 $A$ 的两种符号都是一致的，所以算一种情形而不是两种。）梯度恰好为 $0$ 只发生在两行：$\rho$ 已经沿着 $A$ 的符号所偏好的方向移出了区间——越过
+（区间内部，$`\min`$ 的两个分支对 $A$ 的两种符号都是一致的，所以算一种情形而不是两种。）梯度恰好为 $0$ 只发生在两行：$`\rho`$ 已经沿着 $A$ 的符号所偏好的方向移出了区间——越过
 $1+\epsilon$ 且 $A>0$（一个已经不错的响应，其概率已经被推高到超出信任域），或者越过 $1-\epsilon$ 且 $A<0$（一个已经很差的响应，其概率已经被压低到超出信任域）。
 其余每一行——无论是在区间内部，还是朝 $A$ 不偏好的方向移出区间，也就是一次真正的错误——梯度都是原封不动的 $A$，所以裁剪从不会阻止一次修正，只会阻止对一次已经在信任域允许范围内被利用到头的移
 动的延续。
 
-当 $\epsilon=0.2$（区间为 $[0.8,1.2]$）时：$(\rho,A)=(1.5,2)$ 落在区间之上且 $A>0$（被裁剪）：$\min(3.0,\,2.4)=2.4$。$(\rho,A)=(0.5,2)$
-落在区间之下且 $A>0$（未裁剪）：$\min(1.0,\,1.6)=1.0$。$(\rho,A)=(1.5,-2)$ 落在区间之上且 $A<0$（未裁剪）：$\min(-3.0,\,-2.4)=-3.0$。
-$(\rho,A)=(0.5,-2)$ 落在区间之下且 $A<0$（被裁剪）：$\min(-1.0,\,-1.6)=-1.6$。
+当 $\epsilon=0.2$（区间为 $[0.8,1.2]$）时：$`(\rho,A)=(1.5,2)`$ 落在区间之上且 $A>0$（被裁剪）：$`\min(3.0,\,2.4)=2.4`$。$`(\rho,A)=(0.5,2)`$
+落在区间之下且 $A>0$（未裁剪）：$`\min(1.0,\,1.6)=1.0`$。$`(\rho,A)=(1.5,-2)`$ 落在区间之上且 $A<0$（未裁剪）：$`\min(-3.0,\,-2.4)=-3.0`$。
+$(\rho,A)=(0.5,-2)$ 落在区间之下且 $A<0$（被裁剪）：$`\min(-1.0,\,-1.6)=-1.6`$。
 
 **Q3.** $V_\phi(x,y_{<t})$ 估计的是生成完前缀 $y_{<t}$ 之后、未来（经过 KL 整形的）回报的期望——也就是从第 $t$ 步到响应结束这一段所有量的总和。终局奖励挂
 在最后一个 token 上，而逐 token 的 KL 惩罚被直接并入一个每一步都要计入的量：
 
-$$\tilde r_t = -\beta \log\frac{\pi_\theta(y_t\mid x,y_{<t})}{\pi_{\text{ref}}(y_t\mid x,y_{<t})} + \mathbb 1[t=n]\, r(x,y),$$
+```math
+\tilde r_t = -\beta \log\frac{\pi_\theta(y_t\mid x,y_{<t})}{\pi_{\text{ref}}(y_t\mid x,y_{<t})} + \mathbb 1[t=n]\, r(x,y),
+```
 
 于是每个 token 都要付出一份小小的 KL 代价，只有最后一个 token 还额外拿到终局奖励。记 $V_k := V_\phi(x, y_{\le k})$ 以简化记号，GAE 为
 
-$$A_t^{\mathrm{GAE}(\gamma,\lambda)} = \sum_{l=0}^{n-t} (\gamma\lambda)^l\, \delta_{t+l}.$$
+```math
+A_t^{\mathrm{GAE}(\gamma,\lambda)} = \sum_{l=0}^{n-t} (\gamma\lambda)^l\, \delta_{t+l}.
+```
 
-当 $\lambda=0$ 时只剩 $l=0$ 这一项，$A_t = \delta_t$：单步 TD 残差，方差低，但偏差和 $V_\phi$ 的误差一样大。当 $\lambda=1$ 时，
+当 $\lambda=0$ 时只剩 $l=0$ 这一项，$`A_t = \delta_t`$：单步 TD 残差，方差低，但偏差和 $V_\phi$ 的误差一样大。当 $\lambda=1$ 时，
 
-$$\sum_{l=0}^{n-t}\gamma^l \delta_{t+l} = \sum_{l=0}^{n-t}\gamma^l\big(\tilde r_{t+l} + \gamma V_{t+l} - V_{t+l-1}\big) = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} + \sum_{l=0}^{n-t}\big(\gamma^{l+1}V_{t+l} - \gamma^l V_{t+l-1}\big),$$
+```math
+\sum_{l=0}^{n-t}\gamma^l \delta_{t+l} = \sum_{l=0}^{n-t}\gamma^l\big(\tilde r_{t+l} + \gamma V_{t+l} - V_{t+l-1}\big) = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} + \sum_{l=0}^{n-t}\big(\gamma^{l+1}V_{t+l} - \gamma^l V_{t+l-1}\big),
+```
 
-第二个和式是一个可以裂项相消的和：相邻各项两两抵消，只留下 $l=0$ 项里的 $-V_{t-1}$，以及最后一项里的 $\gamma^{\,n-t+1}V_n = 0$（终止值被钉在 $0$），所以
+第二个和式是一个可以裂项相消的和：相邻各项两两抵消，只留下 $l=0$ 项里的 $-V_{t-1}$，以及最后一项里的 $`\gamma^{\,n-t+1}V_n = 0`$（终止值被钉在 $0$），所以
 $A_t = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} - V_{t-1}$：即（经过 KL 整形的）蒙特卡洛回报减去基线，无论 $V_\phi$ 质量好坏都是
 无偏的，但带有采样回报的完整方差。居中的 $\lambda$ 在二者之间做权衡。
 
@@ -171,30 +189,30 @@ $A_t = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} - V_{t-1}$：即（经过 KL 整�
 ### GRPO
 
 **Q4.** 不需要评论家，是因为 $\bar r$——这个提示在 $G$ 个新样本上的组内经验均值——本身就已经是 $\mathbb E_{y\sim\pi_\theta}[r(x,y)\mid x]$
-的一个直接蒙特卡洛估计，正是一个学出来的基线 $V_\phi(x)$ 原本要去逼近的那个量（Q1），所以它不需要第二个网络就能把奖励的量级从估计量里去掉；再除以 $\operatorname{std}(r)+\delta$，
+的一个直接蒙特卡洛估计，正是一个学出来的基线 $V_\phi(x)$ 原本要去逼近的那个量（Q1），所以它不需要第二个网络就能把奖励的量级从估计量里去掉；再除以 $\mathrm{std}(r)+\delta$，
 进一步把结果重新标定，使得奖励分散程度不同的各个提示贡献出量级相当的优势。这尤其适合可验证的奖励：一个检查器（单元测试、精确匹配打分）重复运行的代价很小、结果也是确定的，所以对同一个提示采样 $G$ 条
 完整响应——这正是 GRPO 为去掉评论家而多付出的唯一代价——是负担得起的，而如果给一条响应打分本身就要跑一次昂贵的、学出来的奖励模型 $G$ 次，那就负担不起了。
 
-当一组的 $G$ 个奖励全部相等时，$\operatorname{std}(r) = 0$ 恰好成立，$\delta>0$ 使每个 $A_i$ 都变成 $0/(0+\delta)=0$：这个提示在这一
+当一组的 $G$ 个奖励全部相等时，$`\mathrm{std}(r) = 0`$ 恰好成立，$`\delta>0`$ 使每个 $A_i$ 都变成 $0/(0+\delta)=0$：这个提示在这一
 步完全没有贡献任何梯度，不论所有响应是全对还是全错。
 
 这种做法的两个已知偏差。第一，按每条响应自身的 token 长度 $|y_i|$ 对其累加的 token 损失做归一化（于是逐 token 的系数是 $A_i/|y_i|$），会让同样大小的 $A_i$
-在长响应里每个 token 得到的拉力比短响应里每个 token 更小：长度为 $10$、$A_i=-1$ 的响应，逐 token 系数是 $-0.1$；同样 $A_i=-1$ 摊到 $40$ 个 token
-上，系数是 $-0.025$，弱了四倍——于是一个错误的响应仅仅因为更长，每个 token 受到的惩罚就更轻，训练会逐渐偏向更长的错误答案。第二，除以 $\operatorname{std}(r)$ 会
-按成功率偏离 $50\%$ 的程度对提示重新加权：对成功概率为 $p$ 的类伯努利奖励，$\operatorname{std}(r)\approx\sqrt{p(1-p)}$ 在 $p=0.5$ 处最
-大，随 $p\to0$ 或 $p\to1$ 而缩小，所以一组成功率为 $50\%$ 的提示（$100$ 条响应，$\operatorname{std}(r)\approx0.50$）会把同样为 $1$
-的奖励差转成约 $2.0$ 的优势量级差，而成功率为 $10\%$ 或 $90\%$ 的一组（$\operatorname{std}(r)\approx0.30$）会转成约 $3.3$，成功率 $2\%$
-的一组（$\operatorname{std}(r)\approx0.14$）会转成约 $7.1$——是均衡组的三倍还多，而这些提示唯一的区别只是难易程度不同。
+在长响应里每个 token 得到的拉力比短响应里每个 token 更小：长度为 $10$、$`A_i=-1`$ 的响应，逐 token 系数是 $-0.1$；同样 $A_i=-1$ 摊到 $40$ 个 token
+上，系数是 $-0.025$，弱了四倍——于是一个错误的响应仅仅因为更长，每个 token 受到的惩罚就更轻，训练会逐渐偏向更长的错误答案。第二，除以 $\mathrm{std}(r)$ 会
+按成功率偏离 $`50\%`$ 的程度对提示重新加权：对成功概率为 $p$ 的类伯努利奖励，$`\mathrm{std}(r)\approx\sqrt{p(1-p)}`$ 在 $p=0.5$ 处最
+大，随 $p\to0$ 或 $p\to1$ 而缩小，所以一组成功率为 $`50\%`$ 的提示（$`100`$ 条响应，$`\mathrm{std}(r)\approx0.50`$）会把同样为 $1$
+的奖励差转成约 $2.0$ 的优势量级差，而成功率为 $`10\%`$ 或 $`90\%`$ 的一组（$`\mathrm{std}(r)\approx0.30`$）会转成约 $3.3$，成功率 $`2\%`$
+的一组（$`\mathrm{std}(r)\approx0.14`$）会转成约 $7.1$——是均衡组的三倍还多，而这些提示唯一的区别只是难易程度不同。
 
-奖励为 $(1,0,1,0)$ 时：$\bar r=0.5$，$\operatorname{std}(r)=\sqrt{1/3}\approx0.5774$，所以 $A\approx(0.8660,-0.8660,0.8660,-0.8660)$。
-奖励为 $(1,1,1,1)$ 时：$A=(0,0,0,0)$。
+奖励为 $(1,0,1,0)$ 时：$`\bar r=0.5`$，$`\mathrm{std}(r)=\sqrt{1/3}\approx0.5774`$，所以 $A\approx(0.8660,-0.8660,0.8660,-0.8660)$。
+奖励为 $(1,1,1,1)$ 时：$`A=(0,0,0,0)`$。
 
 **Q5.** 二者分别站在内存、方差与评论家训练这场权衡的不同一侧：
 
 | | PPO | GRPO |
 | --- | --- | --- |
 | 评论家 | 学出来的 $V_\phi(x,y_{<t})$，与策略联合用回归训练 | 无 |
-| 优势 | 由针对 $V_\phi$ 的 TD 误差算出的 GAE$(\gamma,\lambda)$（Q3） | 同一提示 $G$ 次采样上做组内归一化的 $(r_i-\bar r)/(\operatorname{std}(r)+\delta)$（Q4） |
+| 优势 | 由针对 $V_\phi$ 的 TD 误差算出的 GAE$`(\gamma,\lambda)`$（Q3） | 同一提示 $G$ 次采样上做组内归一化的 $(r_i-\bar r)/(\mathrm{std}(r)+\delta)$（Q4） |
 | 内存 / 算力 | 两个网络联合训练，往往都是全尺寸的 | 一个网络，但每次更新前要对每个提示做 $G$ 次完整 rollout |
 | 方差 | $V_\phi$ 跟得上真实价值时更低；跟不上时有偏差 | 随 $1/\sqrt G$ 下降；没有学出来的函数带来的偏差，但见 Q4 的两个偏差 |
 | 对奖励的要求 | 响应中任意位置的任意标量都可以——稠密的逐 token 塑形也没问题 | 要便宜、可重复，才负担得起对每个提示采样 $G$ 条响应；最好是可验证的 |
@@ -202,61 +220,77 @@ $A_t = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} - V_{t-1}$：即（经过 KL 整�
 
 ### KL 与偏好
 
-**Q6.** 两者在期望意义下估计的是完全同一个量；更偏好 $k_3$，是因为它在每个单独样本上也都非负，而且在关键的地方（$\pi_\theta\approx\pi_{\text{ref}}$ 附
+**Q6.** 两者在期望意义下估计的是完全同一个量；更偏好 $k_3$，是因为它在每个单独样本上也都非负，而且在关键的地方（$`\pi_\theta\approx\pi_{\text{ref}}`$ 附
 近）方差低得多。
 
 $k_1$ 的无偏性：按定义 $u=\pi_{\text{ref}}(y)/\pi_\theta(y)$，所以精确地有 $-\log u = \log\big(\pi_\theta(y)/\pi_{\text{ref}}(y)\big)$，
 于是
 
-$$\mathbb E_{y\sim\pi_\theta}[k_1] = \mathbb E_{y\sim\pi_\theta}\Big[\log\frac{\pi_\theta(y)}{\pi_{\text{ref}}(y)}\Big] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}})$$
+```math
+\mathbb E_{y\sim\pi_\theta}[k_1] = \mathbb E_{y\sim\pi_\theta}\Big[\log\frac{\pi_\theta(y)}{\pi_{\text{ref}}(y)}\Big] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}})
+```
 
 这就是 KL 散度的定义本身——不涉及任何近似。
 
-$k_3$ 的无偏性：首先，$\mathbb E_{y\sim\pi_\theta}[u] = \sum_y \pi_\theta(y) \cdot \frac{\pi_{\text{ref}}(y)}{\pi_\theta(y)} = \sum_y \pi_{\text{ref}}(y) = 1$，
+$k_3$ 的无偏性：首先，$`\mathbb E_{y\sim\pi_\theta}[u] = \sum_y \pi_\theta(y) \cdot \frac{\pi_{\text{ref}}(y)}{\pi_\theta(y)} = \sum_y \pi_{\text{ref}}(y) = 1`$，
 因为 $\pi_{\text{ref}}$ 本身就是同一个支撑集上的一个概率分布。所以 $\mathbb E[u]-1=0$，于是
 
-$$\mathbb E_{y\sim\pi_\theta}[k_3] = \mathbb E[u] - 1 - \mathbb E[\log u] = -\mathbb E[\log u] = \mathbb E[-\log u] = \mathbb E[k_1] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}}).$$
+```math
+\mathbb E_{y\sim\pi_\theta}[k_3] = \mathbb E[u] - 1 - \mathbb E[\log u] = -\mathbb E[\log u] = \mathbb E[-\log u] = \mathbb E[k_1] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}}).
+```
 
-非负性：对 $u>0$ 记 $f(u) = u - 1 - \log u$，则 $k_3=f(u)$。$f'(u) = 1 - 1/u$ 在 $u<1$ 时为负、在 $u>1$ 时为正，所以 $u=1$
+非负性：对 $u>0$ 记 $f(u) = u - 1 - \log u$，则 $k_3=f(u)$。$`f'(u) = 1 - 1/u`$ 在 $u<1$ 时为负、在 $u>1$ 时为正，所以 $u=1$
 是 $f$ 唯一的全局最小点，且 $f(1)=0$；因此对每个 $u>0$ 都有 $f(u)\ge0$，即 $k_3\ge0$ 对每个样本都成立，只有在 $\pi_\theta(y)=\pi_{\text{ref}}(y)$
 处才取等号。
 
 为什么更偏好 $k_3$：在最要紧的情形下——策略被 KL 惩罚本身约束得接近参考策略，所以 $\varepsilon$ 通常很小——记 $u=1+\varepsilon$。由 $\log(1+\varepsilon) = \varepsilon - \varepsilon^2/2 + O(\varepsilon^3)$，
 
-$$k_1 = -\log u = -\varepsilon + O(\varepsilon^2), \qquad k_3 = (u-1)-\log u = \varepsilon - \big(\varepsilon - \tfrac{\varepsilon^2}{2} + O(\varepsilon^3)\big) = \tfrac{\varepsilon^2}{2} + O(\varepsilon^3),$$
+```math
+k_1 = -\log u = -\varepsilon + O(\varepsilon^2), \qquad k_3 = (u-1)-\log u = \varepsilon - \big(\varepsilon - \tfrac{\varepsilon^2}{2} + O(\varepsilon^3)\big) = \tfrac{\varepsilon^2}{2} + O(\varepsilon^3),
+```
 
-于是 $k_1$ 的逐样本波动是 $\varepsilon$ 的一阶量，正负都有可能；而 $k_3$ 的波动是二阶量，永远非负，且量级要小一整阶——例如在 $u=1.01$ 处，$k_1\approx-0.00995$，
-而 $k_3\approx4.97\times10^{-5}$，小了两个数量级。$k_1$ 在有限批量上取平均，读数可能是负的，尽管真实的 KL 不可能为负；$k_3$ 从不会这样，而且它更低的方差意
+于是 $k_1$ 的逐样本波动是 $\varepsilon$ 的一阶量，正负都有可能；而 $k_3$ 的波动是二阶量，永远非负，且量级要小一整阶——例如在 $u=1.01$ 处，$`k_1\approx-0.00995`$，
+而 $k_3\approx4.97\times10^{-5}$，小了两个数量级。$`k_1`$ 在有限批量上取平均，读数可能是负的，尽管真实的 KL 不可能为负；$`k_3`$ 从不会这样，而且它更低的方差意
 味着要把这个值估准所需的样本更少。
 
 **Q7.** 对固定的 $x$，把 $\pi(\cdot\mid x)$ 当作响应上一个自由的概率分布，最大化
 
-$$J[\pi] = \sum_y \pi(y\mid x)\,r(x,y) - \beta \sum_y \pi(y\mid x) \log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}$$
+```math
+J[\pi] = \sum_y \pi(y\mid x)\,r(x,y) - \beta \sum_y \pi(y\mid x) \log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}
+```
 
 约束条件为 $\sum_y \pi(y\mid x)=1$。为这个约束引入 Lagrange 乘子 $\mu$，再对每个 $\pi(y\mid x)$ 分别求导，
 
-$$\frac{\partial}{\partial \pi(y\mid x)}\Big[J[\pi] - \mu\Big(\sum_y \pi(y\mid x)-1\Big)\Big] = r(x,y) - \beta\Big(\log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}+1\Big) - \mu = 0,$$
+```math
+\frac{\partial}{\partial \pi(y\mid x)}\Big[J[\pi] - \mu\Big(\sum_y \pi(y\mid x)-1\Big)\Big] = r(x,y) - \beta\Big(\log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}+1\Big) - \mu = 0,
+```
 
 于是 $\log\big(\pi(y\mid x)/\pi_{\text{ref}}(y\mid x)\big) = \big(r(x,y)-\mu\big)/\beta - 1$，即 $\pi(y\mid x) = \pi_{\text{ref}}(y\mid x)\exp(r(x,y)/\beta)\exp(-\mu/\beta-1)$。
 最后这个因子不依赖于 $y$，记它为 $1/Z(x)$，由归一化约束定出：
 
-$$\pi^*(y\mid x) = \frac{\pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big)}{Z(x)}, \qquad Z(x) = \sum_y \pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big).$$
+```math
+\pi^*(y\mid x) = \frac{\pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big)}{Z(x)}, \qquad Z(x) = \sum_y \pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big).
+```
 
 $J$ 关于 $\pi$ 是严格凹的（KL 项是 $\pi$ 的严格凸函数，奖励项是线性的），所以这个驻点就是唯一的全局最大值点。
 
-反解出奖励：$r(x,y) = \beta \log\dfrac{\pi^*(y\mid x)}{\pi_{\text{ref}}(y\mid x)} + \beta \log Z(x)$。代入一对响
+反解出奖励：$`r(x,y) = \beta \log\dfrac{\pi^*(y\mid x)}{\pi_{\text{ref}}(y\mid x)} + \beta \log Z(x)`$。代入一对响
 应 $(y_w,y_l)$（同一个 $x$ 下被判定更优和更劣的响应）的 Bradley–Terry 模型 $P(y_w \succ y_l\mid x) = \sigma\big(r(x,y_w)-r(x,y_l)\big)$，
 奖励只通过差值 $r(x,y_w)-r(x,y_l)$ 起作用，而 $\beta\log Z(x)$ 在 $r(x,y_w)$ 和 $r(x,y_l)$ 里是完全相同的加性项（它只依赖于 $x$，与 $y$
 无关），所以在相减时被消掉，根本不需要算出来：
 
-$$r(x,y_w)-r(x,y_l) = \beta\log\frac{\pi^*(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi^*(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}.$$
+```math
+r(x,y_w)-r(x,y_l) = \beta\log\frac{\pi^*(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi^*(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}.
+```
 
-把（未知的）最优解 $\pi^*$ 换成可训练的 $\pi_\theta$，在偏好数据集 $\mathcal D = \{(x,y_w,y_l)\}$ 上对这个 Bradley–Terry 模型做最大
+把（未知的）最优解 $`\pi^*`$ 换成可训练的 $\pi_\theta$，在偏好数据集 $`\mathcal D = \{(x,y_w,y_l)\}`$ 上对这个 Bradley–Terry 模型做最大
 似然拟合，就得到 DPO 损失
 
-$$\mathcal L_{\text{DPO}}(\theta) = -\mathbb E_{(x,y_w,y_l)\sim\mathcal D}\left[\log\sigma\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right].$$
+```math
+\mathcal L_{\text{DPO}}(\theta) = -\mathbb E_{(x,y_w,y_l)\sim\mathcal D}\left[\log\sigma\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right].
+```
 
-DPO 只需要一个静态的偏好三元组数据集 $(x,y_w,y_l)$——$y_w,y_l$ 可以来自任何地方，不需要在线采样，也不需要训练奖励模型——再加上一份冻结的 $\pi_{\text{ref}}$
+DPO 只需要一个静态的偏好三元组数据集 $(x,y_w,y_l)$——$`y_w,y_l`$ 可以来自任何地方，不需要在线采样，也不需要训练奖励模型——再加上一份冻结的 $\pi_{\text{ref}}$
 副本，用来计算两边的对数比率。
 
 **Q8.** 最明显的症状是代理指标和真实指标之间的差距不断拉大：奖励模型自己的打分一路走高，而一个独立的、留出（held-out）的度量——人类偏好胜率，或者在留出的可验证任务上的准确率——却先停
@@ -276,32 +310,36 @@ $\mu=\pi=\pi_\theta$。PPO 和 GRPO 在设计上是同策略，但在执行上�
 $\mu=\pi_{\theta_{\text{old}}}$，而在针对它做的好几次梯度更新中，第一次之后 $\pi=\pi_\theta$ 就已经移动到了它之
 外——这正是 Q2 中 $\rho\ne1$ 的原因，也是裁剪存在的原因。带经验回放缓冲区的 Q-learning 在设计上就是完全异策略
 的：它从填充缓冲区时正在运行的、各种各样的探索策略 $\mu$ 产生的转移中，学习一个目标策略 $\pi$，而这些转移可能是许
-多次更新之前采集的。DPO 是这里意义最强的异策略：$\mu$ 是产生这个固定的、预先收集好的偏好数据集的任意过程，永不重
+多次更新之前采集的。DPO 是这里意义最强的异策略：$`\mu`$ 是产生这个固定的、预先收集好的偏好数据集的任意过程，永不重
 新采样，而 $\pi=\pi_\theta$ 在整个训练过程中不断变化，完全没有重要性校正。
 
-从 $y\sim\mu$ 构造的、$\mathbb E_{y\sim\pi}[r(y)]$ 的重要性采样估计量 $\hat J=(\pi(y)/\mu(y))\,r(y)$，只要在每个
+从 $y\sim\mu$ 构造的、$`\mathbb E_{y\sim\pi}[r(y)]`$ 的重要性采样估计量 $`\hat J=(\pi(y)/\mu(y))\,r(y)`$，只要在每个
 满足 $\pi(y)r(y)\ne0$ 的 $y$ 处都有 $\mu(y)>0$，就是无偏的：
 
-$$\mathbb E_{y\sim\mu}\Big[\frac{\pi(y)}{\mu(y)}r(y)\Big] = \sum_{y:\mu(y)>0}\pi(y)r(y) = \mathbb E_{y\sim\pi}[r(y)],$$
+```math
+\mathbb E_{y\sim\mu}\Big[\frac{\pi(y)}{\mu(y)}r(y)\Big] = \sum_{y:\mu(y)>0}\pi(y)r(y) = \mathbb E_{y\sim\pi}[r(y)],
+```
 
-在这一假设下，$\mu(y)=0$ 的那些项都恰好是 $0$。
+在这一假设下，$`\mu(y)=0`$ 的那些项都恰好是 $0$。
 
-把响应建模为 $T$ 个独立同分布的 token，记 $w_t=\pi(y_t)/\mu(y_t)$，$W=\prod_{t=1}^T w_t$：$\mathbb
-E_\mu[w_t]=1$ 在每个位置都成立，由独立性可得 $\mathbb E_\mu[W]=1$，同样地 $\mathbb
-E_\mu[W^2]=\big(\mathbb E_\mu[w_t^2]\big)^T$。直接从定义展开 $\chi^2(\pi\,\|\,\mu)=\sum_y\pi(y)^2/\mu(y)-1$，可知
-$\mathbb E_\mu[w_t^2]=1+\chi^2(\pi\,\|\,\mu)$，于是
+把响应建模为 $T$ 个独立同分布的 token，记 $w_t=\pi(y_t)/\mu(y_t)$，$`W=\prod_{t=1}^T w_t`$：$`\mathbb
+E_\mu[w_t]=1`$ 在每个位置都成立，由独立性可得 $\mathbb E_\mu[W]=1$，同样地 $\mathbb
+E_\mu[W^2]=\big(\mathbb E_\mu[w_t^2]\big)^T$。直接从定义展开 $`\chi^2(\pi\,\|\,\mu)=\sum_y\pi(y)^2/\mu(y)-1`$，可知
+$`\mathbb E_\mu[w_t^2]=1+\chi^2(\pi\,\|\,\mu)`$，于是
 
-$$\mathbb E_\mu[W^2]=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T,\qquad \operatorname{Var}_\mu(W)=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T-1.$$
+```math
+\mathbb E_\mu[W^2]=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T,\qquad \mathrm{Var}_\mu(W)=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T-1.
+```
 
-记 $\kappa=\chi^2(\pi\,\|\,\mu)>0$——在单个 token 上可能很小——这是关于 $T$ 的指数函数：$T$ 翻倍时
+记 $`\kappa=\chi^2(\pi\,\|\,\mu)>0`$——在单个 token 上可能很小——这是关于 $T$ 的指数函数：$`T`$ 翻倍时
 $(1+\kappa)^T$ 恰好被平方，所以单个 token 上都察觉不到的偏差，到 $T=100$ 时就可能压过所有其他噪声来源。
 
 三种控制手段，各有各的代价。PPO 的裁剪代理目标（Q2）逐 token 施加：把每个 $w_t$ 和它自己的优势配对，而不是去构造
 $W$，于是没有任何东西被提升到 $T$ 次方；代价是偏差，因为逐 token 的比率忽略了 $\pi$ 的变化也会改变每个 token 所
 条件于的前缀分布，而且一个已经越过 $1\pm\epsilon$ 的比率，其梯度会被直接丢弃。直接给权重设上限，
-$\tilde W=\min(W,c)$，能把 $\operatorname{Var}_\mu(\tilde W)\le c^2$ 逐点地界定住；代价是只要 $\mu$ 在 $W>c$ 处
+$\tilde W=\min(W,c)$，能把 $`\mathrm{Var}_\mu(\tilde W)\le c^2`$ 逐点地界定住；代价是只要 $\mu$ 在 $W>c$ 处
 有正概率质量，就有 $\mathbb E_\mu[\tilde W]<1$，且随着该质量增大而增大。让 $\pi$ 保持接近 $\mu$ 的 KL 惩罚也会缩
-小 $\chi^2(\pi\,\|\,\mu)$，因为在 $\pi=\mu$ 附近 $\mathrm{KL}\approx\tfrac12\chi^2$；代价是 $\pi$ 被限制得不能像
+小 $`\chi^2(\pi\,\|\,\mu)`$，因为在 $\pi=\mu$ 附近 $\mathrm{KL}\approx\tfrac12\chi^2$；代价是 $\pi$ 被限制得不能像
 仅靠奖励驱动时那样远离 $\mu$。
 
 有两种并非刻意设计、却会让 $\mu\ne\pi$ 出现的情况。其一，在异步训练中，负责生成 rollout 的 worker 所用的权重落

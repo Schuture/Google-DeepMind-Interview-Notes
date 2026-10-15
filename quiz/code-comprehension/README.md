@@ -68,8 +68,8 @@ def h(x, w, stride=1, dilation=1, pad=0):
 `h` generalises `f` with a `stride` (keep only every `stride`-th window), a `dilation` (space the
 $k = \mathtt{len(w)}$ taps `dilation` apart instead of consecutively) and explicit zero-`pad`ding on each side.
 Derive a closed-form formula for the length of `h`'s output in terms of $n = \mathtt{len(x)}$, $k$, $p =
-\mathtt{pad}$, $s = \mathtt{stride}$ and $d = \mathtt{dilation}$, and evaluate it for $n=10,\,k=3,\,p=1,\,s=2,\,
-d=2$. Define the *receptive field* of one entry of an output as the number of entries of the original input
+\mathtt{pad}$, $s = \mathtt{stride}$ and $d = \mathtt{dilation}$, and evaluate it for $`n=10,\,k=3,\,p=1,\,s=2,\,
+d=2`$. Define the *receptive field* of one entry of an output as the number of entries of the original input
 it depends on. Now stack $L$ copies of `h`, each with stride $1$, the same odd kernel size $k$, and dilation
 $2^\ell$ at the $\ell$-th copy ($\ell = 0, \dots, L-1$, so the first copy is not dilated at all), each padded
 just enough to keep the sequence the same length at every stage. Derive the receptive field of one entry of
@@ -159,7 +159,7 @@ def sample(stream, k, rng):
 ```
 
 `stream` is an iterable that need not have a known or finite length in advance, and `rng` is a source of
-randomness with a method `randrange(m)` returning a uniform integer in $\{0, \dots, m-1\}$. What does `sample`
+randomness with a method `randrange(m)` returning a uniform integer in $`\{0, \dots, m-1\}`$. What does `sample`
 compute? For a stream of exactly $n \ge k$ items, prove that every item ends up in the returned list with the
 same probability, and give that probability. What changes, quantitatively, if `rng.randrange(i + 1)` is
 replaced by `rng.randrange(i)`?
@@ -196,7 +196,7 @@ wrong output is part of the answer.
 deep-learning frameworks call a (1-D) convolution, although a true mathematical convolution first reverses
 `w` and this one does not. Its output has length $n-k+1$ whenever $k \le n$ (one entry per position where the
 whole window of `w` fits inside `x`), at a cost of $k(n-k+1)$ scalar multiplications, one per output entry per
-tap. Tracing $f([1,2,3,4,5],\,[1,0,-1])$: window $i=0$ gives $1\cdot1+2\cdot0+3\cdot(-1)=-2.0$; $i=1$ gives
+tap. Tracing $`f([1,2,3,4,5],\,[1,0,-1])`$: window $i=0$ gives $1\cdot1+2\cdot0+3\cdot(-1)=-2.0$; $i=1$ gives
 $2-4=-2.0$; $i=2$ gives $3-5=-2.0$, so the result is $[-2.0,-2.0,-2.0]$. `np.convolve(x, w, "valid")` reverses
 `w` before sliding it, computing $\sum_j x_{i+j}w_{k-1-j}$ rather than $f$'s $\sum_j x_{i+j}w_j$; the two agree
 only when reversing `w` leaves it unchanged, and they disagree here, since $w=[1,0,-1]$ reversed is
@@ -213,8 +213,8 @@ original `x`. Its length is $(n+2p)-k+1$; substituting $p=\lfloor k/2\rfloor$, f
 (the two halves of $k-1$ exactly cancel the two paddings), and for even $k$ it is $n+1$: keeping the length
 needs $k-1$ zeros in total, an odd number that cannot be split equally between the two sides, so $k/2$ on each
 side is one too many (an even kernel needs asymmetric padding, $k/2$ on one side and $k/2-1$ on the other).
-Tracing $g([1,2,3,4,5],\,[1,0,-1])$: $p=1$, so `xp` $=[0,1,2,3,4,5,0]$, and correlating $[1,0,-1]$ against it
-gives $[-2.0,-2.0,-2.0,-2.0,4.0]$. Entry $i$ is $\mathtt{xp}_i-\mathtt{xp}_{i+2}=x_{i-1}-x_{i+1}$ (0-indexed
+Tracing $`g([1,2,3,4,5],\,[1,0,-1])`$: $p=1$, so `xp` $=[0,1,2,3,4,5,0]$, and correlating $[1,0,-1]$ against it
+gives $[-2.0,-2.0,-2.0,-2.0,4.0]$. Entry $i$ is $`\mathtt{xp}_i-\mathtt{xp}_{i+2}=x_{i-1}-x_{i+1}`$ (0-indexed
 `x`, the padded zeros standing in for $x_{-1}$ and $x_5$): entries $1$ to $3$ are exactly `f`'s output, and the
 two edge entries each read one padded zero. The first, $0-x_1=-2.0$, matches the interior only because this ramp
 happens to extrapolate to exactly $0$ at index $-1$; the last is $x_3-0=4.0$ instead of the $x_3-x_5=-2$ a
@@ -232,7 +232,7 @@ $d(k-1)+1$ input positions instead of $k$ consecutive ones, and `pad` adds expli
 independent of $k$. One application of the kernel spans $d(k-1)+1$ positions of the padded sequence, whose own
 length is $n+2p$; a copy starting at padded position $i$ needs $i+d(k-1)+1 \le n+2p$, so the valid starting
 positions are $i=0,1,\dots,(n+2p-d(k-1)-1)$, and keeping every $s$-th one of these $n+2p-d(k-1)$ positions
-gives $$\left\lfloor \frac{n+2p-d(k-1)-1}{s} \right\rfloor + 1$$ of them. At $n=10,k=3,p=1,s=2,d=2$: $d(k-1)=4$,
+gives $`\left\lfloor \frac{n+2p-d(k-1)-1}{s} \right\rfloor + 1`$ of them. At $n=10,k=3,p=1,s=2,d=2$: $d(k-1)=4$,
 so the formula gives $\lfloor(10+2-4-1)/2\rfloor+1=\lfloor 7/2\rfloor+1=3+1=4$. For the receptive field: with
 padding chosen at each layer to keep the sequence length fixed, one output entry of a single dilated layer is
 a function of $k$ input entries spaced $d_\ell=2^\ell$ apart, i.e. it spans $d_\ell(k-1)+1$ consecutive
@@ -241,7 +241,9 @@ field the layers before it had already built up (a length-preserving layer only 
 sees; it never narrows what earlier layers had already brought in). Starting from a single position (before
 any layer, the receptive field is $1$) and summing the contribution of layers $\ell=0,\dots,L-1$:
 
-$$\text{receptive field} = 1+(k-1)\sum_{\ell=0}^{L-1}2^\ell = 1+(k-1)(2^L-1),$$
+```math
+\text{receptive field} = 1+(k-1)\sum_{\ell=0}^{L-1}2^\ell = 1+(k-1)(2^L-1),
+```
 
 using the geometric sum $\sum_{\ell=0}^{L-1}2^\ell=2^L-1$. This is the standard WaveNet argument for why
 stacking layers with exponentially growing dilation reaches a receptive field that itself grows exponentially
@@ -252,7 +254,7 @@ would need to match it.
 
 **Q4.** `lse` computes $\log\sum_i e^{z_i}$ ("log-sum-exp") without ever forming $\sum_i e^{z_i}$ itself.
 Subtracting $m=\max(z)$ before calling `exp` matters because Python's `math.exp`, unlike NumPy's, does not
-quietly overflow to `inf`: once its argument exceeds $\ln(\texttt{sys.float\_info.max}) \approx 709.78$, it
+quietly overflow to `inf`: once its argument exceeds $`\ln(\texttt{sys.float\_info.max}) \approx 709.78`$, it
 raises `OverflowError` outright, so without the subtraction `lse` would crash the moment any single entry of
 `z` was that large, rather than merely losing accuracy. After subtracting $m$, the largest exponent actually
 passed to `exp` is exactly $0$ and every other one is smaller, so the sum can never overflow, whatever the
@@ -279,7 +281,7 @@ numbers that are each large whenever the data is, while their difference need no
 $x=10^9+[4,7,13,16]$, the true sample variance is exactly $30$ (shifting every value by the same constant
 $10^9$ changes none of the pairwise differences variance is built from), and `stats` returns it at full float64
 precision, but $E[x^2]-E[x]^2$ first squares the data into numbers of order $10^{18}$ — a magnitude at which
-float64's roughly $15$–$17$ significant decimal digits no longer resolve a difference of order $30$ (one unit in
+float64's roughly $15$–$`17`$ significant decimal digits no longer resolve a difference of order $30$ (one unit in
 the last place there is $128$) — and in float64 it returns exactly $-128.0$: not merely imprecise, but
 negative, an impossible value for a variance. `stats` never squares the offset: `m2` accumulates products of
 deviations from the running mean, each the difference of two numbers of order $10^9$, which float64 resolves to
@@ -290,9 +292,11 @@ like an unremarkable, legitimate summary of "no data" rather than an error. The 
 failure: `ZeroDivisionError` stops the caller immediately, while `(0.0, -0.0)` is silent and could flow into
 further computation (an average of variances, a check `variance > 0`) unnoticed, for exactly the input most
 likely to arise by accident — an empty group in a batch. Merging two chunks' triples, after Chan, Golub and
-LeVeque: with $n=n_a+n_b$ and $\delta=\mathrm{mean}_b-\mathrm{mean}_a$,
+LeVeque: with $n=n_a+n_b$ and $`\delta=\mathrm{mean}_b-\mathrm{mean}_a`$,
 
-$$\mathrm{mean} = \mathrm{mean}_a+\delta\,\frac{n_b}{n}, \qquad M_2 = M_{2,a}+M_{2,b}+\delta^2\,\frac{n_a n_b}{n},$$
+```math
+\mathrm{mean} = \mathrm{mean}_a+\delta\,\frac{n_b}{n}, \qquad M_2 = M_{2,a}+M_{2,b}+\delta^2\,\frac{n_a n_b}{n},
+```
 
 which reduces to exactly one step of `stats`'s own update when $n_b=1$ (there, $M_{2,b}=0$) — the formula used
 to combine statistics computed independently on separate chunks of data, without ever materialising their
@@ -328,13 +332,15 @@ unbounded length — *reservoir sampling* (Algorithm R): after any prefix of the
 holds $k$ of its items, each an equally likely representative of everything seen so far. Proof that every one
 of $n\ge k$ items ends up in the reservoir with probability $k/n$, by induction on the number of items
 processed: the first $k$ items start in the reservoir with probability $1$. When item $i$ (0-indexed, $i\ge k$)
-arrives, it is placed with probability $k/(i+1)$ — that is $P(j<k)$ for $j$ uniform on $\{0,\dots,i\}$ — and if
+arrives, it is placed with probability $k/(i+1)$ — that is $P(j<k)$ for $j$ uniform on $`\{0,\dots,i\}`$ — and if
 placed, it evicts a uniformly random one of the $k$ occupied slots (since, conditional on $j<k$, `j` itself is
-uniform on $\{0,\dots,k-1\}$). Suppose, inductively, that every one of the first $i$ items is currently in the
+uniform on $`\{0,\dots,k-1\}`$). Suppose, inductively, that every one of the first $i$ items is currently in the
 reservoir with probability $k/i$ (true at $i=k$, where it reads $k/k=1$); a fixed such item survives item
 $i$'s arrival with probability
 
-$$1-\underbrace{\frac{k}{i+1}}_{\text{item }i\text{ is placed}}\cdot\underbrace{\frac1k}_{\text{and evicts this slot}} = \frac{i}{i+1},$$
+```math
+1-\underbrace{\frac{k}{i+1}}_{\text{item }i\text{ is placed}}\cdot\underbrace{\frac1k}_{\text{and evicts this slot}} = \frac{i}{i+1},
+```
 
 so its probability of being in the reservoir becomes $\frac{k}{i}\cdot\frac{i}{i+1}=\frac{k}{i+1}$ — the
 induction hypothesis one step later, with $i$ replaced by $i+1$ — and this already matches item $i$'s own

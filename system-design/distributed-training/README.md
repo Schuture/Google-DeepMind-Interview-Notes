@@ -89,23 +89,23 @@ of the $N$ parameters a token's activations pass through), and a backward pass c
 that, $4N$ per token, since it computes a gradient with respect to both a layer's input and its
 weights. With $N = 70 \times 10^9$ and $D = 1.4 \times 10^{12}$:
 
-$$
+```math
 C = 6ND = 6 \times 70 \times 10^9 \times 1.4 \times 10^{12} \approx 5.88 \times 10^{23} \text{ FLOPs.}
-$$
+```
 
 The cluster's peak throughput is $2{,}048 \times 400 \times 10^{12} \approx 8.19 \times 10^{17}$
 FLOP/s; at the target 40% MFU it delivers about $3.28 \times 10^{17}$ FLOP/s, so
 
-$$
+```math
 T = C / (0.40 \times 8.19 \times 10^{17}) \approx 1.79 \times 10^6 \text{ s} \approx 20.8 \text{ days.}
-$$
+```
 
 A global batch of 4,000,000 tokens means $D / 4 \times 10^6 = 350{,}000$ optimiser steps, each costing
 $6N \times 4 \times 10^6 \approx 1.68 \times 10^{18}$ FLOPs and, at the achieved throughput, about
 5.13 s — matching $T / 350{,}000$.
 
 As a check on the stated parameter count, the standard block-level approximation for a dense
-transformer, $N \approx 12 L d_{\text{model}}^2$ (4$d^2$ for the four attention projections plus
+transformer, $N \approx 12 L d_{\text{model}}^2$ (4$`d^2`$ for the four attention projections plus
 $8d^2$ for a 4×-widening MLP, per layer), gives $12 \times 80 \times 8{,}192^2 \approx 64.4 \times
 10^9$ for this architecture — close to, though about 8% under, the stated $70 \times 10^9$, the
 remainder made up by the token embedding and output projection this block-only approximation leaves
@@ -297,12 +297,12 @@ Checkpointing trades two costs against each other: time spent writing checkpoint
 on a failure, time spent redoing work since the last one. With checkpoint write time $t_{\text{ckpt}}$
 and mean time between failures $\mu$ in the same units, the interval that minimises their sum — a
 standard result usually attributed to Young and Daly — is
-$T_{\text{opt}} = \sqrt{2 \, t_{\text{ckpt}} \, \mu}$. With $t_{\text{ckpt}} = 42$ s and
+$`T_{\text{opt}} = \sqrt{2 \, t_{\text{ckpt}} \, \mu}`$. With $t_{\text{ckpt}} = 42$ s and
 $\mu \approx 87{,}891$ s (24.4 hours), $T_{\text{opt}} \approx 2{,}717$ s, about 45 minutes —
 checkpoint roughly every 45 minutes. Assuming a failure is equally likely at any point within an
 interval, the expected work redone per failure is half the interval, $T_{\text{opt}}/2 \approx
 1{,}359$ s, about 23 minutes; at the optimum, the checkpoint-writing overhead rate
-($t_{\text{ckpt}}/T_{\text{opt}}$) and the expected-redo rate ($(T_{\text{opt}}/2)/\mu$) are equal,
+($t_{\text{ckpt}}/T_{\text{opt}}$) and the expected-redo rate ($`(T_{\text{opt}}/2)/\mu`$) are equal,
 each about 1.5%, for a combined overhead of about 3.1% of total wall-clock time — the estimate check
 below confirms a sweep of other intervals costs more.
 

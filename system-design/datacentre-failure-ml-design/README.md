@@ -28,7 +28,7 @@ Scale this design for:
   power draw.
 - Repair tickets record which component was replaced and when; decommission records say when and why a
   machine left the fleet.
-- About $0.5\%$ of machines need a hardware replacement in any given $30$-day window.
+- About $`0.5\%`$ of machines need a hardware replacement in any given $30$-day window.
 - The operations team can drain and pre-emptively service at most $1{,}000$ machines a week.
 - An unplanned failure in production costs about $20\times$ what a pre-emptive replacement costs.
 
@@ -80,7 +80,9 @@ attributes rather than waiting on data it will not have in time — Features, be
 **Raw telemetry volume.** Each of $1{,}000{,}000$ machines reports $50$ metrics once a minute, $1{,}440$
 times a day:
 
-$$1{,}000{,}000 \times 50 \times 1{,}440 = 7.2\times10^{10} \text{ readings/day.}$$
+```math
+1{,}000{,}000 \times 50 \times 1{,}440 = 7.2\times10^{10} \text{ readings/day.}
+```
 
 Stored as an $8$-byte floating-point value each, that is $7.2\times10^{10}\times8=5.76\times10^{11}$ bytes,
 $576$ GB/day — large enough that the design keeps only a rolling window of raw readings (a few weeks, for
@@ -91,16 +93,16 @@ aggregates, never training directly off the per-minute stream.
 a year — several orders of magnitude below the raw telemetry it is built from, a size an ordinary tabular
 pipeline handles comfortably.
 
-**Expected weekly positives versus weekly capacity.** At a stationary $0.5\%$ $30$-day replacement rate, a
+**Expected weekly positives versus weekly capacity.** At a stationary $`0.5\%`$ $30$-day replacement rate, a
 given week's snapshot is expected to carry $1{,}000{,}000\times0.005=5{,}000$ positive labels — machines
 that will need a replacement within the next $30$ days. Operations can service only $1{,}000$ of them a
 week. Since a ranked list can put at most $1{,}000$ machines into that capacity no matter how good the
-ranking, recall@$1{,}000$ — the fraction of the week's $5{,}000$ true positives actually caught — is bounded
-above by $1{,}000/5{,}000=20\%$; a model that reaches that ceiling has filled the entire weekly capacity
-with true positives (precision@$1{,}000=100\%$), and no ranking can do better than the ceiling at this
-capacity. With the cutoff and the week's positives both fixed, recall@$1{,}000$ is just
-precision@$1{,}000\times1{,}000/5{,}000$, so the two carry the same information about a week's ranking, and
-precision@$1{,}000$ is the one reported (Evaluation, below). The ceiling is not the share of failures the
+ranking, recall@$`1{,}000`$ — the fraction of the week's $5{,}000$ true positives actually caught — is bounded
+above by $`1{,}000/5{,}000=20\%`$; a model that reaches that ceiling has filled the entire weekly capacity
+with true positives (precision@$`1{,}000=100\%`$), and no ranking can do better than the ceiling at this
+capacity. With the cutoff and the week's positives both fixed, recall@$`1{,}000`$ is just
+precision@$`1{,}000\times1{,}000/5{,}000`$, so the two carry the same information about a week's ranking, and
+precision@$`1{,}000`$ is the one reported (Evaluation, below). The ceiling is not the share of failures the
 design lets happen: a $30$-day window spans about $30/7\approx4.3$ weekly snapshots, so consecutive
 snapshots share most of their positives, and new replacements arrive at only about
 $5{,}000\times7/30\approx1{,}170$ a week — a flow that $1{,}000$ pre-emptive services a week can mostly
@@ -166,7 +168,7 @@ windowed level; static attributes (machine type, age, data centre, rack position
 rarely and are simply looked up as of $t$; fleet-relative features compare a machine's own reading against
 other machines of the *same type* — a $z$-score against that type's own mean and standard deviation, not the
 whole fleet's — since machine types run at genuinely different baseline temperatures and error rates, and
-"$4$°C hotter than this type usually runs" is informative in a way "$4$°C above the fleet average" is not;
+"$`4`$°C hotter than this type usually runs" is informative in a way "$`4`$°C above the fleet average" is not;
 repair history (ticket count, time since the last ticket, computed only from tickets before $t$) captures
 that a machine already in worse shape tends to stay that way.
 
@@ -203,7 +205,9 @@ Three models, in increasing order of how directly they use time:
 
 **(i) Logistic regression** predicts $p(x)=\sigma(w\cdot x+b)$, fit by weighted binary cross-entropy,
 
-$$\mathcal{L}=-\frac{1}{N}\sum_i \big[c_1\, y_i\log p_i + c_0\,(1-y_i)\log(1-p_i)\big],$$
+```math
+\mathcal{L}=-\frac{1}{N}\sum_i \big[c_1\, y_i\log p_i + c_0\,(1-y_i)\log(1-p_i)\big],
+```
 
 with $c_1>c_0$ upweighting the rare positive class (Imbalance, below). Fast to train and to serve, and its
 coefficients are directly readable, which matters for explaining a specific machine's score to a technician
@@ -213,7 +217,7 @@ above, in the log-odds of replacement.
 **(ii) Gradient-boosted trees**, fit stage-wise: at stage $m$, the current model $F_{m-1}$ has log loss
 $-[y\log\sigma(F)+(1-y)\log(1-\sigma(F))]$, whose negative gradient with respect to $F$ is
 $y-\sigma(F_{m-1}(x))$ — the observed label minus the currently predicted probability — so the next tree
-$h_m$ is fit to approximate this residual and the model is updated $F_m=F_{m-1}+\eta\,h_m$. Because a tree
+$h_m$ is fit to approximate this residual and the model is updated $`F_m=F_{m-1}+\eta\,h_m`$. Because a tree
 ensemble already handles the transforms above natively (Features), this is usually the strongest single
 tabular model here without extra feature engineering, at the cost of a score that takes an explicit
 attribution step (Deployment) rather than a coefficient to read directly.
@@ -223,7 +227,9 @@ $h_k(x)=\sigma(w\cdot x_k+b)$ is the probability it needs replacing in week $k$,
 through week $k-1$. Over the weeks a machine is actually observed, the likelihood is exactly a logistic
 regression's, fit on one row per machine-week at risk rather than one row per machine:
 
-$$\text{NLL}=-\sum_i\sum_{k=1}^{K_i}\big[y_{i,k}\log h_k(x_{i,k})+(1-y_{i,k})\log(1-h_k(x_{i,k}))\big],$$
+```math
+\text{NLL}=-\sum_i\sum_{k=1}^{K_i}\big[y_{i,k}\log h_k(x_{i,k})+(1-y_{i,k})\log(1-h_k(x_{i,k}))\big],
+```
 
 where $K_i$ is the last week machine $i$ is observed and $y_{i,k}=1$ only at $k=K_i$ if that week is a
 genuine replacement — so a censored machine (Labels, above) contributes only the survival terms
@@ -234,7 +240,9 @@ week $k$" — the chance of surviving four consecutive weeks is the product of s
 $\prod_{k=1}^4(1-h_k)$ — four weekly snapshots is this design's discretisation of the $30$-day horizon used
 everywhere else on this page — so the risk this design ranks on is
 
-$$P(\text{replaced within 30 days})=1-\prod_{k=1}^{4}(1-h_k).$$
+```math
+P(\text{replaced within 30 days})=1-\prod_{k=1}^{4}(1-h_k).
+```
 
 An optional sequence encoder over the raw weekly telemetry window, in place of the hand-aggregated $x_k$,
 can let this model learn its own temporal features, at the cost of needing more data and compute than the
@@ -249,20 +257,24 @@ censored machine's partial history rather than discarding or mislabelling it.
 **Class weights.** Setting $c_1/c_0$ in the loss above — for instance inversely proportional to each class's
 frequency — makes the optimiser pay as much total attention to the rare positive class as to the abundant
 negative one; every row is still used, but training compute is unchanged, since most of it is still spent on
-the $99.5\%$ of rows carrying a negative label.
+the $`99.5\%`$ of rows carrying a negative label.
 
 **Down-sampling, and correcting for it.** Keeping every positive row but only a random keep-rate $r<1$ of the
 negative rows cuts training compute to roughly a fraction $r$ of the original, but changes what the fitted
 model estimates. Write $p(x)$ for the true probability of replacement and $p'(x)$ for what a model trained on
 the down-sampled data estimates. A positive row is always kept and a negative row only with probability $r$,
-so by Bayes' rule $p'(x)=P(y=1\mid x,\text{kept})=p(x)/\big(p(x)+r\,(1-p(x))\big)$: the *odds* of the
+so by Bayes' rule $`p'(x)=P(y=1\mid x,\text{kept})=p(x)/\big(p(x)+r\,(1-p(x))\big)`$: the *odds* of the
 label the model actually sees are the true odds divided by $r$:
 
-$$\frac{p'(x)}{1-p'(x)}=\frac{1}{r}\cdot\frac{p(x)}{1-p(x)}.$$
+```math
+\frac{p'(x)}{1-p'(x)}=\frac{1}{r}\cdot\frac{p(x)}{1-p(x)}.
+```
 
 Solving for $p(x)$ gives the correction applied to every prediction at serving time:
 
-$$p(x)=\frac{r\,p'(x)}{r\,p'(x)+1-p'(x)}.$$
+```math
+p(x)=\frac{r\,p'(x)}{r\,p'(x)+1-p'(x)}.
+```
 
 The estimate check below fits a logistic model on down-sampled data and confirms both halves of this: the
 uncorrected $p'$ is inflated well above the true rate, and applying the formula restores it to within a
@@ -280,22 +292,22 @@ probability rather than just a ranking score.
 ### Evaluation
 
 **The decision the metrics must match.** Operations acts on the top $1{,}000$ machines a week, so the two
-numbers that matter operationally are **precision@$1{,}000$** (of the $1{,}000$ serviced, what fraction
-actually needed it) and **recall@$1{,}000$** (of the week's roughly $5{,}000$ true positives, what fraction
-were caught) — and, as derived in Requirements and scale, recall@$1{,}000$ tops out at $20\%$ regardless of
-model quality and within a week is just precision@$1{,}000\times1{,}000/5{,}000$, so precision@$1{,}000$ —
-the share of service calls that were actually needed, on the full $0$–$100\%$ scale — is the headline number.
+numbers that matter operationally are **precision@$`1{,}000`$** (of the $1{,}000$ serviced, what fraction
+actually needed it) and **recall@$`1{,}000`$** (of the week's roughly $5{,}000$ true positives, what fraction
+were caught) — and, as derived in Requirements and scale, recall@$`1{,}000`$ tops out at $`20\%`$ regardless of
+model quality and within a week is just precision@$`1{,}000\times1{,}000/5{,}000`$, so precision@$`1{,}000`$ —
+the share of service calls that were actually needed, on the full $0$–$`100\%`$ scale — is the headline number.
 **PR-AUC** (the area under precision versus recall as the cutoff sweeps over every possible rank, not just
 $1{,}000$) is tracked alongside it as a threshold-free summary for comparing models and for
-regression-testing a retrain before it ever reaches the top-$1{,}000$ cutoff.
+regression-testing a retrain before it ever reaches the top-$`1{,}000`$ cutoff.
 
 **Why not just ROC-AUC.** ROC-AUC is the probability a random true positive is scored above a random true
 negative, and its $x$-axis, the false-positive rate, is a fraction of the *negative* population — almost the
-entire fleet, at $0.5\%$ prevalence. A model can misrank most of the top of its list — filling $1{,}000$
+entire fleet, at $`0.5\%`$ prevalence. A model can misrank most of the top of its list — filling $1{,}000$
 slots with only a couple of hundred genuine positives — and still show a tiny false-positive rate, because
 those several hundred false positives are a minuscule share of the roughly $995{,}000$ machines that were never
 going to need replacing. The estimate check below builds exactly this case: an ROC-AUC of about $0.82$
-alongside a precision@k under $20\%$, with the false-positive rate at that same cutoff under a tenth of a
+alongside a precision@k under $`20\%`$, with the false-positive rate at that same cutoff under a tenth of a
 percent. ROC-AUC is not wrong here — it is answering a different question (ranking quality across the whole
 population) from the one operations is asking (how many of a fixed $1{,}000$ picks were worth it).
 
@@ -310,19 +322,21 @@ stated $20\times$ that, servicing the top $1{,}000$ each week costs $1{,}000$ re
 truly needed it, and each true positive among them is a failure that no longer happens unplanned, avoiding
 $20$ units. Against not acting on the week's list at all, the weekly saving is
 
-$$\text{saved}=20\times\text{TP}-1{,}000,$$
+```math
+\text{saved}=20\times\text{TP}-1{,}000,
+```
 
 where TP is the number of true positives among the top $1{,}000$. A perfectly precise week ($\text{TP}=1{,}000$)
 saves $19{,}000$ units; a ranking no better than picking machines at random
 ($\text{TP}\approx1{,}000\times5{,}000/1{,}000{,}000=5$) *loses* about $900$ units against doing nothing at
 all, since capacity is spent almost entirely on machines that did not need it while the real failures still
-happen unplanned. Precision@$1{,}000$, not the mere existence of a model, is what turns this program from a
+happen unplanned. Precision@$`1{,}000`$, not the mere existence of a model, is what turns this program from a
 net cost into a net saving.
 
 **Backtesting.** A single train/test split understates how performance drifts over calendar time, so the
 design backtests on a rolling origin: train on the snapshots whose $30$-day label windows have closed by
 week $W$ — exactly the labels production would have at $W$ — evaluate on the weeks just after $W$, then
-advance $W$ and repeat, reporting the distribution of precision@$1{,}000$, recall@$1{,}000$ and PR-AUC across
+advance $W$ and repeat, reporting the distribution of precision@$`1{,}000`$, recall@$`1{,}000`$ and PR-AUC across
 folds rather than one point estimate — the same machine-and-time discipline as the training split (Labels,
 above), extended to give a read on trend rather than a single snapshot.
 
@@ -356,11 +370,11 @@ Telemetry, repair tickets, decommission records
 ranked list; the operative threshold is *rank*, not a fixed probability cutoff, since the constraint the
 design is built around is a fixed count — $1{,}000$ machines a week — not a fixed confidence level, and a
 probability cutoff would hand operations a different number of candidates every week depending on how bad
-that week happens to be. A probability floor underneath the rank cutoff — skip a top-$1{,}000$ machine whose
+that week happens to be. A probability floor underneath the rank cutoff — skip a top-$`1{,}000`$ machine whose
 own expected cost saved (Evaluation, above) has turned negative — guards against a quiet week where even the
-$1{,}000$th-ranked machine is not actually worth a service call: servicing a machine with calibrated $30$-day
-risk $p$ saves $20p-1$ units in expectation, so the floor sits at $p=1/20=5\%$ and binds only when the
-$1{,}000$th-ranked machine's risk falls below it. Each machine on the list ships with its top
+$`1{,}000`$th-ranked machine is not actually worth a service call: servicing a machine with calibrated $30$-day
+risk $p$ saves $20p-1$ units in expectation, so the floor sits at $`p=1/20=5\%`$ and binds only when the
+$`1{,}000`$th-ranked machine's risk falls below it. Each machine on the list ships with its top
 contributing features — a coefficient-times-value breakdown for logistic regression, a comparable per-feature
 attribution for the tree ensemble — so a technician has a stated reason to check, not just a bare score.
 
@@ -371,7 +385,7 @@ $z$-score features are designed to absorb only if the reference distribution the
 itself kept current; and ordinary seasonal temperature swings shift absolute thermal readings across the
 whole fleet at once, which the same fleet-relative design choice also protects against, provided the
 reference window rolls forward with the season rather than freezing at training time. Because the outcome
-label lags $30$ days behind the snapshot, precision@$1{,}000$ and PR-AUC from the rolling backtest are a
+label lags $30$ days behind the snapshot, precision@$`1{,}000`$ and PR-AUC from the rolling backtest are a
 trailing signal; tracking each feature's own distribution week to week catches a shift before it shows up in
 outcomes.
 

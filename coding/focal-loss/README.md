@@ -12,12 +12,14 @@
 
 Consider binary classification with a single real-valued logit $z \in \mathbb{R}$ per example,
 predicted probability $p = \sigma(z) = 1/(1+e^{-z})$ (the logistic sigmoid), and label
-$y \in \{0, 1\}$. Write $p_t$ for the probability the model assigns to the *true* class: $p_t = p$
+$`y \in \{0, 1\}`$. Write $p_t$ for the probability the model assigns to the *true* class: $p_t = p$
 if $y=1$, $p_t = 1-p$ if $y=0$. Write $\alpha_t$ for a class-dependent weight, for a fixed constant
 $\alpha \in (0, 1)$: $\alpha_t = \alpha$ if $y=1$, $\alpha_t = 1-\alpha$ if $y=0$. Binary
 cross-entropy is $\mathrm{CE} = -\log p_t$; *focal loss* is
 
-$$\mathrm{FL} = -\alpha_t\,(1-p_t)^\gamma\,\log p_t, \qquad \gamma \ge 0,$$
+```math
+\mathrm{FL} = -\alpha_t\,(1-p_t)^\gamma\,\log p_t, \qquad \gamma \ge 0,
+```
 
 for a fixed constant $\gamma$ called the *focusing parameter*. The factor $(1-p_t)^\gamma$ is the
 *modulating factor*: it is close to $1$ when $p_t$ is small (the model assigns low probability to
@@ -29,12 +31,12 @@ $(1-p_t)^0 = 1$ for every $p_t \in (0, 1]$.
 ### Part 1 — The gradient
 
 Write $s = 2y - 1$, so $s=+1$ when $y=1$ and $s=-1$ when $y=0$; this lets $p_t$ be written as the
-single expression $p_t = \sigma(sz)$, covering either label. Derive $\partial\,\mathrm{FL}/\partial z$
+single expression $p_t = \sigma(sz)$, covering either label. Derive $`\partial\,\mathrm{FL}/\partial z`$
 in closed form, as a function of $\alpha_t$, $s$, $p_t$ and $\gamma$ alone. Verify algebraically
 that setting $\gamma=0$ in your result recovers $\alpha_t(p-y)$, the gradient of plain
 $\alpha_t$-weighted cross-entropy. Then, at $\gamma=2$ and with $\alpha_t=1$ (to isolate the
 modulating factor's own effect on the gradient, separately from the class weight $\alpha_t$),
-compute the ratio $\lvert\partial\,\mathrm{FL}/\partial z\rvert \big/ \lvert\partial\,\mathrm{CE}/\partial z\rvert$
+compute the ratio $`\lvert\partial\,\mathrm{FL}/\partial z\rvert \big/ \lvert\partial\,\mathrm{CE}/\partial z\rvert`$
 for an *easy* example with $p_t = 0.9$ and for a *hard* one with $p_t = 0.1$, and comment on what
 the two ratios say about how strongly focal loss suppresses each example's contribution to the
 *gradient*, as against its contribution to the *loss value*, $(1-p_t)^\gamma$ itself.
@@ -52,7 +54,7 @@ def focal_loss_and_grad(z: np.ndarray, y: np.ndarray, alpha: float = 0.25,
 Implement `focal_loss_and_grad`: the batch mean of $\mathrm{FL}$ over the $N$ examples, and the
 gradient of that mean with respect to every entry of `z`. The result must stay finite — no `nan`,
 no `inf`, no overflow warning — for every $z$ with $\lvert z\rvert \le 100$ and every
-$y \in \{0, 1\}$, for any $\alpha \in (0, 1)$ and $\gamma \ge 0$. Compute $\log p_t$ and $1-p_t$
+$`y \in \{0, 1\}`$, for any $\alpha \in (0, 1)$ and $\gamma \ge 0$. Compute $\log p_t$ and $1-p_t$
 each through its own numerically stable formula, rather than through subtraction from an
 already-computed $p$: $\log p_t = -\mathrm{softplus}(-sz)$, where
 $\mathrm{softplus}(x) = \log(1+e^x)$, and $1-p_t = \sigma(-sz)$, itself computed the same stable
@@ -70,7 +72,7 @@ focal_loss_and_grad(z, y) -> (0.2333, [-0.0004, -0.1378])
 ### Part 3 — Making focal loss work in practice
 
 **(a) Initialisation.** A classifier trained on a rare positive class of prevalence $\pi$ (for
-example $\pi = 0.01$: $1\%$ of examples are positive) is usually initialised with every weight
+example $\pi = 0.01$: $`1\%`$ of examples are positive) is usually initialised with every weight
 feeding the final logit at $0$ except the bias, which is set to $b = \log\bigl(\pi/(1-\pi)\bigr)$
 rather than to $0$. With every other weight at $0$, every example's logit is $z=b$ regardless of
 its features. Compute the mean focal loss (at $\alpha=0.25$, $\gamma=2.0$) over a population that
@@ -80,7 +82,7 @@ case. Explain, from these numbers, why the first gradient steps are dominated by
 negatives when $b=0$, and why the prior-informed bias avoids this.
 
 **(b) Where the gradient goes.** Generate a synthetic imbalanced binary classification dataset with
-a $1\%$ positive rate (positives and negatives drawn from two Gaussian clusters with different
+a $`1\%`$ positive rate (positives and negatives drawn from two Gaussian clusters with different
 means) and fit a logistic-regression model $z = w\cdot x + b$ to it by plain (full-batch) gradient
 descent — once minimising mean cross-entropy ($\alpha=0.5,\gamma=0$) and once minimising mean focal
 loss ($\alpha=0.25,\gamma=2$) — starting both runs from the same initialisation ($w=0$, $b$ set as
@@ -108,36 +110,44 @@ rather than always weighting whichever class happens to be rarer in a given batc
 ### Part 1
 
 Using $p_t = \sigma(sz)$ and $\sigma'(x) = \sigma(x)(1-\sigma(x))$, the chain rule gives
-$dp_t/dz = s\,p_t(1-p_t)$ (the extra factor $s$ from differentiating $sz$), and so
+$`dp_t/dz = s\,p_t(1-p_t)`$ (the extra factor $s$ from differentiating $sz$), and so
 
-$$\frac{d\log p_t}{dz} = \frac{1}{p_t}\cdot s\,p_t(1-p_t) = s(1-p_t), \qquad
+```math
+\frac{d\log p_t}{dz} = \frac{1}{p_t}\cdot s\,p_t(1-p_t) = s(1-p_t), \qquad
 \frac{d(1-p_t)^\gamma}{dz} = \gamma(1-p_t)^{\gamma-1}\cdot\bigl(-s\,p_t(1-p_t)\bigr)
-= -\gamma s\,p_t(1-p_t)^\gamma.$$
+= -\gamma s\,p_t(1-p_t)^\gamma.
+```
 
 $\alpha_t$ does not depend on $z$, so the product rule applied to
 $\mathrm{FL} = -\alpha_t(1-p_t)^\gamma\log p_t$ gives
 
-$$\frac{\partial\,\mathrm{FL}}{\partial z}
+```math
+\frac{\partial\,\mathrm{FL}}{\partial z}
 = -\alpha_t\left[\frac{d(1-p_t)^\gamma}{dz}\log p_t + (1-p_t)^\gamma\frac{d\log p_t}{dz}\right]
-= -\alpha_t\Bigl[-\gamma s\,p_t(1-p_t)^\gamma\log p_t + s(1-p_t)^{\gamma+1}\Bigr],$$
+= -\alpha_t\Bigl[-\gamma s\,p_t(1-p_t)^\gamma\log p_t + s(1-p_t)^{\gamma+1}\Bigr],
+```
 
-and factoring out $\alpha_t\,s\,(1-p_t)^\gamma$ from both terms in the bracket,
+and factoring out $`\alpha_t\,s\,(1-p_t)^\gamma`$ from both terms in the bracket,
 
-$$\frac{\partial\,\mathrm{FL}}{\partial z}
-= \alpha_t\,s\,(1-p_t)^\gamma\,\bigl[\gamma\,p_t\log p_t - (1-p_t)\bigr].$$
+```math
+\frac{\partial\,\mathrm{FL}}{\partial z}
+= \alpha_t\,s\,(1-p_t)^\gamma\,\bigl[\gamma\,p_t\log p_t - (1-p_t)\bigr].
+```
 
 **The $\gamma=0$ case.** $(1-p_t)^0=1$ and the bracket becomes $-(1-p_t)$, so
-$\partial\,\mathrm{FL}/\partial z\rvert_{\gamma=0} = -\alpha_t\,s\,(1-p_t) = \alpha_t\,s\,(p_t-1)$.
-For $y=1$ ($s=1,\,p_t=p$) this is $\alpha_t(p-1) = \alpha_t(p-y)$; for $y=0$ ($s=-1,\,p_t=1-p$) it
+$`\partial\,\mathrm{FL}/\partial z\rvert_{\gamma=0} = -\alpha_t\,s\,(1-p_t) = \alpha_t\,s\,(p_t-1)`$.
+For $y=1$ ($`s=1,\,p_t=p`$) this is $\alpha_t(p-1) = \alpha_t(p-y)$; for $y=0$ ($`s=-1,\,p_t=1-p`$) it
 is $-\alpha_t\bigl((1-p)-1\bigr) = \alpha_t p = \alpha_t(p-y)$ — the same formula, $\alpha_t(p-y)$,
 either way, which confirms the reduction (and shows, as a by-product, that $s(p_t-1)=p-y$
 identically — the standard sigmoid-cross-entropy gradient).
 
 **The two ratios.** With $\alpha_t=1$, setting $\gamma=0$ above gives
-$\lvert\partial\,\mathrm{CE}/\partial z\rvert = \lvert{-s(1-p_t)}\rvert = 1-p_t$, so
+$`\lvert\partial\,\mathrm{CE}/\partial z\rvert = \lvert{-s(1-p_t)}\rvert = 1-p_t`$, so
 
-$$\frac{\lvert\partial\,\mathrm{FL}/\partial z\rvert}{\lvert\partial\,\mathrm{CE}/\partial z\rvert}
-= (1-p_t)^{\gamma-1}\,\bigl\lvert \gamma\,p_t\log p_t - (1-p_t) \bigr\rvert.$$
+```math
+\frac{\lvert\partial\,\mathrm{FL}/\partial z\rvert}{\lvert\partial\,\mathrm{CE}/\partial z\rvert}
+= (1-p_t)^{\gamma-1}\,\bigl\lvert \gamma\,p_t\log p_t - (1-p_t) \bigr\rvert.
+```
 
 At $\gamma=2$: for the easy example ($p_t=0.9$) this is
 $0.1 \times \lvert 2(0.9)\log(0.9) - 0.1\rvert \approx 0.1 \times 0.2896 \approx 0.0290$ — the focal
@@ -229,17 +239,19 @@ Python-level loop over examples.
 **(a) Initialisation.** With $b=0$, every example gets $p=\sigma(0)=0.5$, so $p_t=0.5$ regardless of
 label — nothing is *easy* yet, since the modulating factor $(1-p_t)^\gamma = 0.5^\gamma$ treats
 every example identically. The mean loss is then a weighted average of the same per-example value,
-$-\alpha_t\,0.5^\gamma\log(0.5)$, over the two classes:
+$`-\alpha_t\,0.5^\gamma\log(0.5)`$, over the two classes:
 
-$$\overline{\mathrm{FL}}\big|_{b=0} = -0.5^\gamma\log(0.5)\,\bigl[\pi\alpha + (1-\pi)(1-\alpha)\bigr]
-\approx 0.1291 \quad (\pi=0.01,\ \alpha=0.25,\ \gamma=2),$$
+```math
+\overline{\mathrm{FL}}\big|_{b=0} = -0.5^\gamma\log(0.5)\,\bigl[\pi\alpha + (1-\pi)(1-\alpha)\bigr]
+\approx 0.1291 \quad (\pi=0.01,\ \alpha=0.25,\ \gamma=2),
+```
 
-of which the negatives — simply because they are $99\%$ of the population, not because they are
-individually harder or easier than the positives — account for $99.66\%$. With the prior-informed
+of which the negatives — simply because they are $`99\%`$ of the population, not because they are
+individually harder or easier than the positives — account for $`99.66\%`$. With the prior-informed
 bias, negatives immediately get $p_t = 1-\pi = 0.99$ (already confidently correct, so
 $(1-p_t)^\gamma = \pi^\gamma = 0.0001$ suppresses them) while positives get $p_t=\pi=0.01$ (still as
 hard as ever); the mean loss drops to $\approx 0.01128$ — an $11.4\times$ reduction — and the
-negatives' share of it collapses to $0.0066\%$. Without the prior bias, the first gradient steps
+negatives' share of it collapses to $`0.0066\%`$. Without the prior bias, the first gradient steps
 mostly adjust the model to fit the *average* status of the overwhelming block of negatives (none of
 which are yet being down-weighted for being easy, since none of them are confidently classified
 either way at $z=0$); with it, the negatives start already easy, so essentially the entire initial
@@ -253,27 +265,27 @@ from-scratch fit, confirming both plain-gradient-descent runs land close to what
 achieve here, not in some bug-induced local optimum.) So this is not a claim that focal loss
 *classifies* better on this data — only a measurement of where each loss's gradient, in aggregate,
 came from while getting there. Under cross-entropy, the easy majority's share of the total gradient
-magnitude barely moves: an exact $50.0\%$ at initialisation (at $z=b$ for every example, $p=\pi$
+magnitude barely moves: an exact $`50.0\%`$ at initialisation (at $z=b$ for every example, $p=\pi$
 everywhere, so positives contribute $(1-\pi)\times\pi N$ and negatives contribute
-$\pi\times(1-\pi)N$ to $\sum_i\lvert p_i-y_i\rvert$ — equal, for *any* $\pi$) down to only $49.5\%$
-after training, even once $99.4\%$ of all examples are individually easy — because a cross-entropy
+$\pi\times(1-\pi)N$ to $\sum_i\lvert p_i-y_i\rvert$ — equal, for *any* $\pi$) down to only $`49.5\%`$
+after training, even once $`99.4\%`$ of all examples are individually easy — because a cross-entropy
 gradient never reaches zero for a confidently correct example, it only gets small, and there are
 enough of them to add back up to as much as the minority ever contributed. Under focal loss, the
-easy majority's share stays close to zero throughout: $0.08\%$ at initialisation, $3.4\%$ after
+easy majority's share stays close to zero throughout: $`0.08\%`$ at initialisation, $`3.4\%`$ after
 training — because the extra $(1-p_t)^\gamma$ factor suppresses each easy example's gradient far
 more aggressively than it suppresses its loss (Part 1), so even thousands of them cannot outweigh
 the roughly thirty examples that remain hard.
 
 **(c) Choosing $\gamma$ and $\alpha$.** $\gamma$ alone already does nearly all of the work measured
 in (b): at the same prior-informed initialisation, switching from plain cross-entropy
-($\alpha=0.5,\gamma=0$: negatives get $50\%$ of the gradient magnitude) to focusing alone
+($\alpha=0.5,\gamma=0$: negatives get $`50\%`$ of the gradient magnitude) to focusing alone
 ($\alpha=0.5,\gamma=2$, no class weighting at all) already shrinks the negatives' share to about
-$0.028\%$ — smaller, in fact, than under the paper's own $\alpha=0.25,\gamma=2$, where it is
-$0.084\%$. That is because $\alpha_t$ for a negative example is $1-\alpha$, which *increases* as
+$`0.028\%`$ — smaller, in fact, than under the paper's own $\alpha=0.25,\gamma=2$, where it is
+$`0.084\%`$. That is because $\alpha_t$ for a negative example is $1-\alpha$, which *increases* as
 $\alpha$ drops below the neutral value $0.5$: moving from $\alpha=0.5$ to $\alpha=0.25$ raises
 $\alpha_t$ for negatives from $0.5$ to $0.75$ (and lowers it for positives from $0.5$ to $0.25$),
 partially restoring some of the gradient share that $\gamma$'s focusing had all but removed from
-the negatives — without coming remotely close to cross-entropy's $50\%$. In this sense $\alpha=0.25$
+the negatives — without coming remotely close to cross-entropy's $`50\%`$. In this sense $\alpha=0.25$
 is not asking for *more* attention on the rare positives than a neutral, unweighted loss already
 gives them once $\gamma$ is doing the focusing; it is a mild correction in the *other* direction,
 stopping $\gamma$ from suppressing the hard negatives — the false positives a detector must still
@@ -359,7 +371,7 @@ pass each.
   batch to back-propagate, which is a discrete, batch-local relative of focal loss's continuous,
   per-example down-weighting, and adds the mining step's own overhead and variance.
 - **Evaluate with average precision, not accuracy.** At $\pi=0.01$, a classifier that always
-  predicts negative already scores $99\%$ accuracy — the same pathology, at evaluation time, that
+  predicts negative already scores $`99\%`$ accuracy — the same pathology, at evaluation time, that
   motivates focal loss during training: accuracy is dominated by how well the abundant class is
   handled and barely reflects performance on the rare one. Average precision (the area under the
   precision–recall curve) or recall at a fixed operating threshold are threshold-aware measures of
