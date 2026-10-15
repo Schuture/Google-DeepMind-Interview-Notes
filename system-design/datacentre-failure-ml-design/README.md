@@ -80,9 +80,7 @@ attributes rather than waiting on data it will not have in time — Features, be
 **Raw telemetry volume.** Each of $1{,}000{,}000$ machines reports $50$ metrics once a minute, $1{,}440$
 times a day:
 
-```math
-1{,}000{,}000 \times 50 \times 1{,}440 = 7.2\times10^{10} \text{ readings/day.}
-```
+$$1{,}000{,}000 \times 50 \times 1{,}440 = 7.2\times10^{10} \text{ readings/day.}$$
 
 Stored as an $8$-byte floating-point value each, that is $7.2\times10^{10}\times8=5.76\times10^{11}$ bytes,
 $576$ GB/day — large enough that the design keeps only a rolling window of raw readings (a few weeks, for
@@ -205,9 +203,7 @@ Three models, in increasing order of how directly they use time:
 
 **(i) Logistic regression** predicts $p(x)=\sigma(w\cdot x+b)$, fit by weighted binary cross-entropy,
 
-```math
-\mathcal{L}=-\frac{1}{N}\sum_i \big[c_1\, y_i\log p_i + c_0\,(1-y_i)\log(1-p_i)\big],
-```
+$$\mathcal{L}=-\frac{1}{N}\sum_i \big[c_1\\, y_i\log p_i + c_0\\,(1-y_i)\log(1-p_i)\big],$$
 
 with $c_1>c_0$ upweighting the rare positive class (Imbalance, below). Fast to train and to serve, and its
 coefficients are directly readable, which matters for explaining a specific machine's score to a technician
@@ -227,9 +223,7 @@ $h_k(x)=\sigma(w\cdot x_k+b)$ is the probability it needs replacing in week $k$,
 through week $k-1$. Over the weeks a machine is actually observed, the likelihood is exactly a logistic
 regression's, fit on one row per machine-week at risk rather than one row per machine:
 
-```math
-\text{NLL}=-\sum_i\sum_{k=1}^{K_i}\big[y_{i,k}\log h_k(x_{i,k})+(1-y_{i,k})\log(1-h_k(x_{i,k}))\big],
-```
+$$\text{NLL}=-\sum_i\sum\_{k=1}^{K_i}\big[y\_{i,k}\log h_k(x\_{i,k})+(1-y\_{i,k})\log(1-h_k(x\_{i,k}))\big],$$
 
 where $K_i$ is the last week machine $i$ is observed and $y_{i,k}=1$ only at $k=K_i$ if that week is a
 genuine replacement — so a censored machine (Labels, above) contributes only the survival terms
@@ -240,9 +234,7 @@ week $k$" — the chance of surviving four consecutive weeks is the product of s
 $\prod_{k=1}^4(1-h_k)$ — four weekly snapshots is this design's discretisation of the $30$-day horizon used
 everywhere else on this page — so the risk this design ranks on is
 
-```math
-P(\text{replaced within 30 days})=1-\prod_{k=1}^{4}(1-h_k).
-```
+$$P(\text{replaced within 30 days})=1-\prod\_{k=1}^{4}(1-h_k).$$
 
 An optional sequence encoder over the raw weekly telemetry window, in place of the hand-aggregated $x_k$,
 can let this model learn its own temporal features, at the cost of needing more data and compute than the
@@ -266,15 +258,11 @@ the down-sampled data estimates. A positive row is always kept and a negative ro
 so by Bayes' rule $`p'(x)=P(y=1\mid x,\text{kept})=p(x)/\big(p(x)+r\,(1-p(x))\big)`$: the *odds* of the
 label the model actually sees are the true odds divided by $r$:
 
-```math
-\frac{p'(x)}{1-p'(x)}=\frac{1}{r}\cdot\frac{p(x)}{1-p(x)}.
-```
+$$\frac{p'(x)}{1-p'(x)}=\frac{1}{r}\cdot\frac{p(x)}{1-p(x)}.$$
 
 Solving for $p(x)$ gives the correction applied to every prediction at serving time:
 
-```math
-p(x)=\frac{r\,p'(x)}{r\,p'(x)+1-p'(x)}.
-```
+$$p(x)=\frac{r\\,p'(x)}{r\\,p'(x)+1-p'(x)}.$$
 
 The estimate check below fits a logistic model on down-sampled data and confirms both halves of this: the
 uncorrected $p'$ is inflated well above the true rate, and applying the formula restores it to within a
@@ -322,9 +310,7 @@ stated $20\times$ that, servicing the top $1{,}000$ each week costs $1{,}000$ re
 truly needed it, and each true positive among them is a failure that no longer happens unplanned, avoiding
 $20$ units. Against not acting on the week's list at all, the weekly saving is
 
-```math
-\text{saved}=20\times\text{TP}-1{,}000,
-```
+$$\text{saved}=20\times\text{TP}-1{,}000,$$
 
 where TP is the number of true positives among the top $1{,}000$. A perfectly precise week ($\text{TP}=1{,}000$)
 saves $19{,}000$ units; a ranking no better than picking machines at random

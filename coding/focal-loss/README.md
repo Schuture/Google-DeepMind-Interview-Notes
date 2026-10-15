@@ -112,27 +112,16 @@ rather than always weighting whichever class happens to be rarer in a given batc
 Using $p_t = \sigma(sz)$ and $\sigma'(x) = \sigma(x)(1-\sigma(x))$, the chain rule gives
 $`dp_t/dz = s\,p_t(1-p_t)`$ (the extra factor $s$ from differentiating $sz$), and so
 
-```math
-\frac{d\log p_t}{dz} = \frac{1}{p_t}\cdot s\,p_t(1-p_t) = s(1-p_t), \qquad
-\frac{d(1-p_t)^\gamma}{dz} = \gamma(1-p_t)^{\gamma-1}\cdot\bigl(-s\,p_t(1-p_t)\bigr)
-= -\gamma s\,p_t(1-p_t)^\gamma.
-```
+$$\frac{d\log p_t}{dz} = \frac{1}{p_t}\cdot s\\,p_t(1-p_t) = s(1-p_t), \qquad \frac{d(1-p_t)^\gamma}{dz} = \gamma(1-p_t)^{\gamma-1}\cdot\bigl(-s\\,p_t(1-p_t)\bigr) = -\gamma s\\,p_t(1-p_t)^\gamma.$$
 
 $\alpha_t$ does not depend on $z$, so the product rule applied to
 $\mathrm{FL} = -\alpha_t(1-p_t)^\gamma\log p_t$ gives
 
-```math
-\frac{\partial\,\mathrm{FL}}{\partial z}
-= -\alpha_t\left[\frac{d(1-p_t)^\gamma}{dz}\log p_t + (1-p_t)^\gamma\frac{d\log p_t}{dz}\right]
-= -\alpha_t\Bigl[-\gamma s\,p_t(1-p_t)^\gamma\log p_t + s(1-p_t)^{\gamma+1}\Bigr],
-```
+$$\frac{\partial\\,\mathrm{FL}}{\partial z} = -\alpha_t\left[\frac{d(1-p_t)^\gamma}{dz}\log p_t + (1-p_t)^\gamma\frac{d\log p_t}{dz}\right] = -\alpha_t\Bigl[-\gamma s\\,p_t(1-p_t)^\gamma\log p_t + s(1-p_t)^{\gamma+1}\Bigr],$$
 
 and factoring out $`\alpha_t\,s\,(1-p_t)^\gamma`$ from both terms in the bracket,
 
-```math
-\frac{\partial\,\mathrm{FL}}{\partial z}
-= \alpha_t\,s\,(1-p_t)^\gamma\,\bigl[\gamma\,p_t\log p_t - (1-p_t)\bigr].
-```
+$$\frac{\partial\\,\mathrm{FL}}{\partial z} = \alpha_t\\,s\\,(1-p_t)^\gamma\\,\bigl[\gamma\\,p_t\log p_t - (1-p_t)\bigr].$$
 
 **The $\gamma=0$ case.** $(1-p_t)^0=1$ and the bracket becomes $-(1-p_t)$, so
 $`\partial\,\mathrm{FL}/\partial z\rvert_{\gamma=0} = -\alpha_t\,s\,(1-p_t) = \alpha_t\,s\,(p_t-1)`$.
@@ -144,10 +133,7 @@ identically — the standard sigmoid-cross-entropy gradient).
 **The two ratios.** With $\alpha_t=1$, setting $\gamma=0$ above gives
 $`\lvert\partial\,\mathrm{CE}/\partial z\rvert = \lvert{-s(1-p_t)}\rvert = 1-p_t`$, so
 
-```math
-\frac{\lvert\partial\,\mathrm{FL}/\partial z\rvert}{\lvert\partial\,\mathrm{CE}/\partial z\rvert}
-= (1-p_t)^{\gamma-1}\,\bigl\lvert \gamma\,p_t\log p_t - (1-p_t) \bigr\rvert.
-```
+$$\frac{\lvert\partial\\,\mathrm{FL}/\partial z\rvert}{\lvert\partial\\,\mathrm{CE}/\partial z\rvert} = (1-p_t)^{\gamma-1}\\,\bigl\lvert \gamma\\,p_t\log p_t - (1-p_t) \bigr\rvert.$$
 
 At $\gamma=2$: for the easy example ($p_t=0.9$) this is
 $0.1 \times \lvert 2(0.9)\log(0.9) - 0.1\rvert \approx 0.1 \times 0.2896 \approx 0.0290$ — the focal
@@ -241,10 +227,7 @@ label — nothing is *easy* yet, since the modulating factor $(1-p_t)^\gamma = 0
 every example identically. The mean loss is then a weighted average of the same per-example value,
 $`-\alpha_t\,0.5^\gamma\log(0.5)`$, over the two classes:
 
-```math
-\overline{\mathrm{FL}}\big|_{b=0} = -0.5^\gamma\log(0.5)\,\bigl[\pi\alpha + (1-\pi)(1-\alpha)\bigr]
-\approx 0.1291 \quad (\pi=0.01,\ \alpha=0.25,\ \gamma=2),
-```
+$$\overline{\mathrm{FL}}\big|\_{b=0} = -0.5^\gamma\log(0.5)\\,\bigl[\pi\alpha + (1-\pi)(1-\alpha)\bigr] \approx 0.1291 \quad (\pi=0.01,\ \alpha=0.25,\ \gamma=2),$$
 
 of which the negatives — simply because they are $`99\%`$ of the population, not because they are
 individually harder or easier than the positives — account for $`99.66\%`$. With the prior-informed

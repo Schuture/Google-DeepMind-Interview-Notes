@@ -57,9 +57,7 @@
 
 写 $q^\top k = \sum_{i=1}^{d_h} q_ik_i$。由 $\mathrm{E}[q_i] = \mathrm{E}[k_i] = 0$ 且 $q_i \perp k_i$，得 $\mathrm{E}[q_ik_i] = 0$，于是 $\mathrm{E}[q^\top k] = 0$，且
 
-```math
-\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum_{i=1}^{d_h}\sum_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].
-```
+$$\mathrm{Var}(q^\top k) = \mathrm{E}\bigl[(q^\top k)^2\bigr] = \sum\_{i=1}^{d_h}\sum\_{j=1}^{d_h} \mathrm{E}[q_ik_iq_jk_j].$$
 
 当 $i \ne j$ 时，$`q_i, k_i, q_j, k_j`$ 是四个相互独立、均值为零的变量，故 $`\mathrm{E}[q_ik_iq_jk_j] = \mathrm{E}[q_i]\,\mathrm{E}[k_i]\,\mathrm{E}[q_j]\,\mathrm{E}[k_j] = 0`$；当 $i = j$ 时，由 $q_i$ 与 $k_i$ 独立得 $`\mathrm{E}[q_i^2k_i^2] = \mathrm{E}[q_i^2]\,\mathrm{E}[k_i^2] = 1 \cdot 1 = 1`$（用到 $\mathrm{E}[q_i^2] = \mathrm{Var}(q_i) = 1$，因为 $\mathrm{E}[q_i]=0$）。把这 $d_h$ 个留下来的对角项相加，得 $\mathrm{Var}(q^\top k) = d_h$。
 
@@ -73,9 +71,7 @@
 
 FlashAttention 计算的是同样的 $8Td^2 + 4T^2d$ FLOPs（反向传播中因为要重新计算分块、而不是读回保存的分数矩阵，会略多一些），但从不生成完整的 $T \times T$ 分数/权重矩阵。它把 $K, V$ 切成小块，并维护一个运行中的、未归一化的 softmax——运行最大值 $m$、运行求和 $\ell$、运行输出累加器 $\mathrm{acc}$——每处理一个块就更新一次。把新块的局部统计量 $`(m_2, \ell_2, \mathrm{acc}_2)`$ 合并进已有的 $`(m_1, \ell_1, \mathrm{acc}_1)`$ 时，对任一块 $i$ 都有 $`e^{s - m} = e^{s - m_i}\,e^{m_i - m}`$，于是取 $m = \max(m_1, m_2)$ 后，
 
-```math
-\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}_1e^{m_1 - m} + \mathrm{acc}_2e^{m_2 - m},
-```
+$$\ell = \ell_1e^{m_1 - m} + \ell_2e^{m_2 - m}, \qquad \mathrm{acc} = \mathrm{acc}\_1e^{m_1 - m} + \mathrm{acc}\_2e^{m_2 - m},$$
 
 最终输出为 $\mathrm{acc}/\ell$——这正是对所有已见过的键做 softmax 加权求和的精确结果，而计算过程中每次只需保留一个块的分数矩阵（$`O(\text{block}\times d)`$）。峰值内存从 $\Theta(dT^2)$ 降到 $O(Td)$，与该层其余部分同阶。
 
@@ -91,15 +87,11 @@ MQA 令 $h_{kv} = 1$：所有查询头共用一个键/值头，相对本例再�
 
 在单个二维坐标对上，记旋转矩阵
 
-```math
-R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},
-```
+$`\displaystyle R(\theta) = \begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix},`$
 
 它是正交矩阵，满足 $R(\theta)^\top = R(-\theta)$ 以及 $R(\theta_1)R(\theta_2) = R(\theta_1+\theta_2)$（两次旋转复合等于角度相加）。RoPE 把位置 $m$ 处的查询旋转角度 $m\omega$，位置 $n$ 处的键旋转角度 $n\omega$，其中 $\omega$ 是固定频率：$`q_m = R(m\omega)\,q`$，$`k_n = R(n\omega)\,k`$。于是
 
-```math
-q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\,k = q^\top R(n\omega - m\omega)\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,
-```
+$$q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\omega)^\top R(n\omega)\\,k = q^\top R(n\omega - m\omega)\\,k = q^\top R\bigl(-(m-n)\omega\bigr)k,$$
 
 这里先用了 $R(m\omega)^\top = R(-m\omega)$，再用了 $R(-m\omega)R(n\omega) = R(n\omega - m\omega)$。等式右边是 $q$、$`k`$、$`\omega`$ 以及单一标量 $m-n$ 的固定函数：任意两对 $(m,n)$ 与 $(m+c, n+c)$ 都给出相同的角度 $-(m-n)\omega$，从而给出相同的值，与 $m,n$ 各自取什么无关。
 
@@ -107,9 +99,7 @@ q_m^\top k_n = \bigl(R(m\omega)q\bigr)^\top\bigl(R(n\omega)k\bigr) = q^\top R(m\
 
 对比：可学习或正弦绝对位置编码 $p_m$ 是在查询/键投影*之前*加到 token 嵌入上的，所以 $q_m = W_q(x_m + p_m) = q + W_qp_m$（记 $q = W_qx_m$），同理 $k_n = k + W_kp_n$。于是
 
-```math
-q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,
-```
+$$q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\top W_kp_n,$$
 
 其中四项里有三项直接涉及 $p_m$ 或 $p_n$，而不是二者之差——这种参数化方式没有任何机制强迫整个和坍缩成只依赖 $m-n$ 的函数。相对位置的行为至多是从训练数据里近似学到的，并非代数上必然成立，也没有理由在比训练时更长的序列长度上依然表现良好，这与 RoPE 精确的、只依赖相对位置的性质不同。
 
@@ -127,9 +117,7 @@ q_m^\top k_n = q^\top k + q^\top W_kp_n + p_m^\top W_q^\top k + p_m^\top W_q^\to
 
 把每个子层对残差流的净效果线性化为一个标量 $a_l$（这是本论证中一个粗略但标准的简化）。在前置归一化中，$`x_{l+1} = x_l + a_l\,g(x_l)`$，其中 $g$ 有界——分支内部的归一化从不触碰 $x_l$ 本身——所以 $\partial x_{l+1}/\partial x_l = 1 + O(a_l)$，由链式法则，$`\partial x_L/\partial x_0 = \prod_{l=1}^{L}\bigl(1 + O(a_l)\bigr)`$：每一层都留下一个恰好为 $1$ 的*加性*恒等项，因此这个乘积不可能像一堆全都小于 $1$ 的因子相乘那样坍缩到 $0$。在后置归一化中，残差之和本身在每一层都被重新归一化，$`x_{l+1} = \mathrm{Norm}\bigl(x_l + f_l(x_l)\bigr) \approx a_lx_l`$（在某个线性化点附近）——恒等路径与分支被折叠进同一个乘法因子，因为归一化是把整个和一起重新缩放的——所以 $\partial x_L/\partial x_0 \approx \prod_{l=1}^{L} a_l$：一个 $L$ 项的普通乘积，除非每个 $a_l$ 都极其接近 $1$，否则会随 $L$ 指数级地消失或爆炸。这正是深层后置归一化 Transformer 历史上需要小心的学习率预热（warm-up）才能撑过训练早期的原因，而前置归一化在深得多的网络里也能开箱即用地稳定训练。
 
-```math
-\mathrm{LN}(v)_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)_i = \frac{v_i}{\mathrm{RMS}(v)}\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.
-```
+$$\mathrm{LN}(v)\_i = \frac{v_i - \mu}{\sqrt{\sigma^2 + \epsilon}}\\,\gamma_i + \beta_i, \quad \mu = \tfrac1d\textstyle\sum_i v_i,\ \sigma^2 = \tfrac1d\textstyle\sum_i (v_i-\mu)^2; \qquad \mathrm{RMSNorm}(v)\_i = \frac{v_i}{\mathrm{RMS}(v)}\\,\gamma_i,\quad \mathrm{RMS}(v)=\sqrt{\tfrac1d\textstyle\sum_i v_i^2 + \epsilon}.$$
 
 RMSNorm 舍弃了减均值 $\mu$ 这一步（不做重新居中，只做缩放），也舍弃了加性偏置 $\beta$，只保留可学习的逐特征缩放 $\gamma$。当 $v$ 本身均值为零时，$`\sigma^2 = \frac1d\sum_iv_i^2`$ 与 $\mathrm{RMS}(v)^2$ 重合（相差仅在 $\epsilon$ 内），此时两者的缩放因子完全相同，区别只在于是否先减去了 $\mu$——RMSNorm 只是省去了这一次归约，每次调用少做一遍对 $d$ 个特征的遍历，并且少了 $\beta$ 的 $d$ 个额外参数。
 
@@ -151,9 +139,7 @@ RMSNorm 舍弃了减均值 $\mu$ 这一步（不做重新居中，只做缩放�
 
 把经验法则 $D \approx 20N$ 代入 $C \approx 6ND$：$`C \approx 6N(20N) = 120N^2`$，于是
 
-```math
-N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.
-```
+$$N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.$$
 
 对 $C = 10^{23}$：$`N \approx \sqrt{10^{23}/120} \approx 2.9\times10^{10}`$，$`D \approx 20 \times 2.9\times10^{10} \approx 5.8\times10^{11}`$。
 
@@ -167,27 +153,19 @@ N \approx \sqrt{\frac{C}{120}}, \qquad D \approx 20N.
 
 对 DPO，带 KL 正则的目标是
 
-```math
-\max_\theta\ \mathbb{E}_{x\sim\mathcal D,\ y\sim\pi_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\,\mathrm{KL}\bigl(\pi_\theta(\cdot|x)\,\|\,\pi_{\mathrm{ref}}(\cdot|x)\bigr).
-```
+$$\max\_\theta\ \mathbb{E}\_{x\sim\mathcal D,\ y\sim\pi\_\theta(\cdot|x)}\bigl[r(x,y)\bigr] - \beta\\,\mathrm{KL}\bigl(\pi\_\theta(\cdot|x)\\,\\|\\,\pi\_{\mathrm{ref}}(\cdot|x)\bigr).$$
 
 对固定的 $x$，在约束 $\sum_y \pi(y) = 1$ 下对分布 $\pi(\cdot|x)$ 最大化 $\sum_y \pi(y)r(y) - \beta\sum_y\pi(y)\ln\frac{\pi(y)}{\pi_{\mathrm{ref}}(y)}$，得到闭式最优解
 
-```math
-\pi^*(y\mid x) = \frac{1}{Z(x)}\,\pi_{\mathrm{ref}}(y\mid x)\,\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi_{\mathrm{ref}}(y\mid x)\exp\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).
-```
+$$\pi^\*(y\mid x) = \frac{1}{Z(x)}\\,\pi\_{\mathrm{ref}}(y\mid x)\\,\exp\\!\Bigl(\frac{r(x,y)}{\beta}\Bigr), \qquad Z(x) = \sum_y \pi\_{\mathrm{ref}}(y\mid x)\exp\\!\Bigl(\frac{r(x,y)}{\beta}\Bigr).$$
 
 反解出奖励：
 
-```math
-r(x,y) = \beta\ln\frac{\pi^*(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).
-```
+$$r(x,y) = \beta\ln\frac{\pi^\*(y\mid x)}{\pi\_{\mathrm{ref}}(y\mid x)} + \beta\ln Z(x).$$
 
 代入 Bradley–Terry 偏好模型 $P(y_w \succ y_l \mid x) = \sigma\bigl(r(x,y_w) - r(x,y_l)\bigr)$，$`\beta\ln Z(x)`$ 这一项对 $y_w$ 与 $y_l$ 是公共的（只依赖于 $x$），在作差时相消：
 
-```math
-P(y_w \succ y_l \mid x) = \sigma\!\left(\beta\ln\frac{\pi^*(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^*(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right).
-```
+$$P(y_w \succ y_l \mid x) = \sigma\\!\left(\beta\ln\frac{\pi^\*(y_w\mid x)}{\pi\_{\mathrm{ref}}(y_w\mid x)} - \beta\ln\frac{\pi^\*(y_l\mid x)}{\pi\_{\mathrm{ref}}(y_l\mid x)}\right).$$
 
 在这个模型下，用极大似然把 $\pi_\theta$ 拟合到观测到的偏好对上，正是 DPO 的损失，$`\mathcal{L}_{\mathrm{DPO}} = -\ln\sigma\Bigl(\beta\ln\frac{\pi_\theta(y_w|x)}{\pi_{\mathrm{ref}}(y_w|x)} - \beta\ln\frac{\pi_\theta(y_l|x)}{\pi_{\mathrm{ref}}(y_l|x)}\Bigr)`$：不需要奖励模型，也不需要强化学习式的 rollout，因为 $`\pi^*`$ 与 $r$ 之间的闭式关系，把奖励直接代换成了 $\pi_\theta$ 自身上的一个有监督分类损失。
 

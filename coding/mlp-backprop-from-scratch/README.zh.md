@@ -125,23 +125,17 @@ def train(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, *, steps:
 
 记 $S$ 的第 $(i,c)$ 项为 $s_{i,c}$，$`p_{i,c}=\mathrm{probs}_{i,c}`$。单个样本的损失是 $\ell_i = -\log p_{i,y_i} = -s_{i,y_i} + \log\sum_{c'} e^{s_{i,c'}}$（代入 $p_{i,y_i}$ 的定义再取对数）。对同一个样本的某个得分求导，
 
-```math
-\frac{\partial \ell_i}{\partial s_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s_{i,c}}}{\sum_{c'}e^{s_{i,c'}}} = p_{i,c} - \mathbb{1}[c=y_i],
-```
+$$\frac{\partial \ell_i}{\partial s\_{i,c}} = -\mathbb{1}[c=y_i] + \frac{e^{s\_{i,c}}}{\sum\_{c'}e^{s\_{i,c'}}} = p\_{i,c} - \mathbb{1}[c=y_i],$$
 
 而 $\ell_i$ 不依赖任何其它样本的得分，所以 $i'\ne i$ 时 $\partial \ell_i/\partial s_{i',c}=0$。在批次上取平均，$`\partial L/\partial s_{i,c} = \frac{1}{B}(p_{i,c}-\mathbb 1[c=y_i])`$，写成矩阵形式，记 $Y$ 为独热标签矩阵，就是 $\partial L/\partial S = (P-Y)/B$，正是题目给出的公式。把这个矩阵记作 $dS$。
 
 剩下的每一个梯度都可以从 $dS$ 出发，一层一层地用链式法则推出来。$`S=HW_2+b_2`$ 意味着 $s_{i,c}=\sum_j h_{i,j}w2_{j,c}+b2_c$，于是 $\partial s_{i,c}/\partial w2_{j,c'}$ 在 $c=c'$ 时等于 $h_{i,j}$，否则为 $0$（$`w2_{j,c'}`$ 只出现在 $S$ 的第 $c'$ 列里）：
 
-```math
-\frac{\partial L}{\partial w2_{j,c}} = \sum_{i,c'} \frac{\partial L}{\partial s_{i,c'}}\frac{\partial s_{i,c'}}{\partial w2_{j,c}} = \sum_i (dS)_{i,c}\, h_{i,j} = (H^\top dS)_{j,c}, \qquad\text{所以}\quad \frac{\partial L}{\partial W_2} = H^\top dS.
-```
+$$\frac{\partial L}{\partial w2\_{j,c}} = \sum\_{i,c'} \frac{\partial L}{\partial s\_{i,c'}}\frac{\partial s\_{i,c'}}{\partial w2\_{j,c}} = \sum_i (dS)\_{i,c}\\, h\_{i,j} = (H^\top dS)\_{j,c}, \qquad\text{所以}\quad \frac{\partial L}{\partial W_2} = H^\top dS.$$
 
 同样的求和，把 $\partial s_{i,c}/\partial b2_c = 1$ 代进去，得到 $`\partial L/\partial b_2 = \sum_i (dS)_{i,:}`$，也就是 $dS$ 按列求和，即 `dS.sum(axis=0)`。对 $H$，$`\partial s_{i,c}/\partial h_{i,j}=w2_{j,c}`$（$`H`$ 的第 $i$ 行只会喂给 $S$ 的第 $i$ 行）：
 
-```math
-\frac{\partial L}{\partial h_{i,j}} = \sum_c \frac{\partial L}{\partial s_{i,c}}\, w2_{j,c} = (dS\, W_2^\top)_{i,j}, \qquad\text{所以}\quad dH := \frac{\partial L}{\partial H} = dS\, W_2^\top.
-```
+$$\frac{\partial L}{\partial h\_{i,j}} = \sum_c \frac{\partial L}{\partial s\_{i,c}}\\, w2\_{j,c} = (dS\\, W_2^\top)\_{i,j}, \qquad\text{所以}\quad dH := \frac{\partial L}{\partial H} = dS\\, W_2^\top.$$
 
 $H=\mathrm{ReLU}(Z_1)$ 是逐元素的，$`h_{i,j}=\max(z1_{i,j},0)`$，导数是 $\partial h_{i,j}/\partial z1_{i,j}=\mathbb 1[z1_{i,j}>0]$（在拐点本身 $z1_{i,j}=0$ 处取次梯度 $0$——Part 2 会讲到为什么这一个点对梯度*检查*（checking）来说是个麻烦，但对反向传播（backpropagation）本身却不是），于是 $dZ_1 := \partial L/\partial Z_1 = dH \odot \mathbb 1[Z_1>0]$，一次逐元素乘法。最后，$`Z_1=XW_1+b_1`$ 与 $S=HW_2+b_2$ 形状完全一样，只是用 $(X,W_1,b_1,dZ_1)$ 替换了 $(H,W_2,b_2,dS)$，所以同样的两步推导给出 $\partial L/\partial W_1 = X^\top dZ_1$ 和 $`\partial L/\partial b_1 = \sum_i (dZ_1)_{i,:}`$。
 
@@ -188,15 +182,11 @@ def forward_backward(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray
 
 $g_n$ 逼近 $g_a$ 时会带上两种误差：把 $L$ 的泰勒展开截断在有限阶产生的*截断误差*（truncation error），以及在有限精度算术里计算 $L$ 产生的*舍入误差*（rounding error）；`eps` 的选取就是在这两者之间取舍。把 $L$ 在 $\theta$ 附近展开，
 
-```math
-L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),
-```
+$$L(\theta \pm \epsilon) = L(\theta) \pm \epsilon L'(\theta) + \frac{\epsilon^2}{2}L''(\theta) \pm \frac{\epsilon^3}{6}L'''(\theta) + O(\epsilon^4),$$
 
 所以 $L(\theta+\epsilon)-L(\theta-\epsilon) = 2\epsilon L'(\theta) + \frac{\epsilon^3}{3}L'''(\theta) + O(\epsilon^5)$，再除以 $2\epsilon$，
 
-```math
-g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4)：
-```
+$$g_n[\theta] = L'(\theta) + \frac{\epsilon^2}{6}L'''(\theta) + O(\epsilon^4)：$$
 
 截断误差是 $O(\epsilon^2)$，单看这一项，`eps` 越小越好，这一项也正是为什么这里用中心差分、而不是单侧差分 $(L(\theta+\epsilon)-L(\theta))/\epsilon$ 的原因：单侧差分的截断误差只有 $O(\epsilon)$（展开式里的奇数阶项在那里不会相互抵消）。但 `float64` 算术表示 $L(\theta)$ 时带有大约*机器精度*（machine epsilon）$`u\approx2.22\times10^{-16}`$ 的相对误差，所以每次求值都带着大约 $u|L|$ 的绝对误差；用两个只相差 $O(\epsilon)$ 的值相减，会以大约 $u|L|/\epsilon$ 的速度把精度亏给这个误差——把 `eps` 减半大致会把截断项缩小到四分之一，却把这一项放大到两倍，所以总误差 $\frac{\epsilon^2}{6}|L'''| + \frac{u|L|}{\epsilon}$ 在两项相当时最小，即 $\epsilon^2 \sim u/\epsilon$，也就是 `float64` 下 $\epsilon \sim u^{1/3} \approx 6\times10^{-6}$，与默认值 $10^{-5}$ 同一个数量级。`float32` 的机器精度大约是 $1.19\times10^{-7}$，比 `float64` 大了九个数量级，最优的 $\epsilon$ 变成 $\epsilon \sim (1.19\times10^{-7})^{1/3}\approx4.9\times10^{-3}$：在那里用 $10^{-5}$ 就深深落进了舍入误差主导的区间，$`u|L|/\epsilon`$ 会把 `grad_check` 想要测的信号完全淹没。下面的验证代码会直接演示这一点，所以 `grad_check` 要求 `float64` 的参数和数据，对 `float32` 的输入宁可报错，也不悄悄返回一个会误导人的数字。
 
@@ -234,17 +224,13 @@ def grad_check(params: dict[str, np.ndarray], X: np.ndarray, y: np.ndarray, eps:
 
 **He 初始化。** 单独考虑一层 ReLU，$`h=\mathrm{ReLU}(z)`$，$`z=xW`$（偏置只会平移预激活值的分布，这里推导全程和 `he_init` 里都把它设为 $0$，所以先不管它），其中 $`x\in\mathbb R^{\mathrm{fan\_in}}`$ 的各分量共有一个二阶矩 $s=\mathrm E[x_j^2]$，$`W`$ 的 $`\mathrm{fan\_in}\times\mathrm{fan\_out}`$ 个分量独立同分布、取自一个关于 $0$ 对称的分布（`he_init` 用高斯分布）、方差为 $\sigma^2$，且与 $x$ 独立。对某个输出特征 $`z_k=\sum_{j=1}^{\mathrm{fan\_in}} x_jW_{jk}`$：因为 $\mathrm E[W_{jk}]=0$ 且 $W_{jk}$ 与 $x_j$ 独立，$`\mathrm E[z_k]=\sum_j\mathrm E[x_j]\mathrm E[W_{jk}]=0`$，不论 $x$ 自己的均值是多少，所以 $\mathrm{Var}(z_k)=\mathrm E[z_k^2]$。展开平方，
 
-```math
-\mathrm E[z_k^2] = \sum_{j,j'}\mathrm E[x_jx_{j'}W_{jk}W_{j'k}];
-```
+$$\mathrm E[z_k^2] = \sum\_{j,j'}\mathrm E[x_jx\_{j'}W\_{jk}W\_{j'k}];$$
 
 当 $j\ne j'$ 时，$`W_{jk}`$ 与 $W_{j'k}$ 互相独立，也都与 $x_j,x_{j'}$ 独立，且 $\mathrm E[W_{jk}]=\mathrm E[W_{j'k}]=0$，所以这一项是 $`\mathrm E[x_jx_{j'}]\,\mathrm E[W_{jk}]\,\mathrm E[W_{j'k}]=0`$；当 $j=j'$ 时，$`W_{jk}`$ 与 $x_j$ 的独立性给出 $`\mathrm E[x_j^2W_{jk}^2]=\mathrm E[x_j^2]\,\mathrm E[W_{jk}^2]=s\sigma^2`$。于是 $`\mathrm E[z_k^2]=\mathrm{fan\_in}\cdot s\sigma^2`$，一个干净的、关于二阶矩的递推式，与 $x$ 具体的分布无关。
 
 因为 $W_{jk}$ 的分布关于 $0$ 对称，且与 $x_j$ 独立，乘积 $x_jW_{jk}$ 也关于 $0$ 对称（它与 $x_j(-W_{jk})=-(x_jW_{jk})$ 同分布，因为 $-W_{jk}$ 与 $W_{jk}$ 同分布），而若干个各自关于 $0$ 对称的独立变量之和，本身也关于 $0$ 对称，所以 $z_k$ 恰好关于 $0$ 对称，不只是近似。对一个关于 $0$ 对称的分布，$`\mathrm E[z^2\mathbb 1[z>0]]=\mathrm E[z^2\mathbb 1[z<0]]`$（在期望里代入 $z\to-z$：$`z^2`$ 不变，$`\mathbb 1[z>0]`$ 变成 $\mathbb 1[z<0]$），两者相加等于 $\mathrm E[z^2]$（几乎必然不会恰好等于 $0$），所以各自都恰好是它的一半：
 
-```math
-\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\,\mathrm{fan\_in}\cdot s\sigma^2.
-```
+$$\mathrm E[h^2] = \mathrm E\bigl[\max(z,0)^2\bigr] = \mathrm E[z^2\mathbb 1[z>0]] = \tfrac12\mathrm E[z^2] = \tfrac12\\,\mathrm{fan\\\_in}\cdot s\sigma^2.$$
 
 令 $\mathrm E[h^2]=s$，也就是这一层保住了激活的二阶矩，解出 $`\sigma^2=2/\mathrm{fan\_in}`$：这正是 He 初始化。换成 $`\sigma^2=1/\mathrm{fan\_in}`$（这是能保住*线性*层输出方差的方差，忽略了 $\mathrm{ReLU}$ 带来的那个 $\tfrac12$ 因子），会得到 $\mathrm E[h^2]=s/2$：二阶矩在每一层都被砍掉一半，堆叠 $10$ 层之后大约只剩最初的 $2^{-10}\approx0.001$，下面用蒙特卡洛确认这一点。
 
@@ -267,9 +253,7 @@ def zero_init(d: int, m: int, C: int) -> dict[str, np.ndarray]:
 
 用归纳法可以证明这在*每一步*训练里都成立，不只是第一步：如果第 $t$ 步有 $W_1^{(t)}=b_1^{(t)}=0$（在 $t=0$ 时由构造成立），上一段的结论就给出 $dW_1^{(t)}=db_1^{(t)}=dW_2^{(t)}=0$，不论 $W_2^{(t)}$、$`b_2^{(t)}`$ 是什么；于是动量自己的递推
 
-```math
-v^{(t+1)}=\mathrm{momentum}\cdot v^{(t)}-\mathrm{lr}\cdot0=\mathrm{momentum}\cdot v^{(t)}
-```
+$$v^{(t+1)}=\mathrm{momentum}\cdot v^{(t)}-\mathrm{lr}\cdot0=\mathrm{momentum}\cdot v^{(t)}$$
 
 让 $v_{W_1},v_{b_1},v_{W_2}$ 一直停在它们的初始值 $\mathbf0$ 上，从而 $W_1^{(t+1)}=W_1^{(t)}+0=0$，$`b_1`$、$`W_2`$ 同理，这正是下一步的归纳假设。所以 `zero_init` 会让 `W1`、`b1`、`W2` 在整个训练过程中都精确地停在 $\mathbf0$，唯一还能动的参数是 `b2`，它会去拟合标签的边际分布：因为 $H\equiv0$，$`S=HW_2+b_2=b_2`$ 对每个样本都是同一组得分，与 $X$ 无关，所以 `b2` 得到的梯度只来自 $y$ 的类别频率，别无其它。不论架构、学习率、动量还是训练多少步，都打不破这种对称性，因为它是*梯度公式本身*在这一点上的性质，只有初始值本身能打破它。
 

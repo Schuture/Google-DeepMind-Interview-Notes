@@ -78,17 +78,13 @@ $\mathcal{N}(\mu, \sigma^2)$ 表示均值为 $\mu$、方差为 $\sigma^2$ 的高
 $P(\text{red} \mid A) = 3/4$，$`P(\text{red} \mid B) = 1/4`$，于是
 $P(\text{red}) = \tfrac12 \cdot \tfrac34 + \tfrac12 \cdot \tfrac14 = \tfrac12$，从而
 
-```math
-P(A \mid \text{red}) = \frac{P(\text{red} \mid A)\,P(A)}{P(\text{red})} = \frac{\tfrac34 \cdot \tfrac12}{\tfrac12} = \frac34.
-```
+$$P(A \mid \text{red}) = \frac{P(\text{red} \mid A)\\,P(A)}{P(\text{red})} = \frac{\tfrac34 \cdot \tfrac12}{\tfrac12} = \frac34.$$
 
 对第二次抽取，按所在的罐子分情况讨论：以 $3/4$ 的概率罐子是 A，第一个红球取走后还剩 2 红 1 蓝，
 第二个球是红球的概率是 $2/3$；以 $1/4$ 的概率罐子是 B，B 唯一的红球已被取走后剩 0 红 3 蓝，
 第二个球是红球的概率是 $0$。因此
 
-```math
-P(\text{2nd red} \mid \text{1st red}) = \frac34 \cdot \frac23 + \frac14 \cdot 0 = \frac12.
-```
+$$P(\text{2nd red} \mid \text{1st red}) = \frac34 \cdot \frac23 + \frac14 \cdot 0 = \frac12.$$
 
 **Q2.** $\mathbb{E}[\text{flips to HH}] = 6$，$`\mathbb{E}[\text{flips to HT}] = 4`$。用一个状态位来追踪：
 $0$ 表示上一次不是正面（或尚未投掷），$`H`$ 表示上一次是正面。对 HH：从状态 $0$ 出发，以 $1/2$ 的概率
@@ -105,9 +101,7 @@ H 同时也是它的后缀）：一次未中（正面之后来了反面）会把
 **Q3.** $\mathbb{E}[\max] = n/(n+1)$，$`\mathbb{E}[\min] = 1/(n+1)`$。最大值满足 $P(\max \le x) = x^n$
 （$`x \in [0, 1]`$，因为要求每个 $X_i \le x$），因而密度为 $n x^{n-1}$，
 
-```math
-\mathbb{E}[\max] = \int_0^1 x \cdot n x^{n-1}\,dx = \frac{n}{n+1}.
-```
+$$\mathbb{E}[\max] = \int_0^1 x \cdot n x^{n-1}\\,dx = \frac{n}{n+1}.$$
 
 对最小值，注意若 $U \sim \mathrm{Uniform}(0,1)$，则 $1 - U$ 也是 $\mathrm{Uniform}(0,1)$，所以
 $1 - \min_i X_i = \max_i (1 - X_i)$ 与 $\max_i X_i$ 同分布；两边取期望，
@@ -117,9 +111,7 @@ $1 - \mathbb{E}[\min] = n/(n+1)$，故 $\mathbb{E}[\min] = 1/(n+1)$。
 probability），$`P(\text{positive}) = P(\text{pos} \mid D)P(D) + P(\text{pos} \mid \lnot D)P(\lnot D)
 = 0.99 \times 0.01 + 0.05 \times 0.99 = 0.0594`$，再由贝叶斯定理，
 
-```math
-P(D \mid \text{positive}) = \frac{0.99 \times 0.01}{0.0594} = \frac{0.0099}{0.0594} = \frac16.
-```
+$$P(D \mid \text{positive}) = \frac{0.99 \times 0.01}{0.0594} = \frac{0.0099}{0.0594} = \frac16.$$
 
 这就是基率效应（base-rate effect）：由于患病本身很罕见，健康人群（占总体 99%）远多于患病人群，
 即使假阳性率只有 5%，作用在这么庞大的健康人群上产生的假阳性人数（占总体 4.95%）也超过了真阳性人数
@@ -134,9 +126,7 @@ $\ell(\mu, \sigma^2) = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_
 处令 $\partial \ell/\partial \sigma^2 = 0$ 得 $\hat\sigma^2 = \frac1n \sum_i (X_i - \bar X)^2$。
 关于偏差，围绕真实均值展开：
 
-```math
-\sum_i (X_i - \bar X)^2 = \sum_i \bigl[(X_i - \mu) - (\bar X - \mu)\bigr]^2 = \sum_i (X_i - \mu)^2 - n(\bar X - \mu)^2,
-```
+$$\sum_i (X_i - \bar X)^2 = \sum_i \bigl[(X_i - \mu) - (\bar X - \mu)\bigr]^2 = \sum_i (X_i - \mu)^2 - n(\bar X - \mu)^2,$$
 
 这里用到 $\sum_i (X_i - \mu) = n (\bar X - \mu)$。两边取期望，$`\mathbb{E}\sum_i (X_i - \mu)^2 = n\sigma^2`$，
 $`\mathbb{E}[n(\bar X - \mu)^2] = n\,\mathrm{Var}(\bar X) = \sigma^2`$，所以
@@ -150,9 +140,7 @@ $\lambda = 2\sigma^2/b$。由贝叶斯定理，后验满足 $`p(w \mid X, y) \pr
 $`-\log p(y \mid X, w) = \frac{1}{2\sigma^2}\|Xw - y\|^2 + \text{常数}`$，高斯先验给出
 $`-\log p(w) = \frac{1}{2\tau^2}\|w\|^2 + \text{常数}`$，于是 MAP 的目标函数是
 
-```math
-\frac{1}{2\sigma^2}\|Xw - y\|^2 + \frac{1}{2\tau^2}\|w\|^2,
-```
+$$\frac{1}{2\sigma^2}\\|Xw - y\\|^2 + \frac{1}{2\tau^2}\\|w\\|^2,$$
 
 乘以 $2\sigma^2$（不改变最小值点）得到 $`\|Xw - y\|^2 + \lambda \|w\|^2`$，其中 $\lambda = \sigma^2/\tau^2$——
 正是岭回归。把先验换成对每个 $w_j$ 独立的 Laplace$`(0, b)`$，其密度为 $\frac{1}{2b} e^{-|w_j|/b}$，
@@ -168,16 +156,12 @@ $`\|Xw - y\|^2 + \lambda \|w\|_1`$，其中 $\lambda = 2\sigma^2/b$——正是 
 $Y = q(X)/p(X)$：$`\mathbb{E}_p[Y] = \int p(x) \frac{q(x)}{p(x)}\,dx = \int q(x)\,dx = 1`$
 （积分范围是 $p$ 的支撑集），于是
 
-```math
-\mathrm{KL}(p\,\|\,q) = \mathbb{E}_p[-\log Y] \ge -\log \mathbb{E}_p[Y] = -\log 1 = 0,
-```
+$$\mathrm{KL}(p\\,\\|\\,q) = \mathbb{E}\_p[-\log Y] \ge -\log \mathbb{E}\_p[Y] = -\log 1 = 0,$$
 
 且等号成立当且仅当 $Y$ 几乎必然为常数（因为 $-\log$ 是严格凸函数），即 $q = p$ 几乎处处成立。
 不对称的例子：取 $p = \mathrm{Bernoulli}(0.9)$，$`q = \mathrm{Bernoulli}(0.5)`$，
 
-```math
-\mathrm{KL}(p\,\|\,q) = 0.9 \log\frac{0.9}{0.5} + 0.1 \log\frac{0.1}{0.5} \approx 0.368, \qquad \mathrm{KL}(q\,\|\,p) = 0.5 \log\frac{0.5}{0.9} + 0.5 \log\frac{0.5}{0.1} \approx 0.511,
-```
+$$\mathrm{KL}(p\\,\\|\\,q) = 0.9 \log\frac{0.9}{0.5} + 0.1 \log\frac{0.1}{0.5} \approx 0.368, \qquad \mathrm{KL}(q\\,\\|\\,p) = 0.5 \log\frac{0.5}{0.9} + 0.5 \log\frac{0.5}{0.1} \approx 0.511,$$
 
 两者并不相等。对高斯拟合，记 $q = \mathcal{N}(\mu, \sigma^2)$；最小化
 $`\mathrm{KL}(p\,\|\,q) = -H(p) + H(p, q)`$ 等价于最小化交叉熵
@@ -196,9 +180,7 @@ $p \log(p/q) \to \infty$）。反向散度 $`\mathrm{KL}(q\,\|\,p) = \mathbb{E}_
 $`\mathcal{N}(p,\, p(1-p)/n)`$。95% 双侧置信区间的半宽为 $z_{0.975}\sqrt{p(1-p)/n}$，其中
 $z_{0.975} = 1.96$；令它等于目标误差 $E = 0.01$ 并解出 $n$，得到
 
-```math
-n = \frac{z_{0.975}^2\, p(1-p)}{E^2}.
-```
+$$n = \frac{z\_{0.975}^2\\, p(1-p)}{E^2}.$$
 
 因为对任意 $p \in [0, 1]$ 都有 $p(1-p) \le \frac14$，且在 $p = 1/2$ 处取等号，最坏情况是
 $n = 1.96^2 \times 0.25 / 0.01^2 = 9{,}604$。这需要 $n$ 大到使二项分布的正态近似足够准确——
@@ -226,9 +208,7 @@ $X_c V = U\Sigma$。
 都有 $x^\top A x \ge 0$（等价地，每个特征值都 $\ge 0$）。对均值为 $\mu$、协方差为
 $\Sigma = \mathbb{E}[(X - \mu)(X - \mu)^\top]$ 的随机向量 $X$，以及任意 $a \in \mathbb{R}^n$，
 
-```math
-a^\top \Sigma a = \mathbb{E}\bigl[a^\top (X-\mu)(X-\mu)^\top a\bigr] = \mathbb{E}\bigl[(a^\top(X-\mu))^2\bigr] \ge 0,
-```
+$$a^\top \Sigma a = \mathbb{E}\bigl[a^\top (X-\mu)(X-\mu)^\top a\bigr] = \mathbb{E}\bigl[(a^\top(X-\mu))^2\bigr] \ge 0,$$
 
 因为这是一个标量随机变量平方后的期望；把 $\mathbb{E}$ 换成对样本取平均，同样的论证对样本协方差矩阵
 逐字成立。所以 $\Sigma$ 总是半正定的。一个二阶可微函数 $f$ 在凸定义域上是凸函数，当且仅当
@@ -257,9 +237,7 @@ $x_{t+1} = (I - \eta A) x_t$，其中 $\eta = 1/\lambda_{\max}$。将 $A$ 对角
 记 $y_t = Q^\top x_t$ 为 $x_t$ 在特征基下的坐标；则 $y_{t+1} = (I - \eta\Lambda) y_t$ 是对角的，
 逐个坐标看，
 
-```math
-y_{t+1,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr) y_{t,i} \quad\Longrightarrow\quad y_{t,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr)^{t} y_{0,i}.
-```
+$$y\_{t+1,i} = \Bigl(1 - \frac{\lambda_i}{\lambda\_{\max}}\Bigr) y\_{t,i} \quad\Longrightarrow\quad y\_{t,i} = \Bigl(1 - \frac{\lambda_i}{\lambda\_{\max}}\Bigr)^{t} y\_{0,i}.$$
 
 每个坐标都按几何速率收缩，速率只取决于自己的特征值：$`\lambda_{\max}`$ 方向上
 $1 - \lambda_{\max}/\lambda_{\max} = 0$，走一步就恰好归零；而 $\lambda_{\min}$ 方向上的收缩因子

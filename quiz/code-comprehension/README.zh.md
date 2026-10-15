@@ -202,9 +202,7 @@ $k=\mathtt{len(w)}$ 个抽头分散到跨度为 $d(k-1)+1$ 个输入位置上，
 位置 $i$ 开始的一次应用需要 $i+d(k-1)+1 \le n+2p$，所以合法的起始位置是 $i=0,1,\dots,(n+2p-d(k-1)-1)$，在这
 $n+2p-d(k-1)$ 个位置里每隔 $s$ 个取一个，共有
 
-```math
-\left\lfloor \frac{n+2p-d(k-1)-1}{s} \right\rfloor + 1
-```
+$$\left\lfloor \frac{n+2p-d(k-1)-1}{s} \right\rfloor + 1$$
 
 个。在 $n=10,k=3,p=1,s=2,d=2$ 时：$`d(k-1)=4`$，代入公式得 $\lfloor(10+2-4-1)/2\rfloor+1=\lfloor 7/2\rfloor+1=3+1=4$。
 关于感受野：每一级都选取恰好保持序列长度不变的 padding 时，单独一级带 dilation 的层里，一个输出项是 $k$ 个、彼此
@@ -213,9 +211,7 @@ $n+2p-d(k-1)$ 个位置里每隔 $s$ 个取一个，共有
 变宽，绝不会让前面各级已经带进来的部分变窄）。从单独一个位置出发（在任何一级之前，感受野是 $1$），把
 $\ell=0,\dots,L-1$ 各级的贡献加总：
 
-```math
-\text{感受野} = 1+(k-1)\sum_{\ell=0}^{L-1}2^\ell = 1+(k-1)(2^L-1),
-```
+$$\text{感受野} = 1+(k-1)\sum\_{\ell=0}^{L-1}2^\ell = 1+(k-1)(2^L-1),$$
 
 用到了几何级数 $\sum_{\ell=0}^{L-1}2^\ell=2^L-1$。这正是 WaveNet 里的标准论证：把 dilation 按指数增长的方式叠加
 起来，只用 $L$ 级、$`O(Lk)`$ 个参数，就能让感受野也随 $L$ 指数增长，而不必像单独一级不带 dilation 的层那样，需要
@@ -258,9 +254,7 @@ $10^9$，不会改变方差所依赖的任何一对差值），`stats` 能以完
 察觉——而这恰恰是最容易在无意间出现的输入：批次里凑巧有一个空分组。合并两段数据各自三元组的公式，来自 Chan、
 Golub 和 LeVeque：记 $n=n_a+n_b$、$`\delta=\mathrm{mean}_b-\mathrm{mean}_a`$，
 
-```math
-\mathrm{mean} = \mathrm{mean}_a+\delta\,\frac{n_b}{n}, \qquad M_2 = M_{2,a}+M_{2,b}+\delta^2\,\frac{n_a n_b}{n},
-```
+$$\mathrm{mean} = \mathrm{mean}\_a+\delta\\,\frac{n_b}{n}, \qquad M_2 = M\_{2,a}+M\_{2,b}+\delta^2\\,\frac{n_a n_b}{n},$$
 
 当 $n_b=1$ 时（此时 $M_{2,b}=0$），它恰好化简成 `stats` 自身更新公式的一步——在分布式或分批统计里，这个公式用来
 合并各自独立算出的统计量，而完全不需要真的把数据拼接起来。
@@ -293,9 +287,7 @@ sampling，Algorithm R）：无论流的哪个前缀已经被看过，`res` 都�
 $i$ 个元素里的每一个，此刻都以概率 $k/i$ 留在水塘里（在 $i=k$ 时成立，此时它就是 $k/k=1$）；固定其中一个这样的
 元素，它熬过元素 $i$ 到达这一步的概率是
 
-```math
-1-\underbrace{\frac{k}{i+1}}_{\text{元素 }i\text{ 被放入}}\cdot\underbrace{\frac1k}_{\text{且顶替了这个槽位}} = \frac{i}{i+1},
-```
+$$1-\underbrace{\frac{k}{i+1}}\_{\text{元素 }i\text{ 被放入}}\cdot\underbrace{\frac1k}\_{\text{且顶替了这个槽位}} = \frac{i}{i+1},$$
 
 于是它留在水塘里的概率变成 $\frac{k}{i}\cdot\frac{i}{i+1}=\frac{k}{i+1}$——这正是把归纳假设中的 $i$ 换成 $i+1$
 之后的下一步，而且它已经和元素 $i$ 自己刚刚算出的入选概率 $k/(i+1)$ 一致，所以归纳假设对全部 $i+1$ 个元素同时

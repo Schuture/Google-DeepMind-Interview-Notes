@@ -95,9 +95,7 @@ V(D,G) = \mathbb E_{x\sim p_{\mathrm{data}}}[\log D(x)] + \mathbb E_{z\sim p_z}[
 
 **Q3.** 两个导数都能化成干净的闭式；交叉熵的导数恰好在平方误差的导数塌缩之处依然很大。由 $\sigma(z) = 1/(1+e^{-z})$ 用商法则立得 $\sigma'(z) = \sigma(z)(1-\sigma(z))$，从而 $\partial p/\partial z = \sigma'(z) = p(1-p)$：
 
-```math
-\frac{\partial L_{\mathrm{bce}}}{\partial z} = \Bigl(-\frac{y}{p}+\frac{1-y}{1-p}\Bigr)p(1-p) = -y(1-p) + (1-y)p = p - y, \qquad \frac{\partial L_{\mathrm{se}}}{\partial z} = 2(p-y)\cdot p(1-p).
-```
+$$\frac{\partial L\_{\mathrm{bce}}}{\partial z} = \Bigl(-\frac{y}{p}+\frac{1-y}{1-p}\Bigr)p(1-p) = -y(1-p) + (1-y)p = p - y, \qquad \frac{\partial L\_{\mathrm{se}}}{\partial z} = 2(p-y)\cdot p(1-p).$$
 
 在 $y=1$、$`z \ll 0`$ 时模型是自信地犯错：$`p \to 0`$。交叉熵的梯度 $p - y \to -1$，是一个满幅的、推动 $z$ 增大的力；平方误差的梯度多了一个因子 $p(1-p) \to 0$：sigmoid 已经饱和，所以即便 $(p-y)$ 已经接近它最差的取值，$`\partial p/\partial z`$ 却很小，两者几乎相互抵消——在下面的检查中，$`z=-20`$ 处这两个梯度相差超过七个数量级。平方误差要等到 $p$ 已经离开饱和区之后才会真正开始用力推，所以一个错得离谱又很自信的预测，在平方误差下纠正得非常慢，在交叉熵下则很快。
 
@@ -109,9 +107,7 @@ V(D,G) = \mathbb E_{x\sim p_{\mathrm{data}}}[\log D(x)] + \mathbb E_{z\sim p_z}[
 
 **Q6.** SGD 的步长就是梯度乘以 $\eta$；动量以衰减率 $\mu$ 累积梯度；Adam 用每个坐标自己最近的梯度量级去归一化那一步，而它的偏差校正之所以存在，是因为矩估计从零开始，早期会被向零拖拽。把 $m_t$ 从 $m_0=0$ 展开：$`m_t = (1-\beta_1)\sum_{k=1}^t \beta_1^{t-k}g_k`$，于是在每一步都有 $\mathbb E[g_k]=\bar g$ 的假设下，
 
-```math
-\mathbb E[m_t] = (1-\beta_1)\bar g \sum_{k=1}^t \beta_1^{t-k} = (1-\beta_1)\bar g\,\frac{1-\beta_1^t}{1-\beta_1} = (1-\beta_1^t)\,\bar g,
-```
+$$\mathbb E[m_t] = (1-\beta_1)\bar g \sum\_{k=1}^t \beta_1^{t-k} = (1-\beta_1)\bar g\\,\frac{1-\beta_1^t}{1-\beta_1} = (1-\beta_1^t)\\,\bar g,$$
 
 这里用到了有限几何级数 $\sum_{j=0}^{t-1}\beta_1^j = (1-\beta_1^t)/(1-\beta_1)$。所以 $m_t$ 以因子 $1-\beta_1^t$ 低估了 $\bar g$：$`t`$ 小时这个因子接近 $0$（平均才刚刚开始），$`t`$ 大时接近 $1$；恰好除以这个因子，$`\hat m_t = m_t/(1-\beta_1^t)`$，在这个平稳性假设下对每个 $t$ 都给出 $\mathbb E[\hat m_t] = \bar g$，完全消除了偏差——下面的蒙特卡洛（Monte Carlo）模拟在其抽样误差范围内证实了这一点。在 $t=1$ 时，$`m_1 = (1-\beta_1)g_1`$，所以 $\hat m_1 = g_1$ *精确*成立，无论 $\beta_1$ 取什么值（校正因子 $1-\beta_1^1=1-\beta_1$ 恰好把它精确抵消），同样 $\hat v_1 = g_1^2$ 也精确成立。于是 $\hat m_1/(\sqrt{\hat v_1}+\epsilon) = g_1/(|g_1|+\epsilon)$，这等于 $\mathrm{sign}(g_1)$ 加上一个随 $|g_1|/\epsilon \to \infty$ 而消失的误差：第一次 Adam 更新的步长在每个坐标上都是 $\eta\cdot|g_1|/(|g_1|+\epsilon) \approx \eta$——下面的检查对跨越六个数量级的梯度验证了这一点，误差在 $\eta$ 的 $`0.01\%`$ 以内——因为无论该坐标的梯度有多大或多小，第 $1$ 步的偏差校正都是精确的。
 
@@ -119,9 +115,7 @@ V(D,G) = \mathbb E_{x\sim p_{\mathrm{data}}}[\log D(x)] + \mathbb E_{z\sim p_z}[
 
 **Q8.** 预热防的是训练早期 $\hat v_t$ 不可靠；衰减缩小的是恒定学习率在最小值点周围留下的、由噪声驱动的散布。$`\hat v_1 = g_1^2`$（Q6）：走完第一步之后，Adam 对某个坐标梯度量级的估计，完全是从一个带噪声的样本构建出来的，所以一个运气不好的、偏大或偏小的 $g_1$ 会被全盘照收，得到的步长依然 $\approx \eta$——指数平均还完全没有机会去把 minibatch 噪声平滑掉。用大 batch 训练时这一点更要紧，因为每步的学习率本身通常也会调大（用来补偿每个 epoch 步数的减少），于是早期 $\hat v_t$ 的相对不可靠会转化为更大的绝对风险；把 $\eta$ 从 $0$ 慢慢升上去，恰好能在这段不可靠的窗口期把*实际*步长压小，给 $\hat v_t$ 留出时间，在足够多步之后稳定下来。再看衰减这一半：在二次函数 $f(\theta)=\theta^2/2$（最小值在 $0$）上，用随机梯度 $g_t = \theta_t + \xi_t$（$`\xi_t \sim N(0,\sigma^2)`$ 独立同分布），SGD 给出 $\theta_{t+1} = (1-\eta)\theta_t - \eta\xi_t$，这是一个线性递推，其平稳方差满足 $`\mathrm{Var}_\infty = (1-\eta)^2\mathrm{Var}_\infty + \eta^2\sigma^2`$，即
 
-```math
-\mathrm{Var}_\infty = \frac{\eta^2\sigma^2}{1-(1-\eta)^2} = \frac{\eta\sigma^2}{2-\eta}.
-```
+$$\mathrm{Var}\_\infty = \frac{\eta^2\sigma^2}{1-(1-\eta)^2} = \frac{\eta\sigma^2}{2-\eta}.$$
 
 迭代点根本不会收敛到最小值点：它们依分布收敛到最小值点周围一个方差为 $`\mathrm{Var}_\infty`$ 的散布（下面的模拟在其所用误差范围内证实了这一点）——一个大小随 $\eta$ 增长的“噪声球”。训练后期衰减 $\eta$ 会缩小这个球——用更小的 $\eta$ 继续同一个递推，会稳定到同一公式所预言的更小方差——用大步长在早期更快、但更嘈杂的进展，换取围绕最优点更精确的最终落点。
 
@@ -129,23 +123,17 @@ V(D,G) = \mathbb E_{x\sim p_{\mathrm{data}}}[\log D(x)] + \mathbb E_{z\sim p_z}[
 
 **Q9.** 两次配方，一次用到 $\mathbb E[\varepsilon]=0$，一次用到 $\varepsilon$ 与 $D$ 的独立性。写 $y - \hat f_D(x) = \bigl(f(x)-\hat f_D(x)\bigr) + \varepsilon$；平方后取 $\mathbb E_{D,\varepsilon}$，并用 $\varepsilon$ 与 $D$ 的独立性把交叉项分解开，
 
-```math
-\mathbb E_{D,\varepsilon}\bigl[(y-\hat f_D(x))^2\bigr] = \mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] + 2\,\mathbb E_D[f(x)-\hat f_D(x)]\cdot\mathbb E[\varepsilon] + \mathbb E[\varepsilon^2];
-```
+$$\mathbb E\_{D,\varepsilon}\bigl[(y-\hat f_D(x))^2\bigr] = \mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] + 2\\,\mathbb E_D[f(x)-\hat f_D(x)]\cdot\mathbb E[\varepsilon] + \mathbb E[\varepsilon^2];$$
 
 $\mathbb E[\varepsilon]=0$ 直接消去中间项，$`\mathbb E[\varepsilon^2]=\mathrm{Var}(\varepsilon)=\sigma^2`$，剩下 $\mathbb E_D[(f(x)-\hat f_D(x))^2] + \sigma^2$。再把 $f(x)-\hat f_D(x)$ 拆成 $(f(x)-\bar f(x)) + (\bar f(x)-\hat f_D(x))$，再平方一次：
 
-```math
-\mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] = (f(x)-\bar f(x))^2 + 2(f(x)-\bar f(x))\underbrace{\mathbb E_D[\bar f(x)-\hat f_D(x)]}_{=\,0} + \mathbb E_D\bigl[(\hat f_D(x)-\bar f(x))^2\bigr],
-```
+$$\mathbb E_D\bigl[(f(x)-\hat f_D(x))^2\bigr] = (f(x)-\bar f(x))^2 + 2(f(x)-\bar f(x))\underbrace{\mathbb E_D[\bar f(x)-\hat f_D(x)]}\_{=\\,0} + \mathbb E_D\bigl[(\hat f_D(x)-\bar f(x))^2\bigr],$$
 
 其中中间项消失，是因为按定义 $\mathbb E_D[\hat f_D(x)] = \bar f(x)$——剩下的正好是 $\mathrm{偏差}^2 + \mathrm{方差}$，再加上前面的 $\sigma^2$，就是完整的分解。在一次模拟中，用一个明显欠拟合的模型（对一条弯曲的真实函数拟合一条直线），偏差平方项比方差项大三倍以上，而这三项之和，在下面所用的蒙特卡洛误差范围内，与实测的均方误差相符。
 
 **Q10.** 岭回归的闭式解来自令梯度为零；它的 SVD 形式说明收缩是在每个主方向上独立作用的；在一个列正交的设计上，lasso 的闭式解是软阈值（soft-thresholding），它在恰好为零处有一整段平坦区域，这是岭回归光滑的惩罚项所没有的。$`\nabla_w\bigl[\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2\bigr] = -2X^\top(y-Xw) + 2\lambda w = 0 \iff (X^\top X+\lambda I)w = X^\top y`$，而 $\lambda>0$ 时 $X^\top X + \lambda I$ 正定（从而可逆），给出唯一的最小值点 $\hat w_\lambda = (X^\top X+\lambda I)^{-1}X^\top y$。设 $X=U\Sigma V^\top$，则 $X^\top X = V\Sigma^2 V^\top$，于是 $X^\top X+\lambda I = V(\Sigma^2+\lambda I)V^\top$（用到 $VV^\top=I$），从而
 
-```math
-\hat w_\lambda = V(\Sigma^2+\lambda I)^{-1}\Sigma U^\top y = V\,\mathrm{diag}\Bigl(\frac{d_i}{d_i^2+\lambda}\Bigr)U^\top y.
-```
+$$\hat w\_\lambda = V(\Sigma^2+\lambda I)^{-1}\Sigma U^\top y = V\\,\mathrm{diag}\Bigl(\frac{d_i}{d_i^2+\lambda}\Bigr)U^\top y.$$
 
 普通最小二乘解是 $\lambda=0$ 的特例，$`\hat w_{\mathrm{ols}} = V\,\mathrm{diag}(1/d_i)U^\top y`$；在 $V$ 给出的坐标系里逐项比较，岭回归把第 $i$ 个最小二乘系数乘上 $d_i^2/(d_i^2+\lambda)$——当 $d_i^2 \gg \lambda$ 时接近 $1$（数据确定得好的方向几乎不动），当 $d_i^2 \ll \lambda$ 时接近 $0$（数据几乎确定不了的方向几乎被压到没有）。当 $X^\top X=I$ 时，记 $c = X^\top y$，同样的展开给出 $\lVert y-Xw\rVert^2 = \mathrm{常数} + \sum_i(w_i-c_i)^2$，于是 $\lVert y-Xw\rVert^2+\lambda\lVert w\rVert^2$ 逐坐标分解为 $(w_i-c_i)^2+\lambda w_i^2$；令其导数为零，$`2(w_i-c_i)+2\lambda w_i=0`$，得到 $w_i^\star = c_i/(1+\lambda)$——除非 $c_i$ 本身恰好是 $0$，否则岭回归总会返回一个非零的系数。对同一个设计上的 $\arg\min_w \tfrac12\lVert y-Xw\rVert^2+\lambda\lVert w\rVert_1$，同样的配方（现在多带一个整体的 $\tfrac12$）逐坐标分解为 $\tfrac12(w_i-c_i)^2+\lambda|w_i|$，其最小值点是软阈值 $w_i^\star=\mathrm{sign}(c_i)\max(|c_i|-\lambda,0)$：$`\lambda|w_i|`$ 在 $0$ 处的次梯度（subgradient）张成整个区间 $[-\lambda,\lambda]$，所以任何满足 $|c_i|\le\lambda$ 的 $c_i$，在 $w_i=0$ 处都已经精确满足零次梯度的最优性条件，不只是在某个极限意义下。岭回归的惩罚项没有这样的平坦区域——它的梯度 $2\lambda w_i$ 只在 $w_i=0$ 这一点上恰好为零——所以它会连续地收缩每一个系数，却从不会把哪个系数硬压到零。在下面的检查中，lasso 在一个设计上把六个系数里至少两个精确置零，而按上面闭式解算出的每个岭回归系数，量级都大于 $10^{-4}$。
 
@@ -187,9 +175,7 @@ Huber 损失的导数是：$`|r|\le\delta`$ 时为 $r$，$`|r|>\delta`$ 时为 $
 $a/y-b/(1-y)$ 在 $y^\star=a/(a+b)$ 处为零，且此处二阶导数为负，确认这是一个最大值点；取
 $a=p_{\mathrm{data}}(x)$、$`b=p_g(x)`$，即得到 $D^\star$。把 $D^\star$ 代回，并记 $m=(p_{\mathrm{data}}+p_g)/2$：
 
-```math
-V(D^\star,G) = \mathrm{KL}(p_{\mathrm{data}}\Vert m) + \mathrm{KL}(p_g\Vert m) - \log4 = 2\,\mathrm{JSD}(p_{\mathrm{data}}\Vert p_g) - \log4,
-```
+$$V(D^\star,G) = \mathrm{KL}(p\_{\mathrm{data}}\Vert m) + \mathrm{KL}(p_g\Vert m) - \log4 = 2\\,\mathrm{JSD}(p\_{\mathrm{data}}\Vert p_g) - \log4,$$
 
 这里用 $\int p_{\mathrm{data}}=\int p_g=1$ 把两个 $-\log2$ 合并，再用 JSD 的定义把两个 KL 项合成一个。因为 JSD
 是两个非负 KL 散度的平均，所以 $\mathrm{JSD}\ge0$，等号成立当且仅当 $p_g=p_{\mathrm{data}}$，于是 $V(D^\star,G)$

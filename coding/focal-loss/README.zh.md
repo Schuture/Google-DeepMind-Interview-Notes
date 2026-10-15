@@ -101,26 +101,15 @@ $\alpha$ 是直接给正类加权（$`y=1`$ 时 $\alpha_t=\alpha$），这是原
 利用 $p_t = \sigma(sz)$ 以及 $\sigma'(x) = \sigma(x)(1-\sigma(x))$，链式法则给出
 $`dp_t/dz = s\,p_t(1-p_t)`$（额外的因子 $s$ 来自对 $sz$ 求导），于是
 
-```math
-\frac{d\log p_t}{dz} = \frac{1}{p_t}\cdot s\,p_t(1-p_t) = s(1-p_t), \qquad
-\frac{d(1-p_t)^\gamma}{dz} = \gamma(1-p_t)^{\gamma-1}\cdot\bigl(-s\,p_t(1-p_t)\bigr)
-= -\gamma s\,p_t(1-p_t)^\gamma.
-```
+$$\frac{d\log p_t}{dz} = \frac{1}{p_t}\cdot s\\,p_t(1-p_t) = s(1-p_t), \qquad \frac{d(1-p_t)^\gamma}{dz} = \gamma(1-p_t)^{\gamma-1}\cdot\bigl(-s\\,p_t(1-p_t)\bigr) = -\gamma s\\,p_t(1-p_t)^\gamma.$$
 
 $\alpha_t$ 不依赖于 $z$，所以对 $\mathrm{FL} = -\alpha_t(1-p_t)^\gamma\log p_t$ 用乘积法则，得到
 
-```math
-\frac{\partial\,\mathrm{FL}}{\partial z}
-= -\alpha_t\left[\frac{d(1-p_t)^\gamma}{dz}\log p_t + (1-p_t)^\gamma\frac{d\log p_t}{dz}\right]
-= -\alpha_t\Bigl[-\gamma s\,p_t(1-p_t)^\gamma\log p_t + s(1-p_t)^{\gamma+1}\Bigr],
-```
+$$\frac{\partial\\,\mathrm{FL}}{\partial z} = -\alpha_t\left[\frac{d(1-p_t)^\gamma}{dz}\log p_t + (1-p_t)^\gamma\frac{d\log p_t}{dz}\right] = -\alpha_t\Bigl[-\gamma s\\,p_t(1-p_t)^\gamma\log p_t + s(1-p_t)^{\gamma+1}\Bigr],$$
 
 从括号里的两项中提出公因子 $`\alpha_t\,s\,(1-p_t)^\gamma`$，得到
 
-```math
-\frac{\partial\,\mathrm{FL}}{\partial z}
-= \alpha_t\,s\,(1-p_t)^\gamma\,\bigl[\gamma\,p_t\log p_t - (1-p_t)\bigr].
-```
+$$\frac{\partial\\,\mathrm{FL}}{\partial z} = \alpha_t\\,s\\,(1-p_t)^\gamma\\,\bigl[\gamma\\,p_t\log p_t - (1-p_t)\bigr].$$
 
 **$`\gamma=0`$ 的情形。** $(1-p_t)^0=1$，括号变成 $-(1-p_t)$，所以
 $`\partial\,\mathrm{FL}/\partial z\rvert_{\gamma=0} = -\alpha_t\,s\,(1-p_t) = \alpha_t\,s\,(p_t-1)`$。
@@ -132,10 +121,7 @@ $\alpha_t(p-y)$，这就确认了这个退化关系（并顺带说明 $s(p_t-1)=
 **两个比值。** 取 $\alpha_t=1$，把 $\gamma=0$ 代入上式得到
 $`\lvert\partial\,\mathrm{CE}/\partial z\rvert = \lvert{-s(1-p_t)}\rvert = 1-p_t`$，于是
 
-```math
-\frac{\lvert\partial\,\mathrm{FL}/\partial z\rvert}{\lvert\partial\,\mathrm{CE}/\partial z\rvert}
-= (1-p_t)^{\gamma-1}\,\bigl\lvert \gamma\,p_t\log p_t - (1-p_t) \bigr\rvert.
-```
+$$\frac{\lvert\partial\\,\mathrm{FL}/\partial z\rvert}{\lvert\partial\\,\mathrm{CE}/\partial z\rvert} = (1-p_t)^{\gamma-1}\\,\bigl\lvert \gamma\\,p_t\log p_t - (1-p_t) \bigr\rvert.$$
 
 在 $\gamma=2$ 时：对易样本（$`p_t=0.9`$），这个比值是
 $0.1 \times \lvert 2(0.9)\log(0.9) - 0.1\rvert \approx 0.1 \times 0.2896 \approx 0.0290$——focal 梯度
@@ -222,10 +208,7 @@ Python 循环。
 还没有哪个样本是*易*的，因为调制因子 $(1-p_t)^\gamma = 0.5^\gamma$ 对每个样本都一视同仁。平均损失
 就是同一个按类别加权的值 $`-\alpha_t\,0.5^\gamma\log(0.5)`$ 在两个类别上的加权平均：
 
-```math
-\overline{\mathrm{FL}}\big|_{b=0} = -0.5^\gamma\log(0.5)\,\bigl[\pi\alpha + (1-\pi)(1-\alpha)\bigr]
-\approx 0.1291 \quad (\pi=0.01,\ \alpha=0.25,\ \gamma=2),
-```
+$$\overline{\mathrm{FL}}\big|\_{b=0} = -0.5^\gamma\log(0.5)\\,\bigl[\pi\alpha + (1-\pi)(1-\alpha)\bigr] \approx 0.1291 \quad (\pi=0.01,\ \alpha=0.25,\ \gamma=2),$$
 
 其中负类要为 $`99.66\%`$ 负责——这仅仅是因为它们占了总体的 $`99\%`$，而不是因为它们个体上比正类更难或
 更易。用先验设定的偏置后，负类立刻得到 $p_t = 1-\pi = 0.99$（已经自信且正确，于是

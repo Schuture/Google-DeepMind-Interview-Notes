@@ -144,9 +144,7 @@ $\ell$ 的绝对容差。
 
 **(a) 响应度。** 由贝叶斯公式，
 
-```math
-\gamma_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum_{j=1}^K \pi_j^{\mathrm{old}}\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},
-```
+$$\gamma\_{ik} = p(z_i = k \mid x_i, \theta^{\mathrm{old}}) = \frac{p(z_i = k)\\, p(x_i \mid z_i = k)}{p(x_i)} = \frac{\pi_k^{\mathrm{old}}\\, \mathcal N(x_i; \mu_k^{\mathrm{old}}, \Sigma_k^{\mathrm{old}})}{\sum\_{j=1}^K \pi_j^{\mathrm{old}}\\, \mathcal N(x_i; \mu_j^{\mathrm{old}}, \Sigma_j^{\mathrm{old}})},$$
 
 分母把 $z_i$ 的 $K$ 个取值边缘化掉，也就是 $p(x_i)$ 本身；因此对每个 $i$ 都有
 $\sum_k \gamma_{ik} = 1$，因为 $\gamma_{i,\cdot}$ 是 $z_i$ 的 $K$ 个取值上的一个概率分布。
@@ -155,9 +153,7 @@ $\sum_k \gamma_{ik} = 1$，因为 $\gamma_{i,\cdot}$ 是 $z_i$ 的 $K$ 个取值
 $N_k = \sum_i \gamma_{ik}$ 是分量 $k$ 的*软计数*（soft count）（因为 $\log \pi_k$ 不依赖 $i$，可以把对 $i$
 的求和挪到里面）。在约束 $\sum_k \pi_k = 1$ 下，用拉格朗日乘子 $\lambda$ 求极大：
 
-```math
-\mathcal L(\pi, \lambda) = \sum_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.
-```
+$$\mathcal L(\pi, \lambda) = \sum\_{k=1}^K N_k \log \pi_k + \lambda \Bigl(\sum\_{k=1}^K \pi_k - 1\Bigr), \qquad \frac{\partial \mathcal L}{\partial \pi_k} = \frac{N_k}{\pi_k} + \lambda = 0 \ \Longrightarrow\ \pi_k = -\frac{N_k}{\lambda}.$$
 
 对 $k$ 求和，用 $\sum_k \pi_k = 1$ 以及 $\sum_k N_k = \sum_k \sum_i \gamma_{ik} = \sum_i 1 = n$：
 $1 = -\sum_k N_k / \lambda = -n/\lambda$，于是 $\lambda = -n$，$`\pi_k = N_k / n`$。
@@ -166,9 +162,7 @@ $1 = -\sum_k N_k / \lambda = -n/\lambda$，于是 $\lambda = -n$，$`\pi_k = N_k
 $\sum_i \gamma_{ik} \log \mathcal N(x_i; \mu_k, \Sigma_k) = -\frac12 \sum_i \gamma_{ik} (x_i - \mu_k)^\top \Sigma_k^{-1} (x_i - \mu_k) + \text{常数}$
 （归一化常数以及其它分量的项都不依赖 $\mu_k$）。求导并令其为零：
 
-```math
-\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma_{ik}\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma_{ik}\, x_i = \Bigl(\sum_i \gamma_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma_{ik}\, x_i}{N_k},
-```
+$$\frac{\partial Q}{\partial \mu_k} = \sum_i \gamma\_{ik}\\, \Sigma_k^{-1} (x_i - \mu_k) = 0 \ \Longrightarrow\ \sum_i \gamma\_{ik}\\, x_i = \Bigl(\sum_i \gamma\_{ik}\Bigr) \mu_k \ \Longrightarrow\ \mu_k = \frac{\sum_i \gamma\_{ik}\\, x_i}{N_k},$$
 
 两边同乘可逆的 $\Sigma_k$ 即得。
 
@@ -177,26 +171,20 @@ $(x_i - \mu_k)^\top \Lambda_k (x_i - \mu_k) = \mathrm{tr}\bigl(\Lambda_k (x_i - 
 （一个标量等于它自己的 $1 \times 1$ 迹）以及迹的线性性，把对 $i$ 的求和挪到里面，$`Q`$ 里依赖
 $\Lambda_k$ 的项就是
 
-```math
-\sum_i \gamma_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \mathrm{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.
-```
+$$\sum_i \gamma\_{ik} \Bigl[\tfrac12 \log |\Lambda_k| - \tfrac12 \mathrm{tr}\bigl(\Lambda_k (x_i - \mu_k)(x_i - \mu_k)^\top\bigr)\Bigr] = \frac{N_k}{2} \log |\Lambda_k| - \frac12 \mathrm{tr}(\Lambda_k S_k), \qquad S_k = \sum_i \gamma\_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top.$$
 
 用两个标准的矩阵求导恒等式即可收尾：对对称的 $\Lambda$，$`\partial \log |\Lambda| / \partial \Lambda = \Lambda^{-1}`$
 （Jacobi 公式，$`d|\Lambda| = |\Lambda| \mathrm{tr}(\Lambda^{-1} d\Lambda)`$，逐项读出即得）；对对称的
 $S$，$`\partial \mathrm{tr}(\Lambda S) / \partial \Lambda = S`$（$`\Lambda`$ 每一项都是线性的）。于是
 
-```math
-\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,
-```
+$$\frac{\partial Q}{\partial \Lambda_k} = \frac{N_k}{2} \Lambda_k^{-1} - \frac12 S_k = 0 \ \Longrightarrow\ \Lambda_k^{-1} = \frac{S_k}{N_k} \ \Longrightarrow\ \Sigma_k = \frac{1}{N_k} \sum_i \gamma\_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top,$$
 
 因为按定义 $\Lambda_k^{-1} = \Sigma_k$。
 
 **(c) 单调性。** 对每个点上 $`\{1, \dots, K\}`$ 上的任意一个分布 $q_i$，把 $\ell(\theta)$ 的第 $i$ 项写成
 $q_i$ 下的期望，再对凹函数 $\log$ 用 Jensen 不等式：
 
-```math
-\log p(x_i) = \log \sum_{k=1}^K q_i(k)\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum_{k=1}^K q_i(k)\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},
-```
+$$\log p(x_i) = \log \sum\_{k=1}^K q_i(k)\\, \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)} \ge \sum\_{k=1}^K q_i(k)\\, \log \frac{\pi_k \mathcal N(x_i; \mu_k, \Sigma_k)}{q_i(k)},$$
 
 对任意 $\theta$ 和任意满足“只要 $\pi_k \mathcal N(x_i; \mu_k, \Sigma_k) > 0$ 就有 $q_i(k) > 0$”的 $q_i$
 都成立。对 $i$ 求和，就得到对任意 $\theta$ 和任意 $q = (q_1, \dots, q_n)$ 都有
@@ -216,9 +204,7 @@ $\theta$；所以对 $\theta$ 极大化 $F(\cdot, \gamma^{\mathrm{old}})$，正�
 $Q(\cdot; \theta^{\mathrm{old}})$——也就是 (b) 里的 M 步。把三件事串起来：Jensen 不等式（在
 $\theta^{\mathrm{new}}$ 处同样成立）、M 步求的是极大值点、以及在 $\theta^{\mathrm{old}}$ 处取等：
 
-```math
-\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),
-```
+$$\ell(\theta^{\mathrm{new}}) \ \ge\ F(\theta^{\mathrm{new}}, \gamma^{\mathrm{old}}) \ \ge\ F(\theta^{\mathrm{old}}, \gamma^{\mathrm{old}}) \ =\ \ell(\theta^{\mathrm{old}}),$$
 
 就证明了对任意 $\theta^{\mathrm{old}}$ 都有 $\ell(\theta^{\mathrm{new}}) \ge \ell(\theta^{\mathrm{old}})$：一次
 EM 迭代永远不会让对数似然变小。
@@ -227,9 +213,7 @@ EM 迭代永远不会让对数似然变小。
 
 在对数空间里合并 $K$ 个分量，用的是和数值稳定 softmax 相同的恒等式：对任意不依赖被求和下标的常数 $m$，
 
-```math
-\log \sum_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},
-```
+$$\log \sum\_{k} e^{a_k} = m + \log \sum_k e^{a_k - m},$$
 
 因为对每个 $k$ 都有 $e^{a_k} = e^m e^{a_k - m}$，所以 $e^m$ 可以从求和里提出来，再和外层的
 $\log(e^m \cdot (\cdot)) = m + \log(\cdot)$ 相消。取 $m = \max_k a_k$ 能让每个指数都 $\le 0$，这样即使某个原始的
@@ -351,17 +335,13 @@ reg_covar=reg)`，两者收敛到的每样本平均对数似然相差不超过 $
 $\log \mathcal N(x; \mu_k, \sigma^2 I_d) = -\frac{d}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \lVert x - \mu_k \rVert^2$，
 于是一个点 $x$ 在分量 $k$ 上的响应度是
 
-```math
-\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},
-```
+$$\gamma_k(x) = \frac{\pi_k \exp\bigl(-\lVert x - \mu_k \rVert^2 / 2\sigma^2\bigr)}{\sum_j \pi_j \exp\bigl(-\lVert x - \mu_j \rVert^2 / 2\sigma^2\bigr)},$$
 
 $-\frac{d}{2}\log(2\pi\sigma^2)$ 这一项在分子分母之间相消（对每个 $k$ 都一样）。设
 $k^\ast = \arg\min_k \lVert x - \mu_k \rVert^2$（按假设唯一），把每一项都除以
 $\exp\bigl(-\lVert x - \mu_{k^\ast} \rVert^2 / 2\sigma^2\bigr)$：
 
-```math
-\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.
-```
+$$\gamma_k(x) = \frac{\pi_k \exp\Bigl(-\bigl(\lVert x - \mu_k \rVert^2 - \lVert x - \mu\_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}{\sum_j \pi_j \exp\Bigl(-\bigl(\lVert x - \mu_j \rVert^2 - \lVert x - \mu\_{k^\ast} \rVert^2\bigr) / 2\sigma^2\Bigr)}.$$
 
 对 $k \ne k^\ast$，$`\lVert x - \mu_k \rVert^2 - \lVert x - \mu_{k^\ast} \rVert^2 > 0`$ 严格成立（$`k^\ast`$
 唯一），所以这一项的指数在 $\sigma \to 0^+$ 时 $\to -\infty$，这一项本身 $\to 0$；而 $k = k^\ast$ 那一项在任意

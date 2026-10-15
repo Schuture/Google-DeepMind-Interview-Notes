@@ -89,18 +89,14 @@ given in full regardless.
 $P(\text{red} \mid A) = 3/4$ and $P(\text{red} \mid B) = 1/4$, so
 $P(\text{red}) = \tfrac12 \cdot \tfrac34 + \tfrac12 \cdot \tfrac14 = \tfrac12$ and
 
-```math
-P(A \mid \text{red}) = \frac{P(\text{red} \mid A)\,P(A)}{P(\text{red})} = \frac{\tfrac34 \cdot \tfrac12}{\tfrac12} = \frac34.
-```
+$$P(A \mid \text{red}) = \frac{P(\text{red} \mid A)\\,P(A)}{P(\text{red})} = \frac{\tfrac34 \cdot \tfrac12}{\tfrac12} = \frac34.$$
 
 For the second draw, condition on the urn: with probability $3/4$ the urn is A, now holding 2 red and 1 blue
 after the first (red) ball is removed, so the second ball is red with probability $2/3$; with probability
 $1/4$ the urn is B, which after losing its only red ball holds 0 red and 3 blue, so the second ball is red
 with probability $0$. Hence
 
-```math
-P(\text{2nd red} \mid \text{1st red}) = \frac34 \cdot \frac23 + \frac14 \cdot 0 = \frac12.
-```
+$$P(\text{2nd red} \mid \text{1st red}) = \frac34 \cdot \frac23 + \frac14 \cdot 0 = \frac12.$$
 
 **Q2.** $\mathbb{E}[\text{flips to HH}] = 6$ and $\mathbb{E}[\text{flips to HT}] = 4$. Track one bit of state:
 $0$ if the last flip was not H (or none has been seen yet), $H$ if the last flip was H. For HH, from state
@@ -118,9 +114,7 @@ first one was. Overlapping patterns are, on average, slower to wait for.
 **Q3.** $\mathbb{E}[\max] = n/(n+1)$ and $\mathbb{E}[\min] = 1/(n+1)$. The maximum has $P(\max \le x) = x^n$
 for $x \in [0, 1]$ (every $X_i \le x$), hence density $n x^{n-1}$ and
 
-```math
-\mathbb{E}[\max] = \int_0^1 x \cdot n x^{n-1}\,dx = \frac{n}{n+1}.
-```
+$$\mathbb{E}[\max] = \int_0^1 x \cdot n x^{n-1}\\,dx = \frac{n}{n+1}.$$
 
 For the minimum, note that if $U \sim \mathrm{Uniform}(0,1)$ then so is $1 - U$, so
 $1 - \min_i X_i = \max_i (1 - X_i)$ has the same distribution as $\max_i X_i$; taking expectations,
@@ -130,9 +124,7 @@ $1 - \mathbb{E}[\min] = n/(n+1)$, so $\mathbb{E}[\min] = 1/(n+1)$.
 $P(\text{positive}) = P(\text{pos} \mid D)P(D) + P(\text{pos} \mid \lnot D)P(\lnot D) = 0.99 \times 0.01 + 0.05
 \times 0.99 = 0.0594$, and Bayes' theorem gives
 
-```math
-P(D \mid \text{positive}) = \frac{0.99 \times 0.01}{0.0594} = \frac{0.0099}{0.0594} = \frac16.
-```
+$$P(D \mid \text{positive}) = \frac{0.99 \times 0.01}{0.0594} = \frac{0.0099}{0.0594} = \frac16.$$
 
 This is the base-rate effect: because the disease is rare, the healthy population (99% of everyone) is far
 larger than the diseased population, so even a small false-positive rate (5%) on that huge group produces
@@ -148,9 +140,7 @@ $\partial \ell/\partial \mu = 0$ gives $\sum_i (X_i - \mu) = 0$, i.e. $\hat\mu =
 $\partial \ell/\partial \sigma^2 = 0$ at $\mu = \hat\mu$ gives $\hat\sigma^2 = \frac1n \sum_i (X_i - \bar X)^2$.
 For the bias, expand around the true mean:
 
-```math
-\sum_i (X_i - \bar X)^2 = \sum_i \bigl[(X_i - \mu) - (\bar X - \mu)\bigr]^2 = \sum_i (X_i - \mu)^2 - n(\bar X - \mu)^2,
-```
+$$\sum_i (X_i - \bar X)^2 = \sum_i \bigl[(X_i - \mu) - (\bar X - \mu)\bigr]^2 = \sum_i (X_i - \mu)^2 - n(\bar X - \mu)^2,$$
 
 using $\sum_i (X_i - \mu) = n (\bar X - \mu)$. Taking expectations, $\mathbb{E}\sum_i (X_i - \mu)^2 = n\sigma^2$
 and $`\mathbb{E}[n(\bar X - \mu)^2] = n\,\mathrm{Var}(\bar X) = \sigma^2`$, so
@@ -165,9 +155,7 @@ p(w)$, so the MAP estimate maximises $\log p(y \mid X, w) + \log p(w)$, equivale
 The Gaussian likelihood gives $`-\log p(y \mid X, w) = \frac{1}{2\sigma^2}\|Xw - y\|^2 + \text{const}`$, and the
 Gaussian prior gives $`-\log p(w) = \frac{1}{2\tau^2}\|w\|^2 + \text{const}`$, so the MAP objective is
 
-```math
-\frac{1}{2\sigma^2}\|Xw - y\|^2 + \frac{1}{2\tau^2}\|w\|^2,
-```
+$$\frac{1}{2\sigma^2}\\|Xw - y\\|^2 + \frac{1}{2\tau^2}\\|w\\|^2,$$
 
 and multiplying by $2\sigma^2$ (which does not change the minimiser) gives $`\|Xw - y\|^2 + \lambda \|w\|^2`$
 with $\lambda = \sigma^2/\tau^2$: exactly ridge regression. Replacing the prior with an independent
@@ -184,16 +172,12 @@ at $0$, which is why the lasso produces sparse solutions and ridge, generically,
 with $Y = q(X)/p(X)$ under $X \sim p$: $`\mathbb{E}_p[Y] = \int p(x) \frac{q(x)}{p(x)}\,dx = \int q(x)\,dx = 1`$
 (over the support of $p$), so
 
-```math
-\mathrm{KL}(p\,\|\,q) = \mathbb{E}_p[-\log Y] \ge -\log \mathbb{E}_p[Y] = -\log 1 = 0,
-```
+$$\mathrm{KL}(p\\,\\|\\,q) = \mathbb{E}\_p[-\log Y] \ge -\log \mathbb{E}\_p[Y] = -\log 1 = 0,$$
 
 with equality iff $Y$ is almost surely constant (since $-\log$ is strictly convex), i.e. $q = p$ almost
 everywhere. Asymmetry: for $p = \mathrm{Bernoulli}(0.9)$, $q = \mathrm{Bernoulli}(0.5)$,
 
-```math
-\mathrm{KL}(p\,\|\,q) = 0.9 \log\frac{0.9}{0.5} + 0.1 \log\frac{0.1}{0.5} \approx 0.368, \qquad \mathrm{KL}(q\,\|\,p) = 0.5 \log\frac{0.5}{0.9} + 0.5 \log\frac{0.5}{0.1} \approx 0.511,
-```
+$$\mathrm{KL}(p\\,\\|\\,q) = 0.9 \log\frac{0.9}{0.5} + 0.1 \log\frac{0.1}{0.5} \approx 0.368, \qquad \mathrm{KL}(q\\,\\|\\,p) = 0.5 \log\frac{0.5}{0.9} + 0.5 \log\frac{0.5}{0.1} \approx 0.511,$$
 
 which are not equal. For the Gaussian fit, write $q = \mathcal{N}(\mu, \sigma^2)$; minimising
 $`\mathrm{KL}(p\,\|\,q) = -H(p) + H(p, q)`$ over $q$ is the same as minimising the cross-entropy
@@ -214,9 +198,7 @@ $`\mathcal{N}(p,\, p(1-p)/n)`$ once $n$ is large enough. A two-sided 95% interva
 $z_{0.975}\sqrt{p(1-p)/n}$ with $z_{0.975} = 1.96$; setting this equal to the target margin $E = 0.01$ and
 solving for $n$ gives
 
-```math
-n = \frac{z_{0.975}^2\, p(1-p)}{E^2}.
-```
+$$n = \frac{z\_{0.975}^2\\, p(1-p)}{E^2}.$$
 
 Since $p(1-p) \le \frac14$ for every $p \in [0, 1]$, with equality at $p = 1/2$, the worst case is
 $n = 1.96^2 \times 0.25 / 0.01^2 = 9{,}604$. This requires $n$ to be large enough that the normal
@@ -247,9 +229,7 @@ onto those directions) are $X_c V = U\Sigma$.
 $x \in \mathbb{R}^n$ (equivalently, every eigenvalue is $\ge 0$). For a random vector $X$ with mean $\mu$ and
 covariance $\Sigma = \mathbb{E}[(X - \mu)(X - \mu)^\top]$, and any $a \in \mathbb{R}^n$,
 
-```math
-a^\top \Sigma a = \mathbb{E}\bigl[a^\top (X-\mu)(X-\mu)^\top a\bigr] = \mathbb{E}\bigl[(a^\top(X-\mu))^2\bigr] \ge 0,
-```
+$$a^\top \Sigma a = \mathbb{E}\bigl[a^\top (X-\mu)(X-\mu)^\top a\bigr] = \mathbb{E}\bigl[(a^\top(X-\mu))^2\bigr] \ge 0,$$
 
 since this is the expectation of a squared scalar random variable; the same argument applies verbatim to the
 sample covariance, with $\mathbb{E}$ replaced by an average over the sample. So $\Sigma$ is always PSD. A
@@ -280,9 +260,7 @@ $x_{t+1} = (I - \eta A) x_t$ with $\eta = 1/\lambda_{\max}$. Diagonalise $A = Q\
 $y_t = Q^\top x_t$ for the coordinates of $x_t$ in the eigenbasis; then $y_{t+1} = (I - \eta\Lambda) y_t$ is
 diagonal, so coordinate by coordinate,
 
-```math
-y_{t+1,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr) y_{t,i} \quad\Longrightarrow\quad y_{t,i} = \Bigl(1 - \frac{\lambda_i}{\lambda_{\max}}\Bigr)^{t} y_{0,i}.
-```
+$$y\_{t+1,i} = \Bigl(1 - \frac{\lambda_i}{\lambda\_{\max}}\Bigr) y\_{t,i} \quad\Longrightarrow\quad y\_{t,i} = \Bigl(1 - \frac{\lambda_i}{\lambda\_{\max}}\Bigr)^{t} y\_{0,i}.$$
 
 Every coordinate contracts geometrically, at a rate that depends only on its own eigenvalue: the direction of
 $\lambda_{\max}$ has $1 - \lambda_{\max}/\lambda_{\max} = 0$ and reaches exactly $0$ after a single step,

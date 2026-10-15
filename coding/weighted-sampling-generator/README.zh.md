@@ -485,10 +485,7 @@ $l = \mathrm{alias}[s]$ 的当前权重里减掉的量。任意下标 $v$ 的当
 开始，恰好减去 $v$ 援助给其他列的量，剩下的部分在 $v$ 自己那一列被敲定时成为 $\mathrm{prob}[v]$
 （剩下未配对的列则是 $1$，它不再对外援助）。把所有列加总，$`v`$ 得到的恰好是
 
-```math
-\frac{1}{n}\Bigl(\mathrm{prob}[v] + \sum_{s:\ \mathrm{alias}[s] = v} \bigl(1 - \mathrm{prob}[s]\bigr)\Bigr)
-= \frac{1}{n} \cdot \frac{n \, w_v}{\mathrm{total}} = \frac{w_v}{\mathrm{total}},
-```
+$$\frac{1}{n}\Bigl(\mathrm{prob}[v] + \sum\_{s:\ \mathrm{alias}[s] = v} \bigl(1 - \mathrm{prob}[s]\bigr)\Bigr) = \frac{1}{n} \cdot \frac{n \\, w_v}{\mathrm{total}} = \frac{w_v}{\mathrm{total}},$$
 
 这正是下面的验证代码直接从 `prob` 和 `alias` 里验证的那个精确分布，完全不需要真的抽样。
 

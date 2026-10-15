@@ -230,9 +230,7 @@ $t < \lambda$, and expanding $e^{tX} = \sum_k (tX)^k/k!$ termwise under the expe
 $`M_X(t) = \sum_k E[X^k]\,t^k/k!`$, so $E[X^k] = M_X^{(k)}(0)$, the $k$-th derivative of $M_X$ at $t = 0$
 (matching the definition of a Taylor coefficient). Directly, substituting $u = \lambda x$,
 
-```math
-E[X^k] = \int_0^\infty x^k \lambda e^{-\lambda x}\,dx = \frac{1}{\lambda^k}\int_0^\infty u^k e^{-u}\,du = \frac{k!}{\lambda^k},
-```
+$$E[X^k] = \int_0^\infty x^k \lambda e^{-\lambda x}\\,dx = \frac{1}{\lambda^k}\int_0^\infty u^k e^{-u}\\,du = \frac{k!}{\lambda^k},$$
 
 using $\Gamma(k + 1) = k!$ for integer $k$. From the raw moments, $\mu = 1/\lambda$ and
 $\sigma^2 = E[X^2] - \mu^2 = 2/\lambda^2 - 1/\lambda^2 = 1/\lambda^2$; expanding the central moments in raw ones,
@@ -257,9 +255,7 @@ by its interquartile range, which stays at $2$ instead of shrinking), since neit
 exists for the LLN or the CLT to act on; (b) *dependence* — for equicorrelated $X_i$ with common variance
 $\sigma^2$ and pairwise correlation $\rho > 0$,
 
-```math
-\mathrm{Var}(\bar X_n) = \frac1{n^2}\Bigl(\sum_i \mathrm{Var}(X_i) + \sum_{i \ne j}\mathrm{Cov}(X_i, X_j)\Bigr) = \frac1{n^2}\bigl(n\sigma^2 + n(n-1)\rho\sigma^2\bigr) = \frac{\sigma^2}{n}\bigl(1 + (n-1)\rho\bigr) \xrightarrow{n \to \infty} \rho\sigma^2 \ne 0,
-```
+$$\mathrm{Var}(\bar X_n) = \frac1{n^2}\Bigl(\sum_i \mathrm{Var}(X_i) + \sum\_{i \ne j}\mathrm{Cov}(X_i, X_j)\Bigr) = \frac1{n^2}\bigl(n\sigma^2 + n(n-1)\rho\sigma^2\bigr) = \frac{\sigma^2}{n}\bigl(1 + (n-1)\rho\bigr) \xrightarrow{n \to \infty} \rho\sigma^2 \ne 0,$$
 
 so the sample mean never concentrates at $\mu$ — its variance stays above $\rho\sigma^2$ however large $n$ is —
 because the shared component of the $X_i$ never averages out; (c) *heavy skew* at a moderate $n$ — the Berry–Esseen theorem bounds how far the
@@ -286,9 +282,7 @@ Let $`C_i^{(1)}, C_i^{(2)}\in\{0,1\}`$ record correctness of the two models on e
 $D_i=C_i^{(1)}-C_i^{(2)}$. The point estimate $\bar D$ is the same either way, but its variance is not:
 pairing uses
 
-```math
-\mathrm{Var}(\bar D) = \tfrac1n\bigl(\mathrm{Var}(C^{(1)}_i)+\mathrm{Var}(C^{(2)}_i)-2\,\mathrm{Cov}(C^{(1)}_i,C^{(2)}_i)\bigr),
-```
+$$\mathrm{Var}(\bar D) = \tfrac1n\bigl(\mathrm{Var}(C^{(1)}\_i)+\mathrm{Var}(C^{(2)}\_i)-2\\,\mathrm{Cov}(C^{(1)}\_i,C^{(2)}\_i)\bigr),$$
 
 while treating the two accuracies as independent omits the $`-2\,\mathrm{Cov}/n`$ term. Two models tend to
 agree, beyond chance, on which examples are easy or hard, so $\mathrm{Cov}>0$ in practice; the
@@ -309,9 +303,7 @@ are false — at $\alpha$, rather than the probability of any false positive.
 
 **Q8.** With $600$ rolls and a fair die, the expected count per face is $E_i = 100$; the statistic is
 
-```math
-\chi^2 = \sum_{i=1}^6 \frac{(O_i - E_i)^2}{E_i} = \frac{10^2 + 10^2 + 5^2 + 5^2 + 20^2 + 20^2}{100} = \frac{100 + 100 + 25 + 25 + 400 + 400}{100} = 10.5.
-```
+$$\chi^2 = \sum\_{i=1}^6 \frac{(O_i - E_i)^2}{E_i} = \frac{10^2 + 10^2 + 5^2 + 5^2 + 20^2 + 20^2}{100} = \frac{100 + 100 + 25 + 25 + 400 + 400}{100} = 10.5.$$
 
 The degrees of freedom are $6 - 1 = 5$, not $6$, because the six observed counts are not free to vary
 independently: they must sum to the number of rolls, so the six deviations satisfy one linear constraint,
@@ -333,9 +325,7 @@ fitting a parametric family (e.g. Gaussian, from each array's sample mean and va
 estimation, or via a nearest-neighbour rule; the Bayes-optimal rule assigns $x$ to the class of larger
 posterior $P(C\mid x)\propto\pi_C p_C(x)$, and the posterior itself,
 
-```math
-P(a\mid x) = \frac{\pi_a p_a(x)}{\pi_a p_a(x) + \pi_b p_b(x)},
-```
+$$P(a\mid x) = \frac{\pi_a p_a(x)}{\pi_a p_a(x) + \pi_b p_b(x)},$$
 
 should be reported rather than only the arg-max label. With a Gaussian fit and unequal variances, the
 boundary $\pi_a p_a(x)=\pi_b p_b(x)$ is quadratic in $x$ after taking logs, so it generally has two roots
@@ -363,9 +353,7 @@ compute from class-conditional densities fitted per class.
 second distribution $q$ over the same set, $H(p, q) = -\sum_x p(x)\log q(x) = E_p[-\log q(X)]$. Splitting
 $\log q(x) = \log p(x) - \log\frac{p(x)}{q(x)}$ inside the sum,
 
-```math
-H(p, q) = -\sum_x p(x)\log p(x) - \sum_x p(x)\log\frac{q(x)}{p(x)} = H(p) + \sum_x p(x)\log\frac{p(x)}{q(x)} = H(p) + \mathrm{KL}(p \,\|\, q).
-```
+$$H(p, q) = -\sum_x p(x)\log p(x) - \sum_x p(x)\log\frac{q(x)}{p(x)} = H(p) + \sum_x p(x)\log\frac{p(x)}{q(x)} = H(p) + \mathrm{KL}(p \\,\\|\\, q).$$
 
 Since $H(p)$ does not depend on $q$, minimising $H(p, q)$ over $q$ for a fixed $p$ is exactly minimising
 $`\mathrm{KL}(p \,\|\, q)`$; and when $p$ is the true (or empirical) data distribution and $q_\theta$ is a
@@ -386,17 +374,13 @@ report instead of the raw loss, precisely because of this direct reading as an e
 **Q11.** $`I(X; Y) = \mathrm{KL}\bigl(p(x,y) \,\|\, p(x)p(y)\bigr) = \sum_{x,y} p(x,y)\log\frac{p(x,y)}{p(x)p(y)}`$.
 Writing $\frac{p(x,y)}{p(x)p(y)} = \frac{p(x \mid y)}{p(x)}$,
 
-```math
-I(X; Y) = \sum_{x,y} p(x,y)\log\frac{p(x \mid y)}{p(x)} = -\sum_{x,y} p(x,y)\log p(x) + \sum_{x,y} p(x,y)\log p(x \mid y) = H(X) - H(X \mid Y),
-```
+$$I(X; Y) = \sum\_{x,y} p(x,y)\log\frac{p(x \mid y)}{p(x)} = -\sum\_{x,y} p(x,y)\log p(x) + \sum\_{x,y} p(x,y)\log p(x \mid y) = H(X) - H(X \mid Y),$$
 
 where $H(X \mid Y) = -\sum_{x,y}p(x,y)\log p(x\mid y) = E_Y[H(X \mid Y = y)]$ is the conditional entropy. The
 chain rule $H(X, Y) = H(Y) + H(X \mid Y)$ follows from $p(x,y) = p(y)p(x\mid y)$ by taking $-\log$ and an
 expectation over $p(x,y)$; substituting $H(X\mid Y) = H(X,Y) - H(Y)$ gives the third form,
 
-```math
-I(X; Y) = H(X) - \bigl(H(X,Y) - H(Y)\bigr) = H(X) + H(Y) - H(X, Y),
-```
+$$I(X; Y) = H(X) - \bigl(H(X,Y) - H(Y)\bigr) = H(X) + H(Y) - H(X, Y),$$
 
 manifestly symmetric in $X, Y$, so $I(X; Y) = I(Y; X)$. Non-negativity, $I(X; Y) \ge 0$ with equality iff
 $p(x,y) = p(x)p(y)$ almost everywhere (i.e. $X \perp Y$), follows directly from the non-negativity of KL
@@ -405,9 +389,7 @@ $Y = X \oplus N$ with $N \sim \mathrm{Bernoulli}(0.1)$ independent of $X$: since
 channel is symmetric, $Y$ is uniform too, so $H(Y) = 1$ bit; and for either value of $X$, $Y = X \oplus N$
 has exactly the entropy of $N$, so $H(Y \mid X) = H_b(0.1)$, the binary entropy of $0.1$ in bits. Hence
 
-```math
-I(X; Y) = H(Y) - H(Y \mid X) = 1 - H_b(0.1) \approx 1 - 0.469 = 0.531 \text{ bits}.
-```
+$$I(X; Y) = H(Y) - H(Y \mid X) = 1 - H_b(0.1) \approx 1 - 0.469 = 0.531 \text{ bits}.$$
 
 ML: the information gain used to pick a split in a decision tree is exactly the mutual information between
 the split variable and the label, $I(\text{split}; Y) = H(Y) - H(Y \mid \text{split})$; and the InfoNCE
@@ -423,24 +405,18 @@ x\ln x - x + C`$ for $x > 0$: by parts with $u = \ln x$, $dv = dx$ ($du = dx/x$,
 $`\int \ln x\,dx = x\ln x - \int x \cdot \tfrac1x\,dx = x\ln x - x + C`$. $\int\frac{dx}{1 + x^2} = \arctan x +
 C$, since $\frac{d}{dx}\arctan x = \frac1{1+x^2}$; hence the Cauchy density integrates to $1$,
 
-```math
-\int_{-\infty}^{\infty} \frac{dx}{\pi(1 + x^2)} = \frac1\pi\Bigl[\arctan x\Bigr]_{-\infty}^{\infty} = \frac1\pi\Bigl(\frac\pi2 - \bigl(-\frac\pi2\bigr)\Bigr) = 1.
-```
+$$\int\_{-\infty}^{\infty} \frac{dx}{\pi(1 + x^2)} = \frac1\pi\Bigl[\arctan x\Bigr]\_{-\infty}^{\infty} = \frac1\pi\Bigl(\frac\pi2 - \bigl(-\frac\pi2\bigr)\Bigr) = 1.$$
 
 $`\int_{-\infty}^{\infty} e^{-x^2/2}\,dx = \sqrt{2\pi}`$: writing $I$ for this integral and squaring it,
 
-```math
-I^2 = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} e^{-(x^2 + y^2)/2}\,dx\,dy = \int_0^{2\pi}\int_0^\infty e^{-r^2/2}\,r\,dr\,d\theta = 2\pi\Bigl[-e^{-r^2/2}\Bigr]_0^\infty = 2\pi,
-```
+$$I^2 = \int\_{-\infty}^{\infty}\int\_{-\infty}^{\infty} e^{-(x^2 + y^2)/2}\\,dx\\,dy = \int_0^{2\pi}\int_0^\infty e^{-r^2/2}\\,r\\,dr\\,d\theta = 2\pi\Bigl[-e^{-r^2/2}\Bigr]\_0^\infty = 2\pi,$$
 
 switching to polar coordinates ($x = r\cos\theta$, $y = r\sin\theta$, area element $`r\,dr\,d\theta`$), so
 $I = \sqrt{2\pi}$, the positive root, since the integrand is everywhere positive. $E[X] = 1/\lambda$ for
 $X \sim \mathrm{Exp}(\lambda)$: by parts with $u = x$, $`dv = \lambda e^{-\lambda x}\,dx`$ ($v = -e^{-\lambda
 x}$),
 
-```math
-E[X] = \int_0^\infty x\lambda e^{-\lambda x}\,dx = \Bigl[-xe^{-\lambda x}\Bigr]_0^\infty + \int_0^\infty e^{-\lambda x}\,dx = 0 + \frac1\lambda = \frac1\lambda,
-```
+$$E[X] = \int_0^\infty x\lambda e^{-\lambda x}\\,dx = \Bigl[-xe^{-\lambda x}\Bigr]\_0^\infty + \int_0^\infty e^{-\lambda x}\\,dx = 0 + \frac1\lambda = \frac1\lambda,$$
 
 consistent with the $k = 1$ case of Q5's $E[X^k] = k!/\lambda^k$. ML: integrals of exactly this kind normalise
 densities (checking or deriving that a density integrates to $1$, as for the Cauchy and Gaussian above), and

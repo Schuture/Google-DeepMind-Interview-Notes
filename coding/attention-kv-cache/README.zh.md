@@ -291,11 +291,7 @@ $`L\cdot 2\cdot h_{kv}\cdot d_h\cdot\mathrm{seq\_len}\cdot\mathrm{batch}`$（因
 对某一个查询行，记 $`s_j=(QK^\top)_j/\sqrt{d_h}`$ 为它对键 $j$ 的原始得分；访问完块 $B_1,\dots,B_n$
 （对 $`\{0,\dots,T_k-1\}`$ 按连续块划分之后的一段前缀）之后，维持这样一个不变量：
 
-```math
-m_n=\max_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad
-\ell_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n},\qquad
-o_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,
-```
+$$m_n=\max\_{j\in B_1\cup\cdots\cup B_n}s_j,\qquad \ell_n=\sum\_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n},\qquad o_n=\sum\_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,$$
 
 这样 $o_n/\ell_n$ 就恰好是目前访问过的这些键上的 softmax 加权和（$`m_n`$ 起的作用和 Part 1 里那一行的
 最大值一样，只是限制在键的一段前缀上）。基础情形 $n=0$（还没访问任何块）由给定的初始值直接满足：
@@ -304,16 +300,12 @@ o_n=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_n}v_j,
 **归纳步骤。** 假设不变量在 $n$ 块之后成立；访问块 $B_{n+1}$，它的原始得分是 $`\{s_j : j\in B_{n+1}\}`$。
 两个集合并集上的最大值，等于各自最大值的最大值，所以
 
-```math
-m_{n+1}=\max\Bigl(m_n,\ \max_{j\in B_{n+1}}s_j\Bigr)
-```
+$$m\_{n+1}=\max\Bigl(m_n,\ \max\_{j\in B\_{n+1}}s_j\Bigr)$$
 
 恰好等于 $\max_{j\in B_1\cup\cdots\cup B_{n+1}}s_j$，与不变量对 $m_{n+1}$ 的定义一致。把 $\ell_{n+1}$
 定义中的求和，按 $B_1\cup\cdots\cup B_{n+1}$ 的这两部分拆开：
 
-```math
-\ell_{n+1}=\sum_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m_{n+1}}+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}.
-```
+$$\ell\_{n+1}=\sum\_{j\in B_1\cup\cdots\cup B_n}e^{s_j-m\_{n+1}}+\sum\_{j\in B\_{n+1}}e^{s_j-m\_{n+1}}.$$
 
 在第一个和式里，对每个 $j$ 都有 $e^{s_j-m_{n+1}}=e^{s_j-m_n}\cdot e^{m_n-m_{n+1}}$，而
 $e^{m_n-m_{n+1}}$ 不依赖 $j$，可以提到求和外面，剩下
@@ -323,18 +315,13 @@ $o$ 逐项做完全相同的提取（每个 $v_j$ 只是原样跟着走）就得
 $o_{n+1}=e^{m_n-m_{n+1}}o_n+\sum_{j\in B_{n+1}}e^{s_j-m_{n+1}}v_j$。由归纳法，这个不变量在每一块之后
 都成立，特别是在最后一块 $N$ 之后：这时 $m_N=\max_js_j$ 取遍所有键，$`\ell_N=\sum_je^{s_j-m_N}`$，于是
 
-```math
-\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)_j\,v_j,
-```
+$$\frac{o_N}{\ell_N}=\sum_j\frac{e^{s_j-m_N}}{\sum_ke^{s_k-m_N}}v_j=\sum_j\mathrm{softmax}(s)\_j\\,v_j,$$
 
 和 Part 1 用到的是同一个减去最大值不改变结果的等式，只不过这里是对整行得分一次性用，而不是一块一块
 地用。把每一步的更新写得紧凑一些，记 $m,\ell,o$ 为一块之前的累积量，$`m',\ell',o'`$ 为这一块之后的
 累积量，$`s_j`$ 取遍这一块：
 
-```math
-m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad
-o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.
-```
+$$m'=\max\Bigl(m,\max_js_j\Bigr), \qquad \ell'=e^{m-m'}\ell+\sum_je^{s_j-m'}, \qquad o'=e^{m-m'}o+\sum_je^{s_j-m'}v_j.$$
 
 上面每一个指数要么是 $s_j-m'\le0$（由 $m'$ 的定义），要么是 $m-m'\le0$（因为
 $m'=\max(m,\dots)\ge m$），所以这个递推式里不论原始得分多大，都不会有指数运算溢出。$`-\infty`$ 唯一

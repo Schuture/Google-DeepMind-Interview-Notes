@@ -134,31 +134,23 @@ since $r$ does not depend on $\theta$. Using $\nabla_\theta \log \pi_\theta(y\mi
 wherever $\pi_\theta(y\mid x) > 0$ (the ordinary chain rule, rearranged — the whole log-derivative trick), $`\nabla_\theta \pi_\theta(y\mid x) = \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x)`$,
 so
 
-```math
-\nabla_\theta J(\theta) = \sum_y \pi_\theta(y\mid x)\, r(x,y)\, \nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[r(x,y)\,\nabla_\theta \log \pi_\theta(y\mid x)\big].
-```
+$$\nabla\_\theta J(\theta) = \sum_y \pi\_\theta(y\mid x)\\, r(x,y)\\, \nabla\_\theta \log \pi\_\theta(y\mid x) = \mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\big[r(x,y)\\,\nabla\_\theta \log \pi\_\theta(y\mid x)\big].$$
 
 Token by token: $\log \pi_\theta(y\mid x) = \sum_{t=1}^n \log \pi_\theta(y_t\mid x,y_{<t})$ directly from the autoregressive
 factorisation, so by linearity of the gradient
 
-```math
-\nabla_\theta J(\theta) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\Big[r(x,y)\sum_{t=1}^n \nabla_\theta \log \pi_\theta(y_t\mid x,y_{<t})\Big].
-```
+$$\nabla\_\theta J(\theta) = \mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\Big[r(x,y)\sum\_{t=1}^n \nabla\_\theta \log \pi\_\theta(y_t\mid x,y\_{\<t})\Big].$$
 
 For the baseline, take any $b$ with $\nabla_\theta b = 0$ that does not depend on $y$ (it may depend on $x$). Since
 every probability distribution sums to $1$ for every $\theta$, $\nabla_\theta \sum_y \pi_\theta(y\mid x) = \nabla_\theta 1 = 0$;
 expanding the left side the same way as above,
 
-```math
-0 = \nabla_\theta \sum_y \pi_\theta(y\mid x) = \sum_y \pi_\theta(y\mid x)\,\nabla_\theta \log \pi_\theta(y\mid x) = \mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[\nabla_\theta \log \pi_\theta(y\mid x)\big],
-```
+$$0 = \nabla\_\theta \sum_y \pi\_\theta(y\mid x) = \sum_y \pi\_\theta(y\mid x)\\,\nabla\_\theta \log \pi\_\theta(y\mid x) = \mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\big[\nabla\_\theta \log \pi\_\theta(y\mid x)\big],$$
 
 so $`b\,\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}[\nabla_\theta \log \pi_\theta(y\mid x)] = 0`$ too, and subtracting
 it from the reward changes nothing:
 
-```math
-\mathbb E_{y\sim\pi_\theta(\cdot\mid x)}\big[(r(x,y)-b)\,\nabla_\theta \log \pi_\theta(y\mid x)\big] = \nabla_\theta J(\theta) - 0 = \nabla_\theta J(\theta).
-```
+$$\mathbb E\_{y\sim\pi\_\theta(\cdot\mid x)}\big[(r(x,y)-b)\\,\nabla\_\theta \log \pi\_\theta(y\mid x)\big] = \nabla\_\theta J(\theta) - 0 = \nabla\_\theta J(\theta).$$
 
 A baseline never changes what the estimator converges to; a well-chosen $b(x)$ close to $\mathbb E_{y\sim\pi_\theta}[r(x,y)\mid x]$
 changes how noisy a single sample of it is, by removing most of the reward's absolute scale from the term being
@@ -194,23 +186,17 @@ $`\min(-3.0,\,-2.4)=-3.0`$. $(\rho,A)=(0.5,-2)$ is below with $A<0$ (clipped): $
 — the sum of everything from step $t$ to the end of the response. The terminal reward attaches to the last token,
 and a per-token KL penalty is folded directly into a single quantity charged at every step:
 
-```math
-\tilde r_t = -\beta \log\frac{\pi_\theta(y_t\mid x,y_{<t})}{\pi_{\text{ref}}(y_t\mid x,y_{<t})} + \mathbb 1[t=n]\, r(x,y),
-```
+$$\tilde r_t = -\beta \log\frac{\pi\_\theta(y_t\mid x,y\_{\<t})}{\pi\_{\text{ref}}(y_t\mid x,y\_{\<t})} + \mathbb 1[t=n]\\, r(x,y),$$
 
 so every token pays a small KL cost and only the last also receives the terminal reward. Writing $V_k := V_\phi(x, y_{\le k})$
 for brevity, GAE is
 
-```math
-A_t^{\mathrm{GAE}(\gamma,\lambda)} = \sum_{l=0}^{n-t} (\gamma\lambda)^l\, \delta_{t+l}.
-```
+$$A_t^{\mathrm{GAE}(\gamma,\lambda)} = \sum\_{l=0}^{n-t} (\gamma\lambda)^l\\, \delta\_{t+l}.$$
 
 At $\lambda=0$ only the $l=0$ term survives, $A_t = \delta_t$: the one-step TD residual, low variance but as biased
 as $V_\phi$ is wrong. At $\lambda=1$,
 
-```math
-\sum_{l=0}^{n-t}\gamma^l \delta_{t+l} = \sum_{l=0}^{n-t}\gamma^l\big(\tilde r_{t+l} + \gamma V_{t+l} - V_{t+l-1}\big) = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} + \sum_{l=0}^{n-t}\big(\gamma^{l+1}V_{t+l} - \gamma^l V_{t+l-1}\big),
-```
+$$\sum\_{l=0}^{n-t}\gamma^l \delta\_{t+l} = \sum\_{l=0}^{n-t}\gamma^l\big(\tilde r\_{t+l} + \gamma V\_{t+l} - V\_{t+l-1}\big) = \sum\_{l=0}^{n-t}\gamma^l \tilde r\_{t+l} + \sum\_{l=0}^{n-t}\big(\gamma^{l+1}V\_{t+l} - \gamma^l V\_{t+l-1}\big),$$
 
 and the second sum telescopes: consecutive terms cancel, leaving only $-V_{t-1}$ from $l=0$ and $`\gamma^{\,n-t+1}V_n = 0`$
 from the last term (the terminal value is pinned to $0$), so $A_t = \sum_{l=0}^{n-t}\gamma^l \tilde r_{t+l} - V_{t-1}$:
@@ -274,18 +260,14 @@ on every individual sample and has much lower variance where it matters (near $\
 Unbiasedness of $k_1$: by definition $u=\pi_{\text{ref}}(y)/\pi_\theta(y)$, so $-\log u = \log\big(\pi_\theta(y)/\pi_{\text{ref}}(y)\big)$
 exactly, and
 
-```math
-\mathbb E_{y\sim\pi_\theta}[k_1] = \mathbb E_{y\sim\pi_\theta}\Big[\log\frac{\pi_\theta(y)}{\pi_{\text{ref}}(y)}\Big] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}})
-```
+$$\mathbb E\_{y\sim\pi\_\theta}[k_1] = \mathbb E\_{y\sim\pi\_\theta}\Big[\log\frac{\pi\_\theta(y)}{\pi\_{\text{ref}}(y)}\Big] = \mathrm{KL}(\pi\_\theta \\,\\|\\, \pi\_{\text{ref}})$$
 
 by the definition of the KL divergence — no approximation is involved.
 
 Unbiasedness of $k_3$: first, $\mathbb E_{y\sim\pi_\theta}[u] = \sum_y \pi_\theta(y) \cdot \frac{\pi_{\text{ref}}(y)}{\pi_\theta(y)} = \sum_y \pi_{\text{ref}}(y) = 1$,
 since $\pi_{\text{ref}}$ is itself a probability distribution over the same support. So $\mathbb E[u]-1=0$, and
 
-```math
-\mathbb E_{y\sim\pi_\theta}[k_3] = \mathbb E[u] - 1 - \mathbb E[\log u] = -\mathbb E[\log u] = \mathbb E[-\log u] = \mathbb E[k_1] = \mathrm{KL}(\pi_\theta \,\|\, \pi_{\text{ref}}).
-```
+$$\mathbb E\_{y\sim\pi\_\theta}[k_3] = \mathbb E[u] - 1 - \mathbb E[\log u] = -\mathbb E[\log u] = \mathbb E[-\log u] = \mathbb E[k_1] = \mathrm{KL}(\pi\_\theta \\,\\|\\, \pi\_{\text{ref}}).$$
 
 Non-negativity: let $f(u) = u - 1 - \log u$ for $u > 0$, so $k_3 = f(u)$. $f'(u) = 1 - 1/u$ is negative for $u<1$
 and positive for $u>1$, so $u=1$ is the unique global minimiser of $f$, with $f(1)=0$; hence $f(u) \ge 0$ for every
@@ -294,9 +276,7 @@ $u>0$, i.e. $k_3 \ge 0$ on every sample, with equality only where $\pi_\theta(y)
 Why $k_3$ is preferred: write $u = 1+\varepsilon$ for the regime that matters most — a policy kept close to its
 reference by the KL penalty itself, so $\varepsilon$ is typically small. Since $\log(1+\varepsilon) = \varepsilon - \varepsilon^2/2 + O(\varepsilon^3)$,
 
-```math
-k_1 = -\log u = -\varepsilon + O(\varepsilon^2), \qquad k_3 = (u-1)-\log u = \varepsilon - \big(\varepsilon - \tfrac{\varepsilon^2}{2} + O(\varepsilon^3)\big) = \tfrac{\varepsilon^2}{2} + O(\varepsilon^3),
-```
+$$k_1 = -\log u = -\varepsilon + O(\varepsilon^2), \qquad k_3 = (u-1)-\log u = \varepsilon - \big(\varepsilon - \tfrac{\varepsilon^2}{2} + O(\varepsilon^3)\big) = \tfrac{\varepsilon^2}{2} + O(\varepsilon^3),$$
 
 so $k_1$'s per-sample fluctuations are first order in $\varepsilon$ and can take either sign, while $k_3$'s are
 second order, always non-negative, and a full order smaller — e.g. at $u=1.01$, $k_1\approx-0.00995$ against $k_3\approx4.97\times10^{-5}$,
@@ -305,23 +285,17 @@ true KL cannot be; $k_3$ never does, and its lower variance means fewer samples 
 
 **Q7.** For a fixed $x$, treat $\pi(\cdot\mid x)$ as a free probability distribution over responses and maximise
 
-```math
-J[\pi] = \sum_y \pi(y\mid x)\,r(x,y) - \beta \sum_y \pi(y\mid x) \log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}
-```
+$$J[\pi] = \sum_y \pi(y\mid x)\\,r(x,y) - \beta \sum_y \pi(y\mid x) \log\frac{\pi(y\mid x)}{\pi\_{\text{ref}}(y\mid x)}$$
 
 subject to $\sum_y \pi(y\mid x)=1$. Introducing a Lagrange multiplier $\mu$ for the constraint and differentiating
 with respect to each $\pi(y\mid x)$ separately,
 
-```math
-\frac{\partial}{\partial \pi(y\mid x)}\Big[J[\pi] - \mu\Big(\sum_y \pi(y\mid x)-1\Big)\Big] = r(x,y) - \beta\Big(\log\frac{\pi(y\mid x)}{\pi_{\text{ref}}(y\mid x)}+1\Big) - \mu = 0,
-```
+$$\frac{\partial}{\partial \pi(y\mid x)}\Big[J[\pi] - \mu\Big(\sum_y \pi(y\mid x)-1\Big)\Big] = r(x,y) - \beta\Big(\log\frac{\pi(y\mid x)}{\pi\_{\text{ref}}(y\mid x)}+1\Big) - \mu = 0,$$
 
 so $\log\big(\pi(y\mid x)/\pi_{\text{ref}}(y\mid x)\big) = \big(r(x,y)-\mu\big)/\beta - 1$, giving $\pi(y\mid x) = \pi_{\text{ref}}(y\mid x)\exp(r(x,y)/\beta)\exp(-\mu/\beta-1)$.
 The last factor does not depend on $y$; call it $1/Z(x)$ and fix it by the normalisation constraint:
 
-```math
-\pi^*(y\mid x) = \frac{\pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big)}{Z(x)}, \qquad Z(x) = \sum_y \pi_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big).
-```
+$$\pi^\*(y\mid x) = \frac{\pi\_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big)}{Z(x)}, \qquad Z(x) = \sum_y \pi\_{\text{ref}}(y\mid x)\exp\big(r(x,y)/\beta\big).$$
 
 $J$ is strictly concave in $\pi$ (the KL term is a strictly convex function of $\pi$, and the reward term is linear),
 so this stationary point is the unique global maximiser.
@@ -332,16 +306,12 @@ worse for the same $x$), $P(y_w \succ y_l\mid x) = \sigma\big(r(x,y_w)-r(x,y_l)\
 the difference $r(x,y_w)-r(x,y_l)$, and $\beta\log Z(x)$ is exactly the same additive term in $r(x,y_w)$ and in
 $r(x,y_l)$ (it depends on $x$ alone, not on $y$), so it cancels without ever being computed:
 
-```math
-r(x,y_w)-r(x,y_l) = \beta\log\frac{\pi^*(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi^*(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}.
-```
+$$r(x,y_w)-r(x,y_l) = \beta\log\frac{\pi^\*(y_w\mid x)}{\pi\_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi^\*(y_l\mid x)}{\pi\_{\text{ref}}(y_l\mid x)}.$$
 
 Replacing the (unknown) optimum $`\pi^*`$ by the trainable $\pi_\theta$ turns maximum-likelihood fitting of this
 Bradley–Terry model on a preference dataset $`\mathcal D = \{(x,y_w,y_l)\}`$ into the DPO loss
 
-```math
-\mathcal L_{\text{DPO}}(\theta) = -\mathbb E_{(x,y_w,y_l)\sim\mathcal D}\left[\log\sigma\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right].
-```
+$$\mathcal L\_{\text{DPO}}(\theta) = -\mathbb E\_{(x,y_w,y_l)\sim\mathcal D}\left[\log\sigma\left(\beta\log\frac{\pi\_\theta(y_w\mid x)}{\pi\_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi\_\theta(y_l\mid x)}{\pi\_{\text{ref}}(y_l\mid x)}\right)\right].$$
 
 DPO needs only a static dataset of preference triples $(x,y_w,y_l)$ — $y_w,y_l$ can come from anywhere, with no
 on-policy sampling and no reward model to train — plus a frozen copy of $\pi_{\text{ref}}$ to compute both log-ratios.
@@ -377,9 +347,7 @@ dataset, never resampled, while $\pi=\pi_\theta$ changes throughout with no impo
 The importance-sampling estimator $`\hat J=(\pi(y)/\mu(y))\,r(y)`$ of $\mathbb E_{y\sim\pi}[r(y)]$ from
 $y\sim\mu$ is unbiased whenever $\mu(y)>0$ at every $y$ with $\pi(y)r(y)\ne0$:
 
-```math
-\mathbb E_{y\sim\mu}\Big[\frac{\pi(y)}{\mu(y)}r(y)\Big] = \sum_{y:\mu(y)>0}\pi(y)r(y) = \mathbb E_{y\sim\pi}[r(y)],
-```
+$$\mathbb E\_{y\sim\mu}\Big[\frac{\pi(y)}{\mu(y)}r(y)\Big] = \sum\_{y:\mu(y)>0}\pi(y)r(y) = \mathbb E\_{y\sim\pi}[r(y)],$$
 
 the terms with $\mu(y)=0$ all being $0$ under that hypothesis.
 
@@ -388,9 +356,7 @@ $\mathbb E_\mu[w_t]=1$ at every position gives $\mathbb E_\mu[W]=1$ by independe
 $\mathbb E_\mu[W^2]=\big(\mathbb E_\mu[w_t^2]\big)^T$. Expanding $`\chi^2(\pi\,\|\,\mu)=\sum_y\pi(y)^2/\mu(y)-1`$
 from its definition identifies $`\mathbb E_\mu[w_t^2]=1+\chi^2(\pi\,\|\,\mu)`$, so
 
-```math
-\mathbb E_\mu[W^2]=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T,\qquad \mathrm{Var}_\mu(W)=\big(1+\chi^2(\pi\,\|\,\mu)\big)^T-1.
-```
+$$\mathbb E\_\mu[W^2]=\big(1+\chi^2(\pi\\,\\|\\,\mu)\big)^T,\qquad \mathrm{Var}\_\mu(W)=\big(1+\chi^2(\pi\\,\\|\\,\mu)\big)^T-1.$$
 
 With $`\kappa=\chi^2(\pi\,\|\,\mu)>0`$ possibly tiny per token, this is exponential in $T$ — doubling $T$
 squares $(1+\kappa)^T$ — so a mismatch invisible at one token can dominate every other noise source by
